@@ -1,0 +1,164 @@
+<?xml-stylesheet type="text/xsl" href="https://zheng-bobo.github.io/blog/sitemap.xsl"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/blog/categories/architecture/</loc>
+    <lastmod>2021-02-02T12:06:47+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/blog/</loc>
+    <lastmod>2021-02-02T12:06:47+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/blog/categories/</loc>
+    <lastmod>2021-02-02T12:06:47+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/blog/domain-driven-design/</loc>
+    <lastmod>2021-02-02T12:06:47+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/blog/categories/go/</loc>
+    <lastmod>2021-01-01T12:34:14+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/blog/post/go%E6%B1%87%E7%BC%96%E7%AE%80%E6%98%93%E5%85%A5%E9%97%A82/</loc>
+    <lastmod>2021-01-01T12:34:14+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/blog/post/</loc>
+    <lastmod>2021-01-01T12:34:14+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/blog/post/go%E6%B1%87%E7%BC%96%E7%AE%80%E6%98%93%E5%85%A5%E9%97%A81/</loc>
+    <lastmod>2020-12-30T11:25:47+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/blog/post/cap%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0%E7%BB%84%E4%BB%B6%E6%AF%94%E8%BE%83/</loc>
+    <lastmod>2020-02-29T09:41:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/blog/categories/operating-system/</loc>
+    <lastmod>2020-02-06T21:06:10+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/blog/post/%E7%90%86%E8%A7%A3io-%E9%9A%8F%E6%9C%BA%E5%92%8C%E9%A1%BA%E5%BA%8F/</loc>
+    <lastmod>2020-02-06T21:06:10+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/blog/post/use-a-mutex-or-a-channel/</loc>
+    <lastmod>2020-01-16T11:27:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/blog/post/http1.1%E4%B8%8Ehttp2%E7%9A%84%E5%8C%BA%E5%88%AB/</loc>
+    <lastmod>2020-01-16T10:25:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/blog/categories/network/</loc>
+    <lastmod>2020-01-16T10:25:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/blog/post/runtime-channel/</loc>
+    <lastmod>2020-01-05T11:19:10+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/blog/post/go%E5%AE%9E%E7%8E%B0raft%E5%8D%8F%E8%AE%AE/</loc>
+    <lastmod>2019-12-22T17:13:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/blog/post/%E8%AF%91contiguous-stacks/</loc>
+    <lastmod>2019-11-30T13:14:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/blog/categories/%E7%BF%BB%E8%AF%91/</loc>
+    <lastmod>2019-11-30T13:14:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/blog/post/runtime-main-2/</loc>
+    <lastmod>2019-11-13T22:20:10+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/blog/categories/algorithm/</loc>
+    <lastmod>2019-11-13T20:32:10+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/blog/post/why-quicksort-better-than-mergesort/</loc>
+    <lastmod>2019-11-13T20:32:10+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/blog/post/runtime-main-1/</loc>
+    <lastmod>2019-11-10T14:40:10+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/blog/tags/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+</urlset>

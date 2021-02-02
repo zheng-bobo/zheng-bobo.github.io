@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>翻译 on Blowing in the wind</title>
+    <link>https://zheng-bobo.github.io/blog/categories/%E7%BF%BB%E8%AF%91/</link>
+    <description>Recent content in 翻译 on Blowing in the wind</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Sat, 30 Nov 2019 13:14:00 +0800</lastBuildDate>
+    
+	<atom:link href="https://zheng-bobo.github.io/blog/categories/%E7%BF%BB%E8%AF%91/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>(译)Contiguous stacks</title>
+      <link>https://zheng-bobo.github.io/blog/post/%E8%AF%91contiguous-stacks/</link>
+      <pubDate>Sat, 30 Nov 2019 13:14:00 +0800</pubDate>
+      
+      <guid>https://zheng-bobo.github.io/blog/post/%E8%AF%91contiguous-stacks/</guid>
+      <description>Contiguous stacks原文地址 &amp;emsp;&amp;emsp;为每一个go协程分配一块连续的栈内存空间，内存在用完的时候会重新分配/复制增长。 为什么？ 目前的</description>
+    </item>
+    
+  </channel>
+</rss>

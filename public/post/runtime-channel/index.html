@@ -1,0 +1,1965 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>channel runtime源码分析 - Blowing in the wind</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="zhengxz" /><meta name="description" content="&amp;emsp;&amp;emsp;Channel 是 Go 语言中一个非常重要的类型，是 Go 里的第一对象。通过 channel，Go 实现了通过通信来实现内存共享。Channel 是在多个 goroutine 之间传递数据" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.59.1 with theme even" />
+
+
+<link rel="canonical" href="https://zheng-bobo.github.io/blog/post/runtime-channel/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/blog/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/blog/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/blog/favicon-16x16.png">
+<link rel="manifest" href="/blog/manifest.json">
+<link rel="mask-icon" href="/blog/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/blog/sass/main.min.4747d1be8010357c5daf4cd103b0bc1cff65936180045419874ea97f32138102.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="channel runtime源码分析" />
+<meta property="og:description" content="&emsp;&emsp;Channel 是 Go 语言中一个非常重要的类型，是 Go 里的第一对象。通过 channel，Go 实现了通过通信来实现内存共享。Channel 是在多个 goroutine 之间传递数据" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zheng-bobo.github.io/blog/post/runtime-channel/" />
+<meta property="article:published_time" content="2020-01-05T11:19:10+08:00" />
+<meta property="article:modified_time" content="2020-01-05T11:19:10+08:00" />
+<meta itemprop="name" content="channel runtime源码分析">
+<meta itemprop="description" content="&emsp;&emsp;Channel 是 Go 语言中一个非常重要的类型，是 Go 里的第一对象。通过 channel，Go 实现了通过通信来实现内存共享。Channel 是在多个 goroutine 之间传递数据">
+
+
+<meta itemprop="datePublished" content="2020-01-05T11:19:10&#43;08:00" />
+<meta itemprop="dateModified" content="2020-01-05T11:19:10&#43;08:00" />
+<meta itemprop="wordCount" content="8651">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="channel runtime源码分析"/>
+<meta name="twitter:description" content="&emsp;&emsp;Channel 是 Go 语言中一个非常重要的类型，是 Go 里的第一对象。通过 channel，Go 实现了通过通信来实现内存共享。Channel 是在多个 goroutine 之间传递数据"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/blog/" class="logo">Bobo</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/blog/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/blog/post/">
+        <li class="mobile-menu-item">归档</li>
+      </a><a href="/blog/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/blog/categories/">
+        <li class="mobile-menu-item">分类</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/blog/" class="logo">Bobo</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/blog/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/blog/post/">归档</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/blog/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/blog/categories/">分类</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">channel runtime源码分析</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2020-01-05 </span>
+        <div class="post-category">
+            <a href="/blog/categories/go/"> go </a>
+            </div>
+          <span class="more-meta"> 约 8651 字 </span>
+          <span class="more-meta"> 预计阅读 18 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#channel-语法">channel 语法</a></li>
+<li><a href="#make-channel">make channel</a></li>
+<li><a href="#recieve-from-channel">recieve from channel</a></li>
+<li><a href="#send-to-channel">send to channel</a></li>
+<li><a href="#close-channel">close channel</a></li>
+<li><a href="#参考资料">参考资料</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      
+
+<p>&emsp;&emsp;Channel 是 Go 语言中一个非常重要的类型，是 Go 里的第一对象。通过 channel，Go 实现了通过通信来实现内存共享。Channel 是在多个 goroutine 之间传递数据和同步的重要手段。</p>
+
+<p>注意：本文所有的源码分析基于<code>Go1.13.3</code>，版本不同实现可能会有出入</p>
+
+<h3 id="channel-语法">channel 语法</h3>
+
+<p>声明 channel 的语法如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">chan T // 声明一个双向通道
+chan&lt;- T // 声明一个只能用于发送的通道
+&lt;-chan T // 声明一个只能用于接收的通道</pre></td></tr></table>
+</div>
+</div>
+<p>它的操作符是箭头 <code>&lt;-</code> 。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span><span class="lnt">2
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">ch &lt;- v    // 发送值v到Channel ch中
+v := &lt;-ch  // 从Channel ch中接收数据，并将数据赋值给v</pre></td></tr></table>
+</div>
+</div>
+<p>使用<code>make</code>初始化Channel</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">// 无缓冲通道
+ch1 := make(chan int)
+// 有缓冲通道
+ch2 := make(chan int, 10)</pre></td></tr></table>
+</div>
+</div>
+<p>unbuffered channe example :</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="s">&#34;fmt&#34;</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+
+    <span class="nx">messages</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">string</span><span class="p">)</span>
+
+    <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span> <span class="nx">messages</span> <span class="o">&lt;-</span> <span class="s">&#34;ping&#34;</span> <span class="p">}()</span>
+
+    <span class="nx">msg</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">messages</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">msg</span><span class="p">)</span>
+<span class="p">}</span></pre></td></tr></table>
+</div>
+</div>
+<p>buffered channe example :</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="s">&#34;fmt&#34;</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+
+    <span class="nx">messages</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">string</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="nx">messages</span> <span class="o">&lt;-</span> <span class="s">&#34;buffered&#34;</span>
+    <span class="nx">messages</span> <span class="o">&lt;-</span> <span class="s">&#34;channel&#34;</span>
+
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="o">&lt;-</span><span class="nx">messages</span><span class="p">)</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="o">&lt;-</span><span class="nx">messages</span><span class="p">)</span>
+<span class="p">}</span></pre></td></tr></table>
+</div>
+</div>
+<h3 id="make-channel">make channel</h3>
+
+<p>使用<code>go tool compile -N -l -S</code>生成汇编代码, 两种初始化chanel方式最终都是调用<code>CALL runtime.makechan(SB)</code>汇编指令,具体看函数代码:</p>
+
+<p><code>src/runtime/chan.go</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">func makechan(t *chantype, size int) *hchan {
+
+        // 初始化，做一些基本校验,检查 channel size，align 的代码
+	elem := t.elem
+
+	// 元素类型大小限制
+	if elem.size &gt;= 1&lt;&lt;16 {
+		throw(&#34;makechan: invalid channel element type&#34;)
+	}
+        // 对齐限制
+	if hchanSize%maxAlign != 0 || elem.align &gt; maxAlign {
+		throw(&#34;makechan: bad alignment&#34;)
+	}
+       // 获取要分配的内存
+	mem, overflow := math.MulUintptr(elem.size, uintptr(size))
+	if overflow || mem &gt; maxAlloc-hchanSize || size &lt; 0 {
+		panic(plainError(&#34;makechan: size out of range&#34;))
+	}
+	var c *hchan
+	switch {
+	case mem == 0:
+		// size 为 0 的情况(无缓存channel)，分配 hchan 结构体大小的内存，64位系统为 96 Byte.
+		c = (*hchan)(mallocgc(hchanSize, nil, true))
+		// Race detector uses this location for synchronization.
+		c.buf = c.raceaddr()
+	case elem.ptrdata == 0:
+		// 数据项不为指针类型，调用 mallocgc 一次性分配内存大小，hchan 结构体大小 + 数据总量大小
+		c = (*hchan)(mallocgc(hchanSize+mem, nil, true))
+		c.buf = add(unsafe.Pointer(c), hchanSize)
+	default:
+	        // 数据项为指针类型，hchan 和 buf 分开分配内存，GC 中指针类型判断 reachable and unreadchable.
+		c = new(hchan)
+		c.buf = mallocgc(mem, elem, true)
+	}
+        // chan 赋值属性, 数据项大小、数据项类型、缓存数据的容量
+	c.elemsize = uint16(elem.size)
+	c.elemtype = elem
+	c.dataqsiz = uint(size)
+
+	if debugChan {
+		print(&#34;makechan: chan=&#34;, c, &#34;; elemsize=&#34;, elem.size, &#34;; elemalg=&#34;, elem.alg, &#34;; dataqsiz=&#34;, size, &#34;\n&#34;)
+	}
+	return c
+}</pre></td></tr></table>
+</div>
+</div>
+<p>&emsp;&emsp;至于为什么要区分包含指针和不包含指针这两种情况，makechan 的注释给出了一段解释：
+<code>Hchan does not contain pointers interesting for GC when elements stored in buf do not contain pointers.</code>
+假如buf 不包含指针，可以用一块大的内存来存储 hchan 对象和缓冲区，这样当hchan结构体不被引用时可以直接回收，而如果实际元素类型里面包含指针，就要通过 mallocgc 将分配什么类型的数据告诉 gc,gc回收时需要判断这块内存的数据是否已没有引用。</p>
+
+<p><code>hchan</code>为chan的结构体</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">type hchan struct {
+	qcount   uint           // buffer中数据总数
+	dataqsiz uint           // buffer的容量
+	buf      unsafe.Pointer // buffer的开始指针
+	elemsize uint16         // channel中数据的大小
+	closed   uint32         // channel是否关闭，0 =&gt; false，其他都是true
+	elemtype *_type       // channel数据类型
+	sendx    uint              // buffer中正在send的element的index
+	recvx    uint              // buffer中正在recieve的element的index
+	recvq    waitq           // 由 recv 行为（也就是 &lt;-ch）阻塞在 channel 上的 goroutine 队列
+	sendq    waitq          // 由 send 行为 (也就是 ch&lt;-) 阻塞在 channel 上的 goroutine 队列
+
+	lock     mutex          // 互斥锁
+}</pre></td></tr></table>
+</div>
+</div>
+<p><code>buf</code> 指向底层循环数组，只有缓冲型的channel才有。
+<code>sendx</code>,<code>recvx</code>均指向底层循环数组，表示当前可以发送和接受的元素位置索引值(相对于底层数组)。
+<code>sendq</code>,<code>recvq</code>分别表示被阻塞的goroutine，这些goroutine由于尝试读取<code>channel</code>或向<code>channel</code>发送数据而被阻塞。
+<code>waitq</code> 是 <code>sudog</code> 的一个双向链表，而 <code>sudog</code> 实际上是对 <code>goroutine</code> 的一个封装：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">type waitq struct {
+    first *sudog
+    last  *sudog
+}
+
+type sudog struct {
+    // The following fields are protected by the hchan.lock of the
+    // channel this sudog is blocking on. shrinkstack depends on
+    // this for sudogs involved in channel ops.
+
+    g          *g
+    selectdone *uint32 // CAS to 1 to win select race (may point to stack)
+    next       *sudog
+    prev       *sudog
+    elem       unsafe.Pointer // data element (may point to stack)
+
+    // The following fields are never accessed concurrently.
+    // For channels, waitlink is only accessed by g.
+    // For semaphores, all fields (including the ones above)
+    // are only accessed when holding a semaRoot lock.
+
+    acquiretime int64
+    releasetime int64
+    ticket      uint32
+    parent      *sudog // semaRoot binary tree
+    waitlink    *sudog // g.waiting list or semaRoot
+    waittail    *sudog // semaRoot
+    c           *hchan // channel
+}</pre></td></tr></table>
+</div>
+</div>
+<p><code>lock</code> 用来保证每个读 <code>channel</code> 或写 <code>channel</code> 的操作都是原子的。</p>
+
+<p>例如，创建一个容量为 6 的，元素为 int 型的 channel 数据结构如下 ：</p>
+
+<p><img src="https://upload-images.jianshu.io/upload_images/12457267-13c5c27b0f056fa1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="hchan.png" /></p>
+
+<p>chan 内存在堆上分配:
+<img src="https://upload-images.jianshu.io/upload_images/12457267-864e84c71e16a053.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="allocate.png" />
+ch是指向hchan结构体的指针,所以我们能在函数之间直接传递channel，而不需要传递channel的指针</p>
+
+<h3 id="recieve-from-channel">recieve from channel</h3>
+
+<p>demo:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kd">func</span> <span class="nf">start</span><span class="p">(</span><span class="nx">c</span> <span class="kd">chan</span> <span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">c</span> <span class="o">&lt;-</span> <span class="mi">100</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">c</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">)</span>
+
+    <span class="k">go</span> <span class="nf">start</span><span class="p">(</span><span class="nx">c</span><span class="p">)</span>
+
+    <span class="o">&lt;-</span><span class="nx">c</span>
+<span class="p">}</span></pre></td></tr></table>
+</div>
+</div>
+<p>入口函数：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span><span class="lnt">133
+</span><span class="lnt">134
+</span><span class="lnt">135
+</span><span class="lnt">136
+</span><span class="lnt">137
+</span><span class="lnt">138
+</span><span class="lnt">139
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">// src/runtime/chan.go
+func chanrecv1(c *hchan, elem unsafe.Pointer) {
+	chanrecv(c, elem, true)
+}
+
+func chanrecv2(c *hchan, elem unsafe.Pointer) (received bool) {
+	_, received = chanrecv(c, elem, true)
+	return
+}
+
+func chanrecv(c *hchan, ep unsafe.Pointer, block bool) (selected, received bool) {
+	// 省略 debug 内容 …………
+    
+        // 如果是一个 nil 的 channel
+	if c == nil {
+		if !block {
+                         // 如果不阻塞，直接返回 (false, false)
+			return
+		}
+               // 否则，接收一个 nil 的 channel，goroutine 挂起
+		gopark(nil, nil, waitReasonChanReceiveNilChan, traceEvGoStop, 2)
+               // 不会执行到这里
+		throw(&#34;unreachable&#34;)
+	}
+
+	// 在非阻塞模式下，快速检测到失败，不用获取锁，快速返回
+    // 当我们观察到 channel 没准备好接收：
+    // 1. 非缓冲型，等待发送列队 sendq 里没有 goroutine 在等待
+    // 2. 缓冲型，但 buf 里没有元素
+    // 之后，又观察到 closed == 0，即 channel 未关闭。
+    // 因为 channel 不可能被重复打开，所以前一个观测的时候 channel 也是未关闭的，
+    // 因此在这种情况下可以直接宣布接收失败，返回 (false, false)
+	if !block &amp;&amp; (c.dataqsiz == 0 &amp;&amp; c.sendq.first == nil ||
+		c.dataqsiz &gt; 0 &amp;&amp; atomic.Loaduint(&amp;c.qcount) == 0) &amp;&amp;
+		atomic.Load(&amp;c.closed) == 0 {
+		return
+	}
+
+	var t0 int64
+	if blockprofilerate &gt; 0 {
+		t0 = cputicks()
+	}
+       // 加锁
+	lock(&amp;c.lock)
+         // channel 已关闭，并且循环数组 buf 里没有元素
+    // 这里可以处理非缓冲型关闭 和 缓冲型关闭但 buf 无元素的情况
+    // 也就是说即使是关闭状态，但在缓冲型的 channel，
+    // buf 里有元素的情况下还能接收到元素
+	if c.closed != 0 &amp;&amp; c.qcount == 0 {
+		if raceenabled {
+			raceacquire(c.raceaddr())
+		}
+               // 解锁
+		unlock(&amp;c.lock)
+		if ep != nil {
+                         // 从一个已关闭的 channel 执行接收操作，且未忽略返回值
+            // 那么接收的值将是一个该类型的零值
+            // typedmemclr 根据类型清理相应地址的内存
+			typedmemclr(c.elemtype, ep)
+		}
+                // 从一个已关闭的 channel 接收，selected 会返回true
+		return true, false
+	}
+         // 等待发送队列里有 goroutine 存在，说明 buf 是满的
+    // 这有可能是：
+    // 1. 非缓冲型的 channel
+    // 2. 缓冲型的 channel，但 buf 满了
+    // 针对 1，直接进行内存拷贝（从 sender goroutine -&gt; receiver goroutine）
+    // 针对 2，接收到循环数组头部的元素，并将发送者的元素放到循环数组尾部
+	if sg := c.sendq.dequeue(); sg != nil {
+		recv(c, sg, ep, func() { unlock(&amp;c.lock) }, 3)
+		return true, true
+	}
+  // 缓冲型，buf 里有元素，可以正常接收
+	if c.qcount &gt; 0 {
+		 // 直接从循环数组里找到要接收的元素
+		qp := chanbuf(c, c.recvx)
+		  // …………
+
+              // 代码里，没有忽略要接收的值，不是 &#34;&lt;- ch&#34;，而是 &#34;val &lt;- ch&#34;，ep 指向 val
+		if ep != nil {
+			typedmemmove(c.elemtype, ep, qp)
+		}
+                // 清理掉循环数组里相应位置的值
+		typedmemclr(c.elemtype, qp)
+                // 接收游标向前移动
+		c.recvx++
+                 // 接收游标归零
+		if c.recvx == c.dataqsiz {
+			c.recvx = 0
+		}
+                 // buf 数组里的元素个数减 1
+		c.qcount--
+                 // 解锁
+		unlock(&amp;c.lock)
+		return true, true
+	}
+
+	if !block {
+                // 非阻塞接收，解锁。selected 返回 false，因为没有接收到值
+		unlock(&amp;c.lock)
+		return false, false
+	}
+
+	 // 接下来就是要被阻塞的情况了
+        // 构造一个 sudog
+	gp := getg()
+	mysg := acquireSudog()
+	mysg.releasetime = 0
+	if t0 != 0 {
+		mysg.releasetime = -1
+	}
+	 // 待接收数据的地址保存下来
+	mysg.elem = ep
+	mysg.waitlink = nil
+	gp.waiting = mysg
+	mysg.g = gp
+	mysg.isSelect = false
+	mysg.c = c
+	gp.param = nil
+         // 进入channel 的等待接收队列
+	c.recvq.enqueue(mysg)
+        // 将当前 goroutine 挂起
+	goparkunlock(&amp;c.lock, waitReasonChanReceive, traceEvGoBlockRecv, 3)
+
+	 // 被唤醒了，接着从这里继续执行一些扫尾工作
+	if mysg != gp.waiting {
+		throw(&#34;G waiting list is corrupted&#34;)
+	}
+	gp.waiting = nil
+	if mysg.releasetime &gt; 0 {
+		blockevent(mysg.releasetime-t0, 2)
+	}
+	closed := gp.param == nil
+	gp.param = nil
+	mysg.c = nil
+	releaseSudog(mysg)
+	return true, !closed
+}</pre></td></tr></table>
+</div>
+</div>
+<p><strong>1.对于非阻塞的情况，如果当前没有数据可以接收了，那么返回 (false,false)。</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">if !block &amp;&amp; (c.dataqsiz == 0 &amp;&amp; c.sendq.first == nil ||c.dataqsiz &gt; 0 &amp;&amp; atomic.Loaduint(&amp;c.qcount) == 0) &amp;&amp;
+    atomic.Load(&amp;c.closed) == 0 {
+    return
+}</pre></td></tr></table>
+</div>
+</div>
+<p>我们先来看一下下面这段代码：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">c := make(chan int, 1)
+c &lt;- 1
+
+go func() {
+    select {
+    case &lt;-c:
+        println(&#34;recv from c&#34;)
+    default:
+        println(&#34;c is not ready - BUG!&#34;)
+    }
+}()
+
+close(c)
+&lt;-c</pre></td></tr></table>
+</div>
+</div>
+<p>从 go 的语义上来说，不论何时，default 都不应该被执行：如果 select 发生在 close 之前，那么从 c 中取出来的数据应该是 1。 如果 select 发生在 close 之后但是在 &lt;-c 之前，那么也应该从 c 中取出 1。如果 select 发生在 &lt;-c 之后，从 c 中取出的数据是 0 ，而且接收数据是失败的，但是不会执行 default。</p>
+
+<p>那么，如果把对 closed 的判断放到通道是否有数据可接收的判断之前，像这样：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">if !block &amp;&amp; atomic.Load(&amp;c.closed) == 0 &amp;&amp; (c.dataqsiz == 0 &amp;&amp; c.sendq.first == nil ||
+    c.dataqsiz &gt; 0 &amp;&amp; atomic.Loaduint(&amp;c.qcount) == 0)  {
+    return
+}</pre></td></tr></table>
+</div>
+</div>
+<p>这意味着 if 测试通过后的一瞬间存在两种情况：</p>
+
+<ul>
+<li>通道未关闭，但是不存在数据可接收，也没有发送者在等待。对于这种情况，应该返回 （false,false）。执行 default 段的代码。</li>
+<li>通道已关闭，且不存在数据可接收，也没有发送者在等待。对于这种情况，根据 go 语义，应该返回 (true, false)，并且执行 case 段的代码。但是我们的这个实现显然是错误的，它返回了 (false,false)。就上面的接收例子而言, close&copy; 和 &lt;-c 正好发生在 atomic.Load(&amp;c.closed) == 0 执行完成之后，但还没有执行后面的判断，那 if 再执行后面的判断，显然也是通过的。所以问题就出来了。</li>
+</ul>
+
+<p>再来看一下正确的实现，它也会在 if 测试通过后的一瞬间存在两种情况：</p>
+
+<ul>
+<li>不存在数据可接收，而且通道没有关闭。此时返回 (false,false)</li>
+<li>存在数据可接收，而且通道没有关闭。此时应该返回 (true,true)。但是，这种情况意味着上一种情况曾今存在过, 而且至少在 if 执行前的那一瞬间还存在。所以我们认为它返回 (false,false) 是合理的。</li>
+</ul>
+
+<p>另外 atomic 在这里是为了保证内存顺序的正确性。
+<strong>2.加锁，然后判断如果通道已经关闭而且没有剩余的数据可以读取了，那么就返回 (true,false)。</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">lock(&amp;c.lock)
+
+if c.closed != 0 &amp;&amp; c.qcount == 0 {
+    unlock(&amp;c.lock)
+    if ep != nil {
+        typedmemclr(c.elemtype, ep)
+    }
+    return true, false
+}</pre></td></tr></table>
+</div>
+</div>
+<p>typedmemclr 的作用是将 ep 指向的类型为 elemtype 的内存块置为 0 值。</p>
+
+<p><strong>3.如果有发送者在队列等待，那么直接从发送者那里提取数据，并且唤醒这个发送者。当然对于带缓冲区的 chan，它会先将缓冲区的数据提取出来，然后将等待中的发送者的数据拷贝到缓冲区中。</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">if sg := c.sendq.dequeue(); sg != nil {
+    recv(c, sg, ep, func() { unlock(&amp;c.lock) }, 3)
+    return true, true
+}
+
+func recv(c *hchan, sg *sudog, ep unsafe.Pointer, unlockf func(), skip int) {
+    if c.dataqsiz == 0 {
+        if ep != nil {
+            recvDirect(c.elemtype, sg, ep)
+        }
+    } else {
+        qp := chanbuf(c, c.recvx)
+        if ep != nil {
+            typedmemmove(c.elemtype, ep, qp)
+        }
+        typedmemmove(c.elemtype, qp, sg.elem)
+        c.recvx++
+        if c.recvx == c.dataqsiz {
+            c.recvx = 0
+        }
+        c.sendx = c.recvx 
+    }
+    sg.elem = nil
+    gp := sg.g
+    unlockf()
+    gp.param = unsafe.Pointer(sg)
+    goready(gp, skip+1)
+}</pre></td></tr></table>
+</div>
+</div>
+<p>recv 函数判断 chan 是否带有缓冲区，如果不带缓冲区，直接从发送者那里复制数据到 ep。如果带缓冲区，那么你应该能够理解，由于有发送者在等待，所以缓冲区一定是满的。它将缓冲区的第一个数据复制到 ep，然后将发送者的数据复制到缓冲区。这是为了尽量满足先来后到的需求（当然，由于并发的存在，这样做实际上不能完全确定）。
+接下来，通过 goready 将发送者唤醒。</p>
+
+<p><strong>4.如果缓冲区中有数据，那么从缓冲区复制数据到 ep，并且修改下次接收位置和 qcount</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">if c.qcount &gt; 0 {
+    qp := chanbuf(c, c.recvx)
+    if ep != nil {
+        typedmemmove(c.elemtype, ep, qp)
+    }
+    typedmemclr(c.elemtype, qp)
+    c.recvx++
+    if c.recvx == c.dataqsiz {
+        c.recvx = 0
+    }
+    c.qcount--
+    unlock(&amp;c.lock)
+    return true, true
+}</pre></td></tr></table>
+</div>
+</div>
+<p><strong>5.在执行完成上面的流程后，仍然没有返回，说明缓冲区内已经没有数据了，而且也没有发送者在等待中。所以如果是非阻塞接收，那么直接返回 (false,false)。</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">if !block {
+    unlock(&amp;c.lock)
+    return false, false
+}</pre></td></tr></table>
+</div>
+</div>
+<p><strong>6.对于阻塞接收的情况，则需要把当前goroutine挂入channel的读取队列之中并调用goparkunlock函数阻塞该goroutine，并且等待被唤醒。</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">gp := getg()
+mysg := acquireSudog()
+mysg.elem = ep
+mysg.waitlink = nil
+gp.waiting = mysg
+mysg.g = gp
+mysg.isSelect = false
+mysg.c = c
+gp.param = nil
+c.recvq.enqueue(mysg)
+goparkunlock(&amp;c.lock, waitReasonChanReceive, traceEvGoBlockRecv, 3)</pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">runtime/proc.go
+// Puts the current goroutine into a waiting state and unlocks the lock.
+// The goroutine can be made runnable again by calling goready(gp).
+func goparkunlock(lock *mutex, reason waitReason, traceEv byte, traceskip int) {
+    gopark(parkunlock_c, unsafe.Pointer(lock), reason, traceEv, traceskip)
+}
+
+func gopark(unlockf func(*g, unsafe.Pointer) bool, lock unsafe.Pointer, reason     waitReason, traceEv byte, traceskip int) {
+    ......
+    // can&#39;t do anything that might move the G between Ms here.
+    mcall(park_m) //切换到g0栈执行park_m函数
+}</pre></td></tr></table>
+</div>
+</div>
+<p><code>goparkunlock</code>函数直接调用<code>gopark</code>函数，<code>gopark</code>则调用<code>mcall</code>从当前<code>main goroutine</code>切换到<code>g0</code>去执行<code>park_m</code>函数（<code>mcall</code>其主要作用就是保存当前goroutine的现场，然后切换到<code>g0</code>栈去调用作为参数传递给它的函数）.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">runtime/proc.go
+// park continuation on g0.
+func park_m(gp *g) {
+    _g_ := getg()
+
+    if trace.enabled {
+        traceGoPark(_g_.m.waittraceev, _g_.m.waittraceskip)
+    }
+
+    casgstatus(gp, _Grunning, _Gwaiting)
+    dropg()  //解除g和m之间的关系
+
+    ......
+   
+    schedule()
+}</pre></td></tr></table>
+</div>
+</div>
+<p><code>park_m</code>首先把当前goroutine的状态设置为<code>_Gwaiting</code>（因为它正在等待其它<code>goroutine</code>往<code>channel</code>里面写数据），然后调用dropg函数解除g和m之间的关系，最后通过调用<code>schedule</code>函数进入调度循环，<code>schedule</code>函数它首先会从运行队列中挑选出一个<code>goroutine</code>，然后调用<code>gogo</code>函数切换到被挑选出来的<code>goroutine</code>去运行。我们的demo例子中,<code>main goroutine</code>在读取<code>channel</code>被阻塞之前已经把创建好的<code>g2</code>放入了运行队列，所以在这里<code>schedule</code>会把<code>g2</code>调度起来运行，这里完成了一次从<code>main goroutine</code>到<code>g2</code>调度（我们假设只有一个工作线程在进行调度)，进入<code>send to channel</code>流程</p>
+
+<h3 id="send-to-channel">send to channel</h3>
+
+<p>入口函数:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">func chansend1(c *hchan, elem unsafe.Pointer) {
+	chansend(c, elem, true, getcallerpc())
+}
+
+func chansend(c *hchan, ep unsafe.Pointer, block bool, callerpc uintptr) bool {
+    // 如果 channel 是 nil
+    if c == nil {
+        // 不能阻塞，直接返回 false，表示未发送成功
+        if !block {
+            return false
+        }
+        // 当前 goroutine 被挂起
+        gopark(nil, nil, &#34;chan send (nil chan)&#34;, traceEvGoStop, 2)
+        throw(&#34;unreachable&#34;)
+    }
+
+    // 省略 debug 相关……
+
+    // 对于不阻塞的 send，快速检测失败场景
+    //
+    // 如果 channel 未关闭且 channel 没有多余的缓冲空间。这可能是：
+    // 1. channel 是非缓冲型的，且等待接收队列里没有 goroutine
+    // 2. channel 是缓冲型的，但循环数组已经装满了元素
+    if !block &amp;&amp; c.closed == 0 &amp;&amp; ((c.dataqsiz == 0 &amp;&amp; c.recvq.first == nil) ||
+        (c.dataqsiz &gt; 0 &amp;&amp; c.qcount == c.dataqsiz)) {
+        return false
+    }
+
+    var t0 int64
+    if blockprofilerate &gt; 0 {
+        t0 = cputicks()
+    }
+
+    // 锁住 channel，并发安全
+    lock(&amp;c.lock)
+
+    // 如果 channel 关闭了
+    if c.closed != 0 {
+        // 解锁
+        unlock(&amp;c.lock)
+        // 直接 panic
+        panic(plainError(&#34;send on closed channel&#34;))
+    }
+
+    // 如果接收队列里有 goroutine，直接将要发送的数据拷贝到接收 goroutine
+    if sg := c.recvq.dequeue(); sg != nil {
+        send(c, sg, ep, func() { unlock(&amp;c.lock) }, 3)
+        return true
+    }
+
+    // 对于缓冲型的 channel，如果还有缓冲空间
+    if c.qcount &lt; c.dataqsiz {
+        // qp 指向 buf 的 sendx 位置
+        qp := chanbuf(c, c.sendx)
+
+        // ……
+
+        // 将数据从 ep 处拷贝到 qp
+        typedmemmove(c.elemtype, qp, ep)
+        // 发送游标值加 1
+        c.sendx++
+        // 如果发送游标值等于容量值，游标值归 0
+        if c.sendx == c.dataqsiz {
+            c.sendx = 0
+        }
+        // 缓冲区的元素数量加一
+        c.qcount++
+
+        // 解锁
+        unlock(&amp;c.lock)
+        return true
+    }
+
+    // 如果不需要阻塞，则直接返回错误
+    if !block {
+        unlock(&amp;c.lock)
+        return false
+    }
+
+    // channel 满了，发送方会被阻塞。接下来会构造一个 sudog
+
+    // 获取当前 goroutine 的指针
+    gp := getg()
+    mysg := acquireSudog()
+    mysg.releasetime = 0
+    if t0 != 0 {
+        mysg.releasetime = -1
+    }
+
+    mysg.elem = ep
+    mysg.waitlink = nil
+    mysg.g = gp
+    mysg.selectdone = nil
+    mysg.c = c
+    gp.waiting = mysg
+    gp.param = nil
+
+    // 当前 goroutine 进入发送等待队列
+    c.sendq.enqueue(mysg)
+
+    // 当前 goroutine 被挂起
+    goparkunlock(&amp;c.lock, waitReasonChanSend, traceEvGoBlockSend, 3)
+
+    // 从这里开始被唤醒了（channel 有机会可以发送了）
+    if mysg != gp.waiting {
+        throw(&#34;G waiting list is corrupted&#34;)
+    }
+    gp.waiting = nil
+  if gp.param == nil {
+        if c.closed == 0 {
+            throw(&#34;chansend: spurious wakeup&#34;)
+        }
+        // 被唤醒后，channel 关闭了。坑爹啊，panic
+        panic(plainError(&#34;send on closed channel&#34;))
+    }
+    gp.param = nil
+    if mysg.releasetime &gt; 0 {
+        blockevent(mysg.releasetime-t0, 2)
+    }
+    // 去掉 mysg 上绑定的 channel
+    mysg.c = nil
+    releaseSudog(mysg)
+    return true
+}</pre></td></tr></table>
+</div>
+</div>
+<p><strong>1.如果通道是空的，对于非阻塞的发送，直接返回 false。对于阻塞的通道，将 goroutine 挂起，并且永远不会返回</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">if c == nil {
+        if !block {
+            return false
+        }
+        gopark(nil, nil, waitReasonChanSendNilChan, traceEvGoStop, 2)
+        throw(&#34;unreachable&#34;)
+    }</pre></td></tr></table>
+</div>
+</div>
+<p><strong>2.非阻塞的情况下，如果通道没有关闭，而且当前没有接收者，缓冲区也已经满了或者没有缓冲区（即不可以发送数据）。那么直接返回 false</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">if !block &amp;&amp; c.closed == 0 &amp;&amp; ((c.dataqsiz == 0 &amp;&amp; c.recvq.first == nil) || (c.dataqsiz &gt; 0 &amp;&amp; c.qcount == c.dataqsiz)) {
+    return false
+}</pre></td></tr></table>
+</div>
+</div>
+<p>注释里主要讲为什么这一块可以不加锁，我详细解释一下。<code>if</code>条件里先读了两个变量：<code>block</code> 和<code>c.closed</code>。<code>block</code> 是函数的参数，不会变；<code>c.closed</code> 可能被其他 <code>goroutine</code> 改变，因为没加锁嘛，这是“与”条件前面两个表达式。</p>
+
+<p>最后一项，涉及到三个变量：<code>c.dataqsiz</code>，<code>c.recvq.first</code>，<code>c.qcount</code>。<code>c.dataqsiz == 0 &amp;&amp; c.recvq.first == nil</code>指的是非缓冲型的 <code>channel</code>，并且 <code>recvq</code> 里没有等待接收的<code>goroutine</code>；<code>c.dataqsiz &gt; 0 &amp;&amp; c.qcount == c.dataqsiz</code>指的是缓冲型的 channel，但循环数组已经满了。这里 c.dataqsiz 实际上也是不会被修改的，在创建的时候就已经确定了。不加锁真正影响地是<code>c.qcount</code>和 <code>c.recvq.first</code>。</p>
+
+<p>也就是说这里的<code>if</code> 测试通过的那一瞬间，可能有两种情况：</p>
+
+<p>通道没有关闭，而且已经满了。那么这段逻辑运行 ok，应该返回 false。
+通道已经关闭，而且已经满了。按照发送数据的语义来说，此时应该 panic。但实际上这段逻辑的实现，它会返回 false。
+但我们还要注意到的是，第 2 种情况的发生，肯定意味着第 1 种情况发生过。而且它取决与通道的 close 是何时被调用的，至少在 if 之前 close 还没有完成调用。所以我们认为第 2 种情况的逻辑也是正确的。</p>
+
+<p>当我们发现 <code>c.closed == 0</code> 为真，也就是<code>channel</code>未被关闭，再去检测第三部分的条件时，观测到 <code>c.recvq.first == nil 或者 c.qcount == c.dataqsiz</code>时（这里忽略<code>c.dataqsiz</code>），就断定要将这次发送操作作失败处理，快速返回 false。</p>
+
+<p>其实这样做的目的就是少获取一次锁，提升性能。</p>
+
+<p><strong>3.调用 lock 对通道加锁，如果此时通道被关闭，那么发生 panic</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">// 第 3 步，加锁
+lock(&amp;c.lock)  
+
+// 第 4 步，如果通道已经被关闭了，那么 panic
+if c.closed != 0 {
+    unlock(&amp;c.lock)
+    panic(plainError(&#34;send on closed channel&#34;))
+}</pre></td></tr></table>
+</div>
+</div>
+<p><strong>4.从 recvq 中取出一个接收者，如果接收者存在，直接向该接收者发送数据。</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">if sg := c.recvq.dequeue(); sg != nil {
+    send(c, sg, ep, func() { unlock(&amp;c.lock) }, 3)
+    return true
+}</pre></td></tr></table>
+</div>
+</div>
+<p><strong>5.send 函数将 ep 作为参数传送给接收方的 sg 对象，然后使用 goready 将其唤醒。sg.elem 如果非空，则将 ep 的内容直接 copy 到 elem 指向的地址。</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">func send(c *hchan, sg *sudog, ep unsafe.Pointer, unlockf func(), skip int) {
+    // ...
+    if sg.elem != nil {
+        sendDirect(c.elemtype, sg, ep)
+        sg.elem = nil
+    }
+    gp := sg.g
+    unlockf()
+    gp.param = unsafe.Pointer(sg)
+    goready(gp, skip+1)
+}
+
+func sendDirect(t *_type, sg *sudog, src unsafe.Pointer) {
+    dst := sg.elem
+    memmove(dst, src, t.size)
+}
+
+// runtime/proc.go
+func goready(gp *g, traceskip int) {
+    systemstack(func() {
+        ready(gp, traceskip, true)
+    })
+}
+
+// Mark gp ready to run.
+func ready(gp *g, traceskip int, next bool) {
+    ......
+    // Mark runnable.
+    _g_ := getg()
+    ......
+    // status is Gwaiting or Gscanwaiting, make Grunnable and put on runq
+    casgstatus(gp, _Gwaiting, _Grunnable)
+    runqput(_g_.m.p.ptr(), gp, next) //放入运行队列
+    if atomic.Load(&amp;sched.npidle) != 0 &amp;&amp; atomic.Load(&amp;sched.nmspinning) == 0 {
+        //有空闲的p而且没有正在偷取goroutine的工作线程，则需要唤醒p出来工作
+        wakep()
+    }
+    ......
+}</pre></td></tr></table>
+</div>
+</div>
+<p>在我们这个demo中，因为<code>main goroutine</code>此时此刻正挂在<code>channel</code>的读取队列上等待数据，所以这里直接调用<code>send</code>函数发送给<code>main goroutine</code>，<code>send</code>函数则调用<code>goready</code>函数切换到<code>g0</code>栈并调用<code>ready</code>函数来唤醒<code>sg</code>对应的<code>goroutine</code>，即正在等待读<code>channel</code>的<code>main goroutine</code>。</p>
+
+<p><code>ready</code>函数首先把需要唤醒的<code>goroutine</code>的状态设置为<code>_Grunnable</code>，然后把其放入运行队列之中等待调度器的调度。</p>
+
+<p>对于这个demo的运行流程,执行到这里<code>main goroutine</code>已经被放入了运行队列，但还未被调度起来运行，而<code>g2</code> goroutine在向<code>channel</code>写完数据之后就从这里的<code>ready</code>函数返回并退出了</p>
+
+<p>接下来分析其他情况
+<strong>6.如果缓冲区还有多余的空间，那么将数据写入缓冲区。写入缓冲区后，将发送位置往后移动一个单位，然后将 qcount 加 1</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">if c.qcount &lt; c.dataqsiz {
+    qp := chanbuf(c, c.sendx)
+    typedmemmove(c.elemtype, qp, ep)
+    c.sendx++
+    if c.sendx == c.dataqsiz {
+        c.sendx = 0
+    }
+    c.qcount++
+    unlock(&amp;c.lock)
+    return true
+}
+
+// 其中 chanbuf 函数从 buf 中取出第 i 个元素的存放地址：
+func chanbuf(c *hchan, i uint) unsafe.Pointer {
+    return add(c.buf, uintptr(i)*uintptr(c.elemsize))
+}</pre></td></tr></table>
+</div>
+</div>
+<p><strong>7.如果执行前面的所有步骤还没有成功发送，那么就表示缓冲区没有空间了，而且也没有任何接收者在等待。所以后面必须要将 goroutine 挂起然后等待新的接收者了。但对于非阻塞的调用，不能等待，返回 false 表示数据发送不成功。</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">if !block {
+        unlock(&amp;c.lock)
+        return false
+    }</pre></td></tr></table>
+</div>
+</div>
+<p><strong>8.创建 sudog 对象，然后入队并且让 goroutine 进入等待状态。直到被唤醒时 goparkunlock 才会返回。</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">gp := getg()
+
+mysg := acquireSudog()
+mysg.elem = ep
+mysg.waitlink = nil
+mysg.g = gp
+mysg.isSelect = false
+mysg.c = c
+
+gp.waiting = mysg
+gp.param = nil
+
+c.sendq.enqueue(mysg)
+goparkunlock(&amp;c.lock, waitReasonChanSend, traceEvGoBlockSend, 3)</pre></td></tr></table>
+</div>
+</div>
+<p><strong>9.goparkunlock 返回后，代表已经发送完数据了，此时做一些清理工作，如将 sudog 对象释放，将 g 的 waiting 置空等。</strong></p>
+
+<h3 id="close-channel">close channel</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span><span class="lnt">82
+</span><span class="lnt">83
+</span><span class="lnt">84
+</span><span class="lnt">85
+</span><span class="lnt">86
+</span><span class="lnt">87
+</span><span class="lnt">88
+</span><span class="lnt">89
+</span><span class="lnt">90
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">func closechan(c *hchan) {
+    // 关闭一个 nil channel，panic
+    if c == nil {
+        panic(plainError(&#34;close of nil channel&#34;))
+    }
+
+    // 上锁
+    lock(&amp;c.lock)
+    // 判断如果通道早已关闭了，就 panic。（你不能对一个被关闭的通道再执行关闭操作）
+    if c.closed != 0 {
+        unlock(&amp;c.lock)
+        // panic
+        panic(plainError(&#34;close of closed channel&#34;))
+    }
+
+    // …………
+
+    // 将关闭标志置为 1.
+    c.closed = 1
+
+    // 唤醒所有的接收者，并且将接收数据置为 0 值。唤醒所有发送者，令其 panic。 gList 就是一个 g 对象的列表。
+    var glist *g
+
+    // 将 channel 所有等待接收队列的里 sudog 释放
+    for {
+        // 从接收队列里出队一个 sudog
+        sg := c.recvq.dequeue()
+        // 出队完毕，跳出循环
+        if sg == nil {
+            break
+        }
+
+        // 如果 elem 不为空，说明此 receiver 未忽略接收数据
+        // 给它赋一个相应类型的零值
+        if sg.elem != nil {
+            typedmemclr(c.elemtype, sg.elem)
+            sg.elem = nil
+        }
+        if sg.releasetime != 0 {
+            sg.releasetime = cputicks()
+        }
+        // 取出 goroutine
+        gp := sg.g
+        gp.param = nil
+        if raceenabled {
+            raceacquireg(gp, unsafe.Pointer(c))
+        }
+        // 相连，形成链表
+        gp.schedlink.set(glist)
+        glist = gp
+    }
+
+    // 将 channel 等待发送队列里的 sudog 释放
+    // 如果存在，这些 goroutine 将会 panic
+    for {
+        // 从发送队列里出队一个 sudog
+        sg := c.sendq.dequeue()
+        if sg == nil {
+            break
+        }
+
+        // 发送者会 panic
+        sg.elem = nil
+        if sg.releasetime != 0 {
+            sg.releasetime = cputicks()
+        }
+        gp := sg.g
+        gp.param = nil
+        if raceenabled {
+            raceacquireg(gp, unsafe.Pointer(c))
+        }
+        // 形成链表
+        gp.schedlink.set(glist)
+        glist = gp
+    }
+    // 解锁
+    unlock(&amp;c.lock)
+
+    // Ready all Gs now that we&#39;ve dropped the channel lock.
+    // 遍历链表
+    for glist != nil {
+        // 取最后一个
+        gp := glist
+        // 向前走一步，下一个唤醒的 g
+        glist = glist.schedlink.ptr()
+        gp.schedlink = 0
+        // 唤醒相应 goroutine
+        goready(gp, 3)
+    }
+}</pre></td></tr></table>
+</div>
+</div>
+<p>close 逻辑比较简单，对于一个 channel，recvq 和 sendq 中分别保存了阻塞的发送者和接收者。关闭 channel 后，对于等待接收者而言，会收到一个相应类型的零值。对于等待发送者，会直接 panic。所以，在不了解 channel 还有没有接收者的情况下，不能贸然关闭 channel。</p>
+
+<p>close 函数先上一把大锁，接着把所有挂在这个 channel 上的 sender 和 receiver 全都连成一个 sudog 链表，再解锁。最后，再将所有的 sudog 全都唤醒。</p>
+
+<p>唤醒之后，该干嘛干嘛。sender 会继续执行 chansend 函数里 goparkunlock 函数之后的代码，很不幸，检测到 channel 已经关闭了，panic。receiver 则比较幸运，进行一些扫尾工作后，返回。这里，selected 返回 true，而返回值 received 则要根据 channel 是否关闭，返回不同的值。如果 channel 关闭，received 为 false，否则为 true。这我们分析的这种情况下，received 返回 false。</p>
+
+<h3 id="参考资料">参考资料</h3>
+
+<p><a href="https://gobyexample.com/channel-buffering">Go by Example: Channel Buffering</a></p>
+
+<p><a href="https://speakerd.s3.amazonaws.com/presentations/10ac0b1d76a6463aa98ad6a9dec917a7/GopherCon_v10.0.pdf">Kavya在Gopher Con 上关于 channel 的设计</a></p>
+
+<p><a href="https://mp.weixin.qq.com/s/w3i5hVKmYW_M06nLaMlwvQ">Goroutine被动调度之一（18）</a></p>
+
+<p><a href="https://segmentfault.com/a/1190000019839546">深度解密Go语言之channel</a></p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/62391727">golang channel 源码剖析</a></p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">zhengxz</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2020-01-05
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/blog/post/http1.1%E4%B8%8Ehttp2%E7%9A%84%E5%8C%BA%E5%88%AB/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">http1.1与http2的区别</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/blog/post/go%E5%AE%9E%E7%8E%B0raft%E5%8D%8F%E8%AE%AE/">
+            <span class="next-text nav-default">Go实现raft协议(1)</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+  <a href="https://zheng-bobo.github.io/blog/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2019 - 
+    2021<span class="heart"><i class="iconfont icon-heart"></i></span><span>zhengxz</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/blog/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

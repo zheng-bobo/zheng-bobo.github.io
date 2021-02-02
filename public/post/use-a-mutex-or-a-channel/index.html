@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Use a Mutex or a channel ? - Blowing in the wind</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="zhengxz" /><meta name="description" content="Use a sync.Mutex or a channel? &amp;emsp;&amp;emsp;分别给了我们3个channel使用场景: 1.传递数据的所有权 2.分配工作单元 3.传达异步结果 2个mute" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.59.1 with theme even" />
+
+
+<link rel="canonical" href="https://zheng-bobo.github.io/blog/post/use-a-mutex-or-a-channel/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/blog/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/blog/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/blog/favicon-16x16.png">
+<link rel="manifest" href="/blog/manifest.json">
+<link rel="mask-icon" href="/blog/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/blog/sass/main.min.4747d1be8010357c5daf4cd103b0bc1cff65936180045419874ea97f32138102.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Use a Mutex or a channel ?" />
+<meta property="og:description" content="Use a sync.Mutex or a channel? &emsp;&emsp;分别给了我们3个channel使用场景: 1.传递数据的所有权 2.分配工作单元 3.传达异步结果 2个mute" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zheng-bobo.github.io/blog/post/use-a-mutex-or-a-channel/" />
+<meta property="article:published_time" content="2020-01-16T11:27:00+08:00" />
+<meta property="article:modified_time" content="2020-01-16T11:27:00+08:00" />
+<meta itemprop="name" content="Use a Mutex or a channel ?">
+<meta itemprop="description" content="Use a sync.Mutex or a channel? &emsp;&emsp;分别给了我们3个channel使用场景: 1.传递数据的所有权 2.分配工作单元 3.传达异步结果 2个mute">
+
+
+<meta itemprop="datePublished" content="2020-01-16T11:27:00&#43;08:00" />
+<meta itemprop="dateModified" content="2020-01-16T11:27:00&#43;08:00" />
+<meta itemprop="wordCount" content="324">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Use a Mutex or a channel ?"/>
+<meta name="twitter:description" content="Use a sync.Mutex or a channel? &emsp;&emsp;分别给了我们3个channel使用场景: 1.传递数据的所有权 2.分配工作单元 3.传达异步结果 2个mute"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/blog/" class="logo">Bobo</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/blog/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/blog/post/">
+        <li class="mobile-menu-item">归档</li>
+      </a><a href="/blog/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/blog/categories/">
+        <li class="mobile-menu-item">分类</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/blog/" class="logo">Bobo</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/blog/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/blog/post/">归档</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/blog/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/blog/categories/">分类</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Use a Mutex or a channel ?</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2020-01-16 </span>
+        <div class="post-category">
+            <a href="/blog/categories/go/"> go </a>
+            </div>
+          <span class="more-meta"> 约 324 字 </span>
+          <span class="more-meta"> 预计阅读 1 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    
+  </div>
+</div>
+    <div class="post-content">
+      <p><a href="https://github.com/golang/go/wiki/MutexOrChannel">Use a sync.Mutex or a channel?</a></p>
+
+<p>&emsp;&emsp;分别给了我们3个channel使用场景:</p>
+
+<p><img src="https://i.loli.net/2020/01/16/DX19RyqIOSBCg7j.png" alt="场景.png" /></p>
+
+<ul>
+<li>1.传递数据的所有权</li>
+<li>2.分配工作单元</li>
+<li>3.传达异步结果</li>
+</ul>
+
+<p><strong>2个mutex的使用场景:</strong></p>
+
+<ul>
+<li>1.缓存</li>
+<li>2.状态</li>
+</ul>
+
+<p><strong>《Concurrency In Go》书中第二章 “Go&rsquo;s Philosophy on Concurrency” 里对此也有一张决策树和详细的论述</strong></p>
+
+<p><img src="https://i.loli.net/2020/01/16/YzUad5ct4byTLiN.png" alt="决策.png" /></p>
+
+<p><strong>总结</strong></p>
+
+<p>&emsp;&emsp;Go 通过 channel 实现 CSP 通信模型，主要用于 goroutine 之间的消息传递和事件通知。而对于一些性能要求较高，或防止并发修改内部状态等场景，通过mutex来实现会更为合适。</p>
+
+<ul>
+<li>1.  关注数据的流动，就可以使用channel解决并发问题。</li>
+<li>2.  不流动的数据，如果存在并发访问，尝试使用sync.Mutex保护数据。</li>
+<li>3.  如果sync.Mutex实现流程复杂，可以改用channel实现</li>
+</ul>
+
+<p><strong>参考资料</strong></p>
+
+<p><a href="https://github.com/golang/go/wiki/MutexOrChannel">https://github.com/golang/go/wiki/MutexOrChannel</a></p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">zhengxz</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2020-01-16
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/blog/post/%E7%90%86%E8%A7%A3io-%E9%9A%8F%E6%9C%BA%E5%92%8C%E9%A1%BA%E5%BA%8F/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">理解I/O：随机和顺序</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/blog/post/http1.1%E4%B8%8Ehttp2%E7%9A%84%E5%8C%BA%E5%88%AB/">
+            <span class="next-text nav-default">http1.1与http2的区别</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+  <a href="https://zheng-bobo.github.io/blog/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2019 - 
+    2021<span class="heart"><i class="iconfont icon-heart"></i></span><span>zhengxz</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/blog/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

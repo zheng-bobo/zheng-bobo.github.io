@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>CAP与服务发现组件比较 - Blowing in the wind</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="zhengxz" /><meta name="description" content="CAP理论概述 一个分布式系统最多只能同时满足一致性（consistency）、可用性（Availability）和分区容错性（Partiti" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.59.1 with theme even" />
+
+
+<link rel="canonical" href="https://zheng-bobo.github.io/blog/post/cap%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0%E7%BB%84%E4%BB%B6%E6%AF%94%E8%BE%83/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/blog/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/blog/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/blog/favicon-16x16.png">
+<link rel="manifest" href="/blog/manifest.json">
+<link rel="mask-icon" href="/blog/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/blog/sass/main.min.4747d1be8010357c5daf4cd103b0bc1cff65936180045419874ea97f32138102.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="CAP与服务发现组件比较" />
+<meta property="og:description" content="CAP理论概述 一个分布式系统最多只能同时满足一致性（consistency）、可用性（Availability）和分区容错性（Partiti" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zheng-bobo.github.io/blog/post/cap%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0%E7%BB%84%E4%BB%B6%E6%AF%94%E8%BE%83/" />
+<meta property="article:published_time" content="2020-02-29T09:41:00+08:00" />
+<meta property="article:modified_time" content="2020-02-29T09:41:00+08:00" />
+<meta itemprop="name" content="CAP与服务发现组件比较">
+<meta itemprop="description" content="CAP理论概述 一个分布式系统最多只能同时满足一致性（consistency）、可用性（Availability）和分区容错性（Partiti">
+
+
+<meta itemprop="datePublished" content="2020-02-29T09:41:00&#43;08:00" />
+<meta itemprop="dateModified" content="2020-02-29T09:41:00&#43;08:00" />
+<meta itemprop="wordCount" content="3774">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="CAP与服务发现组件比较"/>
+<meta name="twitter:description" content="CAP理论概述 一个分布式系统最多只能同时满足一致性（consistency）、可用性（Availability）和分区容错性（Partiti"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/blog/" class="logo">Bobo</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/blog/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/blog/post/">
+        <li class="mobile-menu-item">归档</li>
+      </a><a href="/blog/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/blog/categories/">
+        <li class="mobile-menu-item">分类</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/blog/" class="logo">Bobo</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/blog/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/blog/post/">归档</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/blog/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/blog/categories/">分类</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">CAP与服务发现组件比较</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2020-02-29 </span>
+        <div class="post-category">
+            <a href="/blog/categories/architecture/"> architecture </a>
+            </div>
+          <span class="more-meta"> 约 3774 字 </span>
+          <span class="more-meta"> 预计阅读 8 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#cap理论概述">CAP理论概述</a></li>
+<li><a href="#导读">导读</a></li>
+<li><a href="#一致性模型">一致性模型</a>
+<ul>
+<li><a href="#线性一致性-linearizability">线性一致性 (Linearizability)</a></li>
+<li><a href="#序一致性-sequential-consistency">·序一致性(Sequential consistency)</a></li>
+</ul></li>
+<li><a href="#两者的比较">两者的比较</a></li>
+<li><a href="#可用性">可用性</a></li>
+<li><a href="#分区容错性">分区容错性</a></li>
+<li><a href="#服务注册发现组件">服务注册发现组件</a></li>
+<li><a href="#参考资料">参考资料</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      
+
+<h3 id="cap理论概述">CAP理论概述</h3>
+
+<p><strong>一个分布式系统最多只能同时满足一致性（consistency）、可用性（Availability）和分区容错性（Partition tolerance）这三项中的两项。</strong></p>
+
+<h3 id="导读">导读</h3>
+
+<p>&emsp;&emsp;CAP理论概述:<a href="http://www.hollischuang.com/archives/666">分布式系统的CAP理论</a></p>
+
+<h3 id="一致性模型">一致性模型</h3>
+
+<p>&emsp;&emsp;一致性指 <code>all nodes see the same data at the same time</code> ，即更新操作成功并返回客户端完成后，所有节点在同一时间的数据完全一致，所以，一致性，说的就是数据一致性。</p>
+
+<p>&emsp;&emsp;一致性又可分为以下3种一致性策略：<br/>
+1.<code>Linearizability (Strong consistency or Atomic consistency)</code> 强一致性、线性一致性<br/>
+2.<code>Sequential consistency</code> 顺序一致性<br/>
+3.<code>Causal consistency</code> 因果一致性<br/>
+4.<code>Eventual consistency</code> 最后一致性,如果经过一段时间后要求能访问到更新后的数据<br/></p>
+
+<p>&emsp;&emsp;CAP中，不可能同时满足的这个一致性指的是强一致性/线性一致性。这里我们主要介绍强一致性跟顺序一致性</p>
+
+<h4 id="线性一致性-linearizability">线性一致性 (Linearizability)</h4>
+
+<p>&emsp;&emsp;线性一致性又被称为强一致性或者原子一致性。</p>
+
+<p><img src="https://i.loli.net/2020/02/29/NufGsnqXiO9j3xC.png" alt="linearizability.png" /></p>
+
+<p>&emsp;&emsp;1.Referee：更新比赛的最终结果，先 insert 到数据库 leader 副本，然后 Leader 再复制给两个 Follower 副本</p>
+
+<p>&emsp;&emsp;2.Alice：从 Follower 1 中查到了最新的比赛分数</p>
+
+<p>&emsp;&emsp;3.Bob：从 Follower 2 中确没查到最新的比赛分数，确显示比赛正在进行</p>
+
+<p>&emsp;&emsp;如果 Alice 和 Bob 在同一个房间，各自盯着自己的手机观看比赛，Alice 刷新页面，返现 Germany 赢得比赛，然后告诉 Bob 比赛结果，而 Bob 刷新页面，确显示比赛正在进行，显然这个结果是让人不符合预期的，实际上它也不是符合线性一致性的。对 Bob 来说，他希望看到的结果应该是和 Alice 一样最新的比赛结果，而不是一个旧的结果。</p>
+
+<blockquote>
+<p>Linearizability的基本的想法是让一个系统看起来好像只有一个数据副本，而且所有的操作都是原子性的。有了这个保证，即使实际中可能有多个副本，应用也不需要担心它们。</p>
+
+<p>Linearizability 要求系统表现的如同一个单一的副本，按照实际的时间顺序来串行的执行线程的读写操作，这也就是『线性』这个定义的由来。然而，满足线性一致性的系统不仅难于实现，更难于提供较高的性能。</p>
+</blockquote>
+
+<h4 id="序一致性-sequential-consistency">·序一致性(Sequential consistency)</h4>
+
+<p>&emsp;&emsp;Sequential consistency定义实际上对系统提出了两条访问共享对象时的约束：</p>
+
+<p>&emsp;&emsp;1.从单个处理器（线程或者进程）的角度上看，其指令的执行顺序以编程中的顺序为准；</p>
+
+<p>&emsp;&emsp;2.从所有处理器（线程或者进程）的角度上看，指令的执行保持一个单一的顺序；</p>
+
+<p>&emsp;&emsp;约束 1 保证了单个进程的所有指令是按照程序中的顺序来执行；而约束 2 保证了所有的内存操作都是原子的或者说实时地。从编程者的角度，顺序一致性提供了如下图中的抽象。我们可以将共享内存看成一个服务台，而将多个进程看成是接受服务的排队队列：每个进程的内部的读写指令都是按照编程的顺序先来先『服务』，同时服务台在多个队列之间不断切换。</p>
+
+<p><img src="https://i.loli.net/2020/02/29/F97LkONPQ4KSilX.png" alt="sequential.png" /></p>
+
+<p>&emsp;&emsp;可以看到，相比于 linearizability，Sequential consistency 放松了一致性的要求。首先，其并不要求操作的执行顺序严格按照真实的时间序；其次，其对不同线程之间的读写操作执行先后没有任何要求，只需保证执行是原子性即可。</p>
+
+<h3 id="两者的比较">两者的比较</h3>
+
+<p>&emsp;&emsp;简单地总结一下两者如下表：</p>
+
+<table>
+<thead>
+<tr>
+<th>linearizability</th>
+<th>Sequential consistency</th>
+<th></th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>单一进程要求按照时间序</td>
+<td>单一进程内要求按照编程序</td>
+<td></td>
+</tr>
+
+<tr>
+<td>不同进程要求按照时间序</td>
+<td>不同进程读写顺序无要求</td>
+<td></td>
+</tr>
+
+<tr>
+<td>可以通过主动备份实现</td>
+<td>可以通过被动备份实现</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="可用性">可用性</h3>
+
+<p>&emsp;&emsp;假设在两个不同的数据中心中都有数据库的副本 (replicas). 副本的要求是, 在一个数据中心中写入数据的同时, 都必须将数据写入另一个数据中心中的副本. 假设客户端只连接到一个数据中心, 那么当数据复制的时候就必须依赖两个数据中心之间的网络链接.</p>
+
+<p>&emsp;&emsp;a现在假设网络连接中断 - 这就是网络分区 (network partition) 的意思. 猜猜会发生什么?</p>
+
+<p><img src="https://i.loli.net/2020/02/29/sDUk3ZPXjr19Oi7.png" alt="available.png" /></p>
+
+<p>&emsp;&emsp;很明显你只能二选一:</p>
+
+<p>&emsp;&emsp;1.程序可以继续写入数据库, 所以两个数据中心中数据库都是完全可用的. 但只要数据复制依赖的连接被中断, 在一个数据中心中对数据库的更改将不会同步到另外一个数据中心. 这违反了线性一致性 (linearizability)(在前面的例子中, Alice 可能连接到数据中心1, Bob 连接到了数据中心2).</p>
+
+<p>&emsp;&emsp;2.如果不想失去线性一致性 (linearizability), 就必须确保在一个数据中心执行所有读写操作 (可以称作leader), 在另一个数据中心 (由于数据复制依赖的连接中断而无法更新到最新) 在网路分区恢复正常,数据同步完毕之前必须停止接受读写操作. 尽管非 leader 数据库没有失效 (failed), 但他无法处理请求, 因此它不是CAP可用 (CAP-available) 的.</p>
+
+<p>&emsp;&emsp;注意, 在选项2中的理论上&rdquo;不可用&rdquo; (unavailable) 情况下, 我们仍然在一个数据中心中愉快地处理着请求. 因此如果系统选择了线性一致性 (linearizability, 即它不是cap可用的), 这并不一定意味着网络分区会自动导致应用程序停机. 如果您可以将所有客户端请求转移到 leader 数据中心, 那么客户端实际上根本不会感觉到停机时间.</p>
+
+<p>&emsp;&emsp;在实际工程中，可用性并不完全与 CAP 可用性 (CAP-availability) 一致. 应用程序的可用性可能是通过 SLA 来衡量的 (例如, 99.9% 的合法请求必须在1秒内成功返回响应)</p>
+
+<table>
+<thead>
+<tr>
+<th>可用性分类</th>
+<th>可用水平（%）</th>
+<th>年可容忍停机时间</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>容错可用性</td>
+<td>99.9999</td>
+<td>&lt;1 min</td>
+</tr>
+
+<tr>
+<td>极高可用性</td>
+<td>99.999</td>
+<td>&lt;5 min</td>
+</tr>
+
+<tr>
+<td>具有故障自动恢复能力的可用性</td>
+<td>99.99</td>
+<td>&lt;53 min</td>
+</tr>
+
+<tr>
+<td>高可用性</td>
+<td>99.9</td>
+<td>&lt;8.8h</td>
+</tr>
+
+<tr>
+<td>商品可用性</td>
+<td>99</td>
+<td>&lt;43.8 min</td>
+</tr>
+</tbody>
+</table>
+
+<p>&emsp;&emsp;通常我们描述一个系统的可用性时，我们说淘宝的系统可用性可以达到5个9，意思就是说他的可用水平是99.999%，即全年停机时间不超过 (1-0.99999)*365*24*60 = 5.256 min，这是一个极高的要求。</p>
+
+<h3 id="分区容错性">分区容错性</h3>
+
+<p>&emsp;&emsp;分区容错性指<code>the system continues to operate despite arbitrary message loss or failure of part of the system</code>,即分布式系统在遇到某节点或网络分区故障的时候，仍然能够对外提供满足一致性和可用性的服务。</p>
+
+<h3 id="服务注册发现组件">服务注册发现组件</h3>
+
+<p>&emsp;&emsp;了解完CAP,我们来看看服务注册发现组件比较<br/></p>
+
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Consul</th>
+<th>zookeeper</th>
+<th>etcd</th>
+<th>euerka</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>服务健康检查</td>
+<td>服务状态，内存，硬盘等</td>
+<td>(弱)长连接，keepalive</td>
+<td>连接心跳</td>
+<td>可配支持</td>
+</tr>
+
+<tr>
+<td>多数据中心</td>
+<td>支持</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+
+<tr>
+<td>kv存储服务</td>
+<td>支持</td>
+<td>支持</td>
+<td>支持</td>
+<td>—</td>
+</tr>
+
+<tr>
+<td>一致性</td>
+<td>raft</td>
+<td>paxos</td>
+<td>raft</td>
+<td>—</td>
+</tr>
+
+<tr>
+<td>cap</td>
+<td>cp</td>
+<td>cp</td>
+<td>cp</td>
+<td>ap</td>
+</tr>
+
+<tr>
+<td>使用接口(多语言能力)</td>
+<td>支持http和dns</td>
+<td>客户端</td>
+<td>http/grpc</td>
+<td>http（sidecar）</td>
+</tr>
+
+<tr>
+<td>watch支持</td>
+<td>全量/支持long polling</td>
+<td>支持</td>
+<td>支持 long polling</td>
+<td>支持 long polling/大部分增量</td>
+</tr>
+
+<tr>
+<td>自身监控</td>
+<td>metrics</td>
+<td>—</td>
+<td>metrics</td>
+<td>metrics</td>
+</tr>
+
+<tr>
+<td>安全</td>
+<td>acl /https</td>
+<td>acl</td>
+<td>https支持（弱）</td>
+<td>—</td>
+</tr>
+
+<tr>
+<td>spring</td>
+<td>cloud集成</td>
+<td>已支持</td>
+<td>已支持</td>
+<td>已支持</td>
+</tr>
+</tbody>
+</table>
+
+<p>ZooKeeper强一致性&copy;带来的问题:</p>
+
+<p>&emsp;&emsp;任何时候对 Zookeeper 的访问请求能得到一致的数据结果，同时系统对网络分割具备容错性，但是 Zookeeper 不能保证每次服务请求都是可达的。从 Zookeeper 的实际应用情况来看，在使用 Zookeeper 获取服务列表时，如果此时的 Zookeeper 集群中的 Leader 宕机了，该集群就要进行 Leader 的选举，又或者 Zookeeper 集群中半数以上服务器节点不可用（例如有三个节点，如果节点一检测到节点三挂了 ，节点二也检测到节点三挂了，那这个节点才算是真的挂了），那么将无法处理该请求。所以说，Zookeeper 不能保证服务可用性。</p>
+
+<p>&emsp;&emsp;当然，在大多数分布式环境中，尤其是涉及到数据存储的场景，数据一致性应该是首先被保证的，这也是 Zookeeper 设计紧遵CP原则的另一个原因。但是对于服务发现来说，情况就不太一样了，针对同一个服务，即使注册中心的不同节点保存的服务提供者信息不尽相同，也并不会造成灾难性的后果。因为对于服务消费者来说，能消费才是最重要的，消费者虽然拿到可能不正确的服务实例信息后尝试消费一下，也要胜过因为无法获取实例信息而不去消费，导致系统异常要好（淘宝的双十一，京东的幺六八就是紧遵AP的最好参照）。</p>
+
+<p>&emsp;&emsp;当master节点因为网络故障与其他节点失去联系时，剩余节点会重新进行leader选举。问题在于，选举leader的时间太长，30~120s，而且选举期间整个zk集群都是不可用的，这就导致在选举期间注册服务瘫痪。在云部署环境下， 因为网络问题使得zk集群失去master节点是大概率事件，虽然服务能最终恢复，但是漫长的选举事件导致注册长期不可用是不能容忍的。</p>
+
+<p>&emsp;&emsp;consul,etcd强一致性&copy;带来的是：</p>
+
+<p>&emsp;&emsp;服务注册相比Eureka会稍慢一些。因为consul,etcd的raft协议要求必须过半数的节点都写入成功才认为注册成功<br/>
+&emsp;&emsp;Leader挂掉时，重新选举期间整个consul,etcd不可用。保证了强一致性但牺牲了可用性。</p>
+
+<p>euerka保证高可用(A)和最终一致性：</p>
+
+<p>&emsp;&emsp;服务注册相对要快，因为不需要等注册信息replicate到其他节点，也不保证注册信息是否replicate成功<br/>
+&emsp;&emsp;当数据出现不一致时，虽然A, B上的注册信息不完全相同，但每个Eureka节点依然能够正常对外提供服务，这会出现查询服务信息时如果请求A查不到，但请求B就能查到。如此保证了可用性但牺牲了一致性。</p>
+
+<h3 id="参考资料">参考资料</h3>
+
+<p><a href="https://www.hollischuang.com/archives/666">分布式系统的CAP理论</a></p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/42239873">线性一致性：什么是线性一致性？</a></p>
+
+<p><a href="http://kaiyuan.me/2018/04/21/consistency-concept/">分布式系统一致性 Linearizability vs. Sequential consistency</a></p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/55053121">不要再将数据库称作CP或AP</a></p>
+
+<p><a href="https://medium.com/knerd/eureka-why-you-shouldnt-use-zookeeper-for-service-discovery-4932c5c7e764">why-you-shouldnt-use-zookeeper-for-service-discovery</a></p>
+
+<p><a href="https://blog.csdn.net/vtopqx/article/details/81537004">为什么不应该使用ZooKeeper做服务发现(译)</a></p>
+
+<p><a href="https://www.cnblogs.com/duanxz/p/7048090.html?utm_source=itdadao&amp;utm_medium=referral">服务发现比较:Consul vs Zookeeper vs Etcd vs Eureka</a></p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">zhengxz</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2020-02-29
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/blog/post/go%E6%B1%87%E7%BC%96%E7%AE%80%E6%98%93%E5%85%A5%E9%97%A81/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">go汇编简易入门(1)</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/blog/post/%E7%90%86%E8%A7%A3io-%E9%9A%8F%E6%9C%BA%E5%92%8C%E9%A1%BA%E5%BA%8F/">
+            <span class="next-text nav-default">理解I/O：随机和顺序</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+  <a href="https://zheng-bobo.github.io/blog/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2019 - 
+    2021<span class="heart"><i class="iconfont icon-heart"></i></span><span>zhengxz</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/blog/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

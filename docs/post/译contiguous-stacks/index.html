@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>(译)Contiguous stacks - Blowing in the wind</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="zhengxz" /><meta name="description" content="Contiguous stacks原文地址 &amp;emsp;&amp;emsp;为每一个go协程分配一块连续的栈内存空间，内存在用完的时候会重新分配/复制增长。 为什么？ 目前的" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.59.1 with theme even" />
+
+
+<link rel="canonical" href="https://zheng-bobo.github.io/blog/post/%E8%AF%91contiguous-stacks/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/blog/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/blog/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/blog/favicon-16x16.png">
+<link rel="manifest" href="/blog/manifest.json">
+<link rel="mask-icon" href="/blog/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/blog/sass/main.min.4747d1be8010357c5daf4cd103b0bc1cff65936180045419874ea97f32138102.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="(译)Contiguous stacks" />
+<meta property="og:description" content="Contiguous stacks原文地址 &emsp;&emsp;为每一个go协程分配一块连续的栈内存空间，内存在用完的时候会重新分配/复制增长。 为什么？ 目前的" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zheng-bobo.github.io/blog/post/%E8%AF%91contiguous-stacks/" />
+<meta property="article:published_time" content="2019-11-30T13:14:00+08:00" />
+<meta property="article:modified_time" content="2019-11-30T13:14:00+08:00" />
+<meta itemprop="name" content="(译)Contiguous stacks">
+<meta itemprop="description" content="Contiguous stacks原文地址 &emsp;&emsp;为每一个go协程分配一块连续的栈内存空间，内存在用完的时候会重新分配/复制增长。 为什么？ 目前的">
+
+
+<meta itemprop="datePublished" content="2019-11-30T13:14:00&#43;08:00" />
+<meta itemprop="dateModified" content="2019-11-30T13:14:00&#43;08:00" />
+<meta itemprop="wordCount" content="3128">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="(译)Contiguous stacks"/>
+<meta name="twitter:description" content="Contiguous stacks原文地址 &emsp;&emsp;为每一个go协程分配一块连续的栈内存空间，内存在用完的时候会重新分配/复制增长。 为什么？ 目前的"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/blog/" class="logo">Bobo</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/blog/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/blog/post/">
+        <li class="mobile-menu-item">归档</li>
+      </a><a href="/blog/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/blog/categories/">
+        <li class="mobile-menu-item">分类</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/blog/" class="logo">Bobo</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/blog/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/blog/post/">归档</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/blog/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/blog/categories/">分类</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">(译)Contiguous stacks</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2019-11-30 </span>
+        <div class="post-category">
+            <a href="/blog/categories/%E7%BF%BB%E8%AF%91/"> 翻译 </a>
+            </div>
+          <span class="more-meta"> 约 3128 字 </span>
+          <span class="more-meta"> 预计阅读 7 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#为什么">为什么？</a></li>
+<li><a href="#怎么做">怎么做？</a></li>
+<li><a href="#溢出检查">溢出检查</a></li>
+<li><a href="#复制">复制</a></li>
+<li><a href="#反射调用处理">反射调用处理</a></li>
+<li><a href="#堆栈跟踪">堆栈跟踪</a></li>
+<li><a href="#gc">GC</a></li>
+<li><a href="#defer-panic-recover">Defer/panic/recover</a></li>
+<li><a href="#testing">Testing</a></li>
+<li><a href="#cgo">CGo</a></li>
+<li><a href="#shrinking">Shrinking</a></li>
+<li><a href="#starting-stacks">Starting stacks</a></li>
+<li><a href="#disadvantages">Disadvantages</a></li>
+<li><a href="#experiments-so-far">Experiments so far</a></li>
+<li><a href="#benchmark-examples">Benchmark examples</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      
+
+<p><a href="https://docs.google.com/document/d/1wAaf1rYoM4S4gtnPh0zOlGzWtrZFQ5suE8qr2sD8uWQ/pub">Contiguous stacks原文地址</a></p>
+
+<p>&emsp;&emsp;为每一个go协程分配一块连续的栈内存空间，内存在用完的时候会重新分配/复制增长。</p>
+
+<h4 id="为什么">为什么？</h4>
+
+<ul>
+<li>目前的栈拆分机制存在一个&rdquo;hot spilt&rdquo;问题&ndash;  如果栈空间几乎已满，调用函数则会触发强制分配一个新的栈块。当调用函数返回时，新的栈块将被释放。如果一个调用函数再一个循环中密切调用，alloc/free的开销会导致很大的开销。</li>
+<li>由于栈拆分没有进行栈块的重新分配与回收，所以当栈块大小超过阈值时，需要一些额外的工作。</li>
+</ul>
+
+<p>对于连续的栈,我们避免了这两个问题。栈块被扩展到所需的大小，从此也不需要做额外的工作 (modulo shrinking, 见下文).。</p>
+
+<h4 id="怎么做">怎么做？</h4>
+
+<p>&emsp;&emsp;如何移动堆栈?事实证明，我们编译器的逃逸分析提供了一个非常重要的不确定性：指向栈中数据的指针只会在调用树中传递。任何其他转义(写入全局变量，返回给父对象，写入堆中等)都可以避免在栈上分配数据。这一点确保了指向栈中数据的指针本身也位于栈中。这使得我们在复制栈的情况下易于查找和更新它们。</p>
+
+<h4 id="溢出检查">溢出检查</h4>
+
+<p>&emsp;&emsp;栈溢出检查与拆分栈的溢出检查非常相似。唯一的区别是，我们不再需要知道参数的大小，因为不再需要将参数复制到新的栈段中。这在某种程度上简化了更多堆栈式例程系列的扩散，并且消除了对大多数<code>NOSPLIT</code>指令的需要。</p>
+
+<p>&emsp;&emsp;我们甚至不需要知道栈帧大小。只需要将栈大小加倍，然后重试，如果仍然不合适，我们将再次溢出检查，然后再次将栈大小加倍。重复直到合适为止。</p>
+
+<h4 id="复制">复制</h4>
+
+<p>当栈溢出检查触发时：</p>
+
+<ul>
+<li><p>分配比旧栈大一些的新栈。我们应该以成倍增加的大小进行分配(以限制完成复制的工作次数),并且可能还应向上取舍为一个不错大小的倍数(这样分配更有效)。我目前正在计划使用两种大小的幂，并且将每次重新分配加倍。</p></li>
+
+<li><p>将旧栈复制到新栈，栈被视为一个<code>*byte</code>数组，每个<code>*byte</code>从旧栈复制到新栈。将每个<code>*byte</code>与旧栈的边界进行比较，如果它在范围内，则将其调整为指向新栈中与TOS相同的偏移量。</p></li>
+
+<li><p>只有真实的指针可以调整，我们需要避免就起来像指针的整数。因此，我们需要一个数据结构来告诉我们，对于堆栈上每个指针的大小，以及它是否是一个指针。幸运的是，Carl正在设计这种数据结构，用于精确GC。</p></li>
+
+<li><p>任何从外部进入栈的指针都需要调整。尽管有了逃逸分析，但还有一些遗漏，包括：<br />
+&gt;  a.延迟调用的函数对象
+b.延迟调用的参数
+c.延迟调用的函数对象的关闭参数
+d.传递给已溢出栈帧的功能对象（在x86中是通过寄存器传递，而不是栈）
+e.将闭包函数传递给溢出栈帧的函数对象，复制时使用相同的规则&ndash;我们需要知道数据是否确实是指针，以及是否指针旧栈。</p></li>
+</ul>
+
+<h4 id="反射调用处理">反射调用处理</h4>
+
+<p>&emsp;&emsp;Reflect.call调用给定指向参数区域和参数大小的指针的函数。旧的堆栈拆分机制强制使用新的堆栈块，因此可以将可变大小的参数区域分配在堆栈的顶部。新机制需要在堆栈中的任何位置分配这些arg。如果所有栈帧都为固定大小，则实现会更简单，因此要“模拟”可变大小的栈帧，我们定义了一组固定大小为2的幂的栈帧函数，可用作蹦床</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">reflect.call(function, args, argsize)
+
+        if argsize &lt;= 16: jump reflect.call16(function, args, argsize)
+
+        if argsize &lt;= 32: jump reflect.call32(function, args, argsize)
+
+        if argsize &lt;= 64: jump reflect.call64(function, args, argsize)
+
+…
+
+
+reflect.call16(function, args, argsize)
+
+        sp -= 16
+
+        copy [args, args+argsize] to [sp, sp+argsize]
+
+        call function
+
+        copy [sp, sp+argsize] to [args, args+argsize]  (for return values)
+
+        sp += 16
+
+        return</pre></td></tr></table>
+</div>
+</div>
+<p>&emsp;&emsp;我建议最大的reflect.call arg大小为64K。</p>
+
+<p>&emsp;&emsp;栈复制器需要知道什么是指针，什么不是这些帧。该信息可以通过查看被调用函数的签名来得出。 （对于vararg也调用参数的大小吗？</p>
+
+<h4 id="堆栈跟踪">堆栈跟踪</h4>
+
+<p>&emsp;&emsp;堆栈跟踪代码在某种程度上简化了，因为它不需要处理堆栈上的拆分</p>
+
+<h4 id="gc">GC</h4>
+
+<p>&emsp;&emsp;与在堆栈跟踪中一样，简化了G的堆栈的GC遍历。</p>
+
+<h4 id="defer-panic-recover">Defer/panic/recover</h4>
+
+<p>&emsp;&emsp;这些机制的实现略有变化，并且在大多数情况下得到了简化。旧的机制使用堆栈拆分位置来标记发生恐慌的位置。</p>
+
+<h4 id="testing">Testing</h4>
+
+<p>&emsp;&emsp;为了进行测试，所有堆栈都将分配到堆外部的某个位置。复制堆栈后，将对旧堆栈进行映射，以便对旧堆栈的任何错误访问都将被捕获。</p>
+
+<h4 id="cgo">CGo</h4>
+
+<p>&emsp;&emsp;待定，我不知道有什么问题。</p>
+
+<h4 id="shrinking">Shrinking</h4>
+
+<p>&emsp;&emsp;如果Go例程在其生命周期的开始使用大量堆栈，但是在其生命周期的剩余时间使用较少的堆栈，则大量的堆栈空间将保持空闲状态。我们需要以某种方式恢复该空间。想法：</p>
+
+<p>&emsp;&emsp;在GC时，如果go例程使用的堆栈空间不超过X％，则将其复制到较小的堆栈中。如果需要，它将稍后重新生长。</p>
+
+<p>&emsp;&emsp;在GC时，如果go例程使用的堆栈空间不超过X％，请将其堆栈保护降低到较小的值。如果下一个GC未能达到目标，则将其复制到较小的堆栈中。</p>
+
+<p>&emsp;&emsp;我当前的计划是在GC时，如果go例程最多使用其堆栈的1/4，则释放堆栈底部的½。如果堆栈足够大，我将直接释放它，否则复制。</p>
+
+<h4 id="starting-stacks">Starting stacks</h4>
+
+<p>&emsp;&emsp;默认情况下，所有G均以最小大小的堆栈开始。当G完成时，我们取消分配其堆栈，因为它可能很大，而不是刚好在该G上开始的下一个go例程所要求的（或者也许我们让收缩的代码来处理这个问题？）</p>
+
+<p>&emsp;&emsp;我们可以保留一些统计信息，以了解每个go例程使用了多少堆栈（由函数地址指定），并在启动该go例程之前预先分配了多少堆栈。每次执行go例程结束时，都可以更新统计信息。它不是完美的，例如go例程，其堆栈使用取决于数据。但这可能是一个适当的起点。</p>
+
+<p>&emsp;&emsp;如果我们愿意在Go例程中记录最大堆栈使用情况，则也可以在拆分堆栈世界中使用此机制。但是，它必须更加保守。在拆分堆栈世界中，分配太大的初始堆栈无法撤消。</p>
+
+<h4 id="disadvantages">Disadvantages</h4>
+
+<ul>
+<li><p>更多虚拟内存压力/碎片。特别是对于大型堆栈，寻找连续的内存来放置堆栈变得更加困难。某些混合方案可能会更好，例如复制到1 MB的大小并在此之后拆分。尽管这可能会有所帮助，但我认为保留这两种机制的额外实现复杂性并不值得。</p></li>
+
+<li><p>指向堆栈的指针限制。进入堆栈区域的所有指针都必须严格说明。当前，我们的转义分析确保堆栈中没有杂散指针。将来可能会有一些情况，我们希望允许指针进入堆栈，而此实现将排除它们。我不确定这些情况会怎样，但是这个限制值得一提。</p></li>
+
+<li><p>可能需要对运行时C / asm代码进行审核，以确保堆栈指针不会发生任何棘手的情况。</p></li>
+</ul>
+
+<h4 id="experiments-so-far">Experiments so far</h4>
+
+<p>&emsp;&emsp;我正在运行一个<a href="https://codereview.appspot.com/9029047/">原型实现</a>
+。它尚未完成，但可以编译简单的示例。</p>
+
+<p>&emsp;&emsp;Peano（test / peano.go）修改为最多运行11个！快了10％但是，它对增长率非常敏感，因此请多加一些盐​​。 （将每个副本的堆栈大小加倍快10％。将每个副本的堆栈增加50％仅快2％。将25％的堆栈增长慢20％。）</p>
+
+<p>&emsp;&emsp;“Hot split”测试用例<a href="https://play.golang.org/p/YVRi8hzZt1">stacksplit.go</a>。与-gcflags -l一起编译以禁用内联。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">segmented stacks:
+
+no split: 1.25925147s
+with split: 5.372118558s   &lt;- triggers hot split problem
+both split: 1.293200571s
+
+
+contiguous stacks:
+
+no split: 1.261624848s
+with split: 1.262939769s
+both split: 1.29008309s</pre></td></tr></table>
+</div>
+</div>
+<h4 id="benchmark-examples">Benchmark examples</h4>
+
+<p>&emsp;&emsp;我修改了分段堆栈和连续堆栈的实现，以使用环境变量来配置其堆栈段大小/初始堆栈大小。我们可以使用此功能来测试基准测试对堆栈段大小的敏感性。 （对于这些实验，连续的堆栈大小限制为2的幂。）</p>
+
+<p>&emsp;&emsp;encoding/json/BenchmarkEncode: 历史上一直有人抱怨这一点。See bug 3787.</p>
+
+<p><img src="https://i.loli.net/2019/12/28/MoAntO7sNzp5jIq.png" alt="josn-benchmnark.png" />)</p>
+
+<p>&emsp;&emsp;大概最大堆栈使用量为19KB左右，而低于该值时，不良的分割会导致向下的峰值。</p>
+
+<p>&emsp;&emsp;html/template/BenchmarkEscapedExecute: 此基准测试在4096字节/段（默认大小，这是我发现的方式）上存在一个特殊问题。</p>
+
+<p><img src="https://i.loli.net/2019/12/28/TMlB6n1Dow9Xp37.png" alt="html/template benchmark.png" />)</p>
+
+<p>&emsp;&emsp;（我不明白为什么连续堆栈隐式渐近更好。）</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">zhengxz</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2019-11-30
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      
+      <nav class="post-nav">
+        <a class="prev" href="/blog/post/go%E5%AE%9E%E7%8E%B0raft%E5%8D%8F%E8%AE%AE/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Go实现raft协议(1)</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/blog/post/runtime-main-2/">
+            <span class="next-text nav-default">main goroutine调度源码分析(2)</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+  <a href="https://zheng-bobo.github.io/blog/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2019 - 
+    2021<span class="heart"><i class="iconfont icon-heart"></i></span><span>zhengxz</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/blog/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
