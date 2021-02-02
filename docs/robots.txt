@@ -1,2 +1,2 @@
 User-agent: *
-Sitemap: https://zheng-bobo.github.io/blog/sitemap.xml
+Sitemap: https://zheng-bobo.github.io/sitemap.xml

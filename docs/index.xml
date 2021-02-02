@@ -2,129 +2,129 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Blowing in the wind</title>
-    <link>https://zheng-bobo.github.io/blog/</link>
+    <link>https://zheng-bobo.github.io/</link>
     <description>Recent content on Blowing in the wind</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
     <lastBuildDate>Tue, 02 Feb 2021 12:06:47 +0800</lastBuildDate>
     
-	<atom:link href="https://zheng-bobo.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://zheng-bobo.github.io/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>（译）Domain-Driven Design:Everything You Always Wanted to Know About it, But Were Afraid to Ask(1)</title>
-      <link>https://zheng-bobo.github.io/blog/domain-driven-design/</link>
+      <link>https://zheng-bobo.github.io/domain-driven-design/</link>
       <pubDate>Tue, 02 Feb 2021 12:06:47 +0800</pubDate>
       
-      <guid>https://zheng-bobo.github.io/blog/domain-driven-design/</guid>
+      <guid>https://zheng-bobo.github.io/domain-driven-design/</guid>
       <description>Domain-Driven Design原文地址 &amp;emsp;&amp;emsp;随着个人代码库的扩展,其复杂性也不可避免地会随之增加。随着这种情况发生,按原本的意图去保持代码</description>
     </item>
     
     <item>
       <title>go汇编简易入门(Ⅱ)</title>
-      <link>https://zheng-bobo.github.io/blog/post/go%E6%B1%87%E7%BC%96%E7%AE%80%E6%98%93%E5%85%A5%E9%97%A82/</link>
+      <link>https://zheng-bobo.github.io/post/go%E6%B1%87%E7%BC%96%E7%AE%80%E6%98%93%E5%85%A5%E9%97%A82/</link>
       <pubDate>Fri, 01 Jan 2021 12:34:14 +0800</pubDate>
       
-      <guid>https://zheng-bobo.github.io/blog/post/go%E6%B1%87%E7%BC%96%E7%AE%80%E6%98%93%E5%85%A5%E9%97%A82/</guid>
+      <guid>https://zheng-bobo.github.io/post/go%E6%B1%87%E7%BC%96%E7%AE%80%E6%98%93%E5%85%A5%E9%97%A82/</guid>
       <description>汇编角度看函数调用 &amp;emsp;&amp;emsp;我们以一个简单的例子来作为开始: 1 2 3 4 5 6 7 8 9 10 package main func main() { add(1, 1) } func add(a, b int64) (c int64) { c = a + b return } &amp;</description>
     </item>
     
     <item>
       <title>go汇编简易入门(1)</title>
-      <link>https://zheng-bobo.github.io/blog/post/go%E6%B1%87%E7%BC%96%E7%AE%80%E6%98%93%E5%85%A5%E9%97%A81/</link>
+      <link>https://zheng-bobo.github.io/post/go%E6%B1%87%E7%BC%96%E7%AE%80%E6%98%93%E5%85%A5%E9%97%A81/</link>
       <pubDate>Wed, 30 Dec 2020 11:25:47 +0800</pubDate>
       
-      <guid>https://zheng-bobo.github.io/blog/post/go%E6%B1%87%E7%BC%96%E7%AE%80%E6%98%93%E5%85%A5%E9%97%A81/</guid>
+      <guid>https://zheng-bobo.github.io/post/go%E6%B1%87%E7%BC%96%E7%AE%80%E6%98%93%E5%85%A5%E9%97%A81/</guid>
       <description>程序的存储空间布局 &amp;emsp;&amp;emsp;进程(Process)是一个正在执行的程序实例(instance)。每个实例有自己的地址空间和执行</description>
     </item>
     
     <item>
       <title>CAP与服务发现组件比较</title>
-      <link>https://zheng-bobo.github.io/blog/post/cap%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0%E7%BB%84%E4%BB%B6%E6%AF%94%E8%BE%83/</link>
+      <link>https://zheng-bobo.github.io/post/cap%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0%E7%BB%84%E4%BB%B6%E6%AF%94%E8%BE%83/</link>
       <pubDate>Sat, 29 Feb 2020 09:41:00 +0800</pubDate>
       
-      <guid>https://zheng-bobo.github.io/blog/post/cap%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0%E7%BB%84%E4%BB%B6%E6%AF%94%E8%BE%83/</guid>
+      <guid>https://zheng-bobo.github.io/post/cap%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0%E7%BB%84%E4%BB%B6%E6%AF%94%E8%BE%83/</guid>
       <description>CAP理论概述 一个分布式系统最多只能同时满足一致性（consistency）、可用性（Availability）和分区容错性（Partiti</description>
     </item>
     
     <item>
       <title>理解I/O：随机和顺序</title>
-      <link>https://zheng-bobo.github.io/blog/post/%E7%90%86%E8%A7%A3io-%E9%9A%8F%E6%9C%BA%E5%92%8C%E9%A1%BA%E5%BA%8F/</link>
+      <link>https://zheng-bobo.github.io/post/%E7%90%86%E8%A7%A3io-%E9%9A%8F%E6%9C%BA%E5%92%8C%E9%A1%BA%E5%BA%8F/</link>
       <pubDate>Thu, 06 Feb 2020 21:06:10 +0800</pubDate>
       
-      <guid>https://zheng-bobo.github.io/blog/post/%E7%90%86%E8%A7%A3io-%E9%9A%8F%E6%9C%BA%E5%92%8C%E9%A1%BA%E5%BA%8F/</guid>
+      <guid>https://zheng-bobo.github.io/post/%E7%90%86%E8%A7%A3io-%E9%9A%8F%E6%9C%BA%E5%92%8C%E9%A1%BA%E5%BA%8F/</guid>
       <description>转：https://blog.csdn.net/BaiWfg2/article/details/52885287 &amp;emsp;&amp;emsp;Storage for DBAs: Ever been to one of those sushi restaurants where the food</description>
     </item>
     
     <item>
       <title>Use a Mutex or a channel ?</title>
-      <link>https://zheng-bobo.github.io/blog/post/use-a-mutex-or-a-channel/</link>
+      <link>https://zheng-bobo.github.io/post/use-a-mutex-or-a-channel/</link>
       <pubDate>Thu, 16 Jan 2020 11:27:00 +0800</pubDate>
       
-      <guid>https://zheng-bobo.github.io/blog/post/use-a-mutex-or-a-channel/</guid>
+      <guid>https://zheng-bobo.github.io/post/use-a-mutex-or-a-channel/</guid>
       <description>Use a sync.Mutex or a channel? &amp;emsp;&amp;emsp;分别给了我们3个channel使用场景: 1.传递数据的所有权 2.分配工作单元 3.传达异步结果 2个mute</description>
     </item>
     
     <item>
       <title>http1.1与http2的区别</title>
-      <link>https://zheng-bobo.github.io/blog/post/http1.1%E4%B8%8Ehttp2%E7%9A%84%E5%8C%BA%E5%88%AB/</link>
+      <link>https://zheng-bobo.github.io/post/http1.1%E4%B8%8Ehttp2%E7%9A%84%E5%8C%BA%E5%88%AB/</link>
       <pubDate>Thu, 16 Jan 2020 10:25:00 +0800</pubDate>
       
-      <guid>https://zheng-bobo.github.io/blog/post/http1.1%E4%B8%8Ehttp2%E7%9A%84%E5%8C%BA%E5%88%AB/</guid>
+      <guid>https://zheng-bobo.github.io/post/http1.1%E4%B8%8Ehttp2%E7%9A%84%E5%8C%BA%E5%88%AB/</guid>
       <description>HTTP 1.1 &amp;emsp;&amp;emsp;1997 年 1 月，HTTP/1.1 版本发布，只比 1.0 版本晚了半年。它进一步完善了 HTTP 协议，一直用到了 20 年后的今天，直到现在还是最流行的版本。主要优化</description>
     </item>
     
     <item>
       <title>channel runtime源码分析</title>
-      <link>https://zheng-bobo.github.io/blog/post/runtime-channel/</link>
+      <link>https://zheng-bobo.github.io/post/runtime-channel/</link>
       <pubDate>Sun, 05 Jan 2020 11:19:10 +0800</pubDate>
       
-      <guid>https://zheng-bobo.github.io/blog/post/runtime-channel/</guid>
+      <guid>https://zheng-bobo.github.io/post/runtime-channel/</guid>
       <description>&amp;emsp;&amp;emsp;Channel 是 Go 语言中一个非常重要的类型，是 Go 里的第一对象。通过 channel，Go 实现了通过通信来实现内存共享。Channel 是在多个 goroutine 之间传递数据</description>
     </item>
     
     <item>
       <title>Go实现raft协议(1)</title>
-      <link>https://zheng-bobo.github.io/blog/post/go%E5%AE%9E%E7%8E%B0raft%E5%8D%8F%E8%AE%AE/</link>
+      <link>https://zheng-bobo.github.io/post/go%E5%AE%9E%E7%8E%B0raft%E5%8D%8F%E8%AE%AE/</link>
       <pubDate>Sun, 22 Dec 2019 17:13:00 +0800</pubDate>
       
-      <guid>https://zheng-bobo.github.io/blog/post/go%E5%AE%9E%E7%8E%B0raft%E5%8D%8F%E8%AE%AE/</guid>
+      <guid>https://zheng-bobo.github.io/post/go%E5%AE%9E%E7%8E%B0raft%E5%8D%8F%E8%AE%AE/</guid>
       <description>导读 &amp;emsp;&amp;emsp;实现思路来自于:MIT 6.824课程 Lab 2: Raft &amp;emsp;&amp;emsp;做实验前，你应该熟读raft论文，这里是: ra</description>
     </item>
     
     <item>
       <title>(译)Contiguous stacks</title>
-      <link>https://zheng-bobo.github.io/blog/post/%E8%AF%91contiguous-stacks/</link>
+      <link>https://zheng-bobo.github.io/post/%E8%AF%91contiguous-stacks/</link>
       <pubDate>Sat, 30 Nov 2019 13:14:00 +0800</pubDate>
       
-      <guid>https://zheng-bobo.github.io/blog/post/%E8%AF%91contiguous-stacks/</guid>
+      <guid>https://zheng-bobo.github.io/post/%E8%AF%91contiguous-stacks/</guid>
       <description>Contiguous stacks原文地址 &amp;emsp;&amp;emsp;为每一个go协程分配一块连续的栈内存空间，内存在用完的时候会重新分配/复制增长。 为什么？ 目前的</description>
     </item>
     
     <item>
       <title>main goroutine调度源码分析(2)</title>
-      <link>https://zheng-bobo.github.io/blog/post/runtime-main-2/</link>
+      <link>https://zheng-bobo.github.io/post/runtime-main-2/</link>
       <pubDate>Wed, 13 Nov 2019 22:20:10 +0800</pubDate>
       
-      <guid>https://zheng-bobo.github.io/blog/post/runtime-main-2/</guid>
+      <guid>https://zheng-bobo.github.io/post/runtime-main-2/</guid>
       <description>9.进入到runtime/proc.go,调度器初始化 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43</description>
     </item>
     
     <item>
       <title>为什么都用快排而不用归并排序？</title>
-      <link>https://zheng-bobo.github.io/blog/post/why-quicksort-better-than-mergesort/</link>
+      <link>https://zheng-bobo.github.io/post/why-quicksort-better-than-mergesort/</link>
       <pubDate>Wed, 13 Nov 2019 20:32:10 +0800</pubDate>
       
-      <guid>https://zheng-bobo.github.io/blog/post/why-quicksort-better-than-mergesort/</guid>
+      <guid>https://zheng-bobo.github.io/post/why-quicksort-better-than-mergesort/</guid>
       <description>汝之蜜糖，乙之砒霜。 快速排序： 1 2 3 * 最坏情况时间复杂度O(n^2) * 最好情况时间复杂度O(logn) * 平均时间复杂度O(nlgn) 归并排序</description>
     </item>
     
     <item>
       <title>main goroutine调度源码分析(1)</title>
-      <link>https://zheng-bobo.github.io/blog/post/runtime-main-1/</link>
+      <link>https://zheng-bobo.github.io/post/runtime-main-1/</link>
       <pubDate>Sun, 10 Nov 2019 14:40:10 +0800</pubDate>
       
-      <guid>https://zheng-bobo.github.io/blog/post/runtime-main-1/</guid>
+      <guid>https://zheng-bobo.github.io/post/runtime-main-1/</guid>
       <description>汇编之下,一切踪迹皆显。 1.go程序入口_rt0_amd64_linux: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 // TEXT 指令定义符号 _rt0_amd64_linux, 全局数据符号用 DATA 声</description>
     </item>
     
