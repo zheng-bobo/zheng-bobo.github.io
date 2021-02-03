@@ -23,7 +23,14 @@
   </url>
   
   <url>
-    <loc>https://zheng-bobo.github.io/domain-driven-design/</loc>
+    <loc>https://zheng-bobo.github.io/post/</loc>
+    <lastmod>2021-02-02T12:06:47+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/post/domain-driven-design/</loc>
     <lastmod>2021-02-02T12:06:47+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
@@ -38,13 +45,6 @@
   
   <url>
     <loc>https://zheng-bobo.github.io/post/go%E6%B1%87%E7%BC%96%E7%AE%80%E6%98%93%E5%85%A5%E9%97%A82/</loc>
-    <lastmod>2021-01-01T12:34:14+08:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
-    <loc>https://zheng-bobo.github.io/post/</loc>
     <lastmod>2021-01-01T12:34:14+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
