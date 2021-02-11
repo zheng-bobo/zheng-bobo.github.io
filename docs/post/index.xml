@@ -6,10 +6,19 @@
     <description>Recent content in Posts on Blowing in the wind</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Tue, 02 Feb 2021 12:06:47 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 11 Feb 2021 09:45:47 +0800</lastBuildDate>
     
 	<atom:link href="https://zheng-bobo.github.io/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>（译）Liunx – IO Multiplexing – Select VS Poll VS Epoll</title>
+      <link>https://zheng-bobo.github.io/post/%E8%AF%91liunx-io-multiplexing-select-vs-poll-vs-epoll/</link>
+      <pubDate>Thu, 11 Feb 2021 09:45:47 +0800</pubDate>
+      
+      <guid>https://zheng-bobo.github.io/post/%E8%AF%91liunx-io-multiplexing-select-vs-poll-vs-epoll/</guid>
+      <description>导读 &amp;emsp;&amp;emsp;读这篇文章前可以先了解下Liunx5种I/O模型 &amp;emsp;&amp;emsp;参考文献: I/O Models &amp;ndash;Richard Stevens的《UNI</description>
+    </item>
     
     <item>
       <title>（译）Domain-Driven Design:Everything You Always Wanted to Know About it, But Were Afraid to Ask(1)</title>

@@ -6,10 +6,28 @@
     <description>Recent content on Blowing in the wind</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Tue, 02 Feb 2021 12:06:47 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 11 Feb 2021 09:45:47 +0800</lastBuildDate>
     
 	<atom:link href="https://zheng-bobo.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>（译）Liunx – IO Multiplexing – Select VS Poll VS Epoll</title>
+      <link>https://zheng-bobo.github.io/post/%E8%AF%91liunx-io-multiplexing-select-vs-poll-vs-epoll/</link>
+      <pubDate>Thu, 11 Feb 2021 09:45:47 +0800</pubDate>
+      
+      <guid>https://zheng-bobo.github.io/post/%E8%AF%91liunx-io-multiplexing-select-vs-poll-vs-epoll/</guid>
+      <description>导读 &amp;emsp;&amp;emsp;读这篇文章前可以先了解下Liunx5种I/O模型 &amp;emsp;&amp;emsp;参考文献: I/O Models &amp;ndash;Richard Stevens的《UNI</description>
+    </item>
+    
+    <item>
+      <title>CRSF &amp; CORS介绍</title>
+      <link>https://zheng-bobo.github.io/todo/crsf-cros%E4%BB%8B%E7%BB%8D/</link>
+      <pubDate>Thu, 04 Feb 2021 17:32:47 +0800</pubDate>
+      
+      <guid>https://zheng-bobo.github.io/todo/crsf-cros%E4%BB%8B%E7%BB%8D/</guid>
+      <description>导读 &amp;emsp;&amp;emsp;介绍CRSF(Cross-site request forgery)&amp;amp;CORS(Cross-origin resource sharing)之前，我们先介绍下HTTP,若读者对HTTP较熟悉，可以</description>
+    </item>
     
     <item>
       <title>（译）Domain-Driven Design:Everything You Always Wanted to Know About it, But Were Afraid to Ask(1)</title>
@@ -126,6 +144,26 @@
       
       <guid>https://zheng-bobo.github.io/post/runtime-main-1/</guid>
       <description>汇编之下,一切踪迹皆显。 1.go程序入口_rt0_amd64_linux: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 // TEXT 指令定义符号 _rt0_amd64_linux, 全局数据符号用 DATA 声</description>
+    </item>
+    
+    <item>
+      <title></title>
+      <link>https://zheng-bobo.github.io/note/%E6%89%B9%E5%88%A4%E6%80%A7%E6%80%9D%E7%BB%B4/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://zheng-bobo.github.io/note/%E6%89%B9%E5%88%A4%E6%80%A7%E6%80%9D%E7%BB%B4/</guid>
+      <description>绪论 作者自己对批判性思维的定义：对思维方式的思考
+成为优秀思考者的好处
+如何成为优秀思考者&amp;ndash;&amp;gt;养成批判性思维方式&amp;ndash;&amp;gt;批判性思维的重要
+详解批判性思维的概念&amp;ndash;&amp;gt;分析评估
+再次强调批判性思维的重要，以及简单介绍了批判性思维的衡量标准
+1 2 3 4  学习的本质--提高并控制自己的思维方式，知道了知识并不重要，知道如何获取知识，获取正确的知识更重要 丰田公司的“5Why分析法”就是一个很好的方式 很多时候你所谓的懂了并不是真的懂了，一旦深究就显得浅薄 如果你不能清晰准备地表述自己的观点，那就是你对所讲述的内容还不够了解   如果养成批判性思维 1.公正思维 &amp;ndash;&amp;gt; 特点:严于质己,摒弃诡辩思维，学会换位思考 &amp;ndash;&amp;gt;如何培养公正思维 | 先考虑不喜欢的观点 | 承认自己的不足和局限性 | 敢与主流相背，挑战自己的意识形态信念系统 | 先找出别人观点的合理处再质疑
+| 同样的标准对待别人和自己 警惕善意谎言等自我欺骗 | 良好推理的过程和明确的信心建立信心
+| 注重独立思考
+小结：抵抗住外部遵从力量以及内部自我中心思想的影响，警惕那些可以令自己舒服的观点、符合自身利益的观点、满足自己自私需求的观点。
+2.成为优秀思考者的几个阶段：
+1.鲁莽的思考者:从不对自己的思考过程进行思考，不分析和评价自己的思维方式 只做出决定，对别人做出反馈，不会认真反思 2.质疑的思考者:能注意到我们思考过程的问题 在努力分析和评估自己的思维方式 在发掘那些能够产生思考的思维结构(如：概念、假设、推论、意义、观点) 考虑能够优化思维的品质(清晰性、准确性、精确性、相关性、逻辑性) 发现自我思维里的自欺行为 3.初级的思考者:分析情景或问题的逻辑性 清晰、准确地表达问题 检查信息的准确性和相关性 区分出原始信息和他人对此事件的描述信息 找出得出结论的假设 找出有偏见的信念、不公正的结论、错误使用的词汇和忽略的意义 注意到什么时候我们的私利会影响我们的观点 注意两点 教条专制主义&amp;ndash;相信真想不是通过推理和调查获得的，而是通过一些预先设定的、非理性的信念获得的。 主观相对主义&amp;ndash;相信不存在评判事务对错的思维标准。 4.练习中的思维者:编制一套计划&amp;ndash;在执行中检验计划&amp;ndash;找出一个有效的计划（不被情绪所控制） 利用“浪费”的时间 每天解决一个问题 将思维标准内化 坚持做思维日记 练习思维策略 重新塑造你的性格 改变你的自我 改变你看待事物的方法 关注自己的情绪 分析群体对你生活的影响
+理解思维本性，理解头脑的基本机制 思维本性:自我中心 倾向于被自我中心的思维和感受所主导是人类在学习中面对的一个最基本的挑战。我们即可的欲望、痛苦、想法和感受深深地主导了我们的生活。出于本质上的自私，我们去寻求自我满足。&amp;ndash;&amp;gt; 可以去培养一个习惯开始，从此过程中，你可以体会到在枯燥无味坚持之后所带来的小有成就的更高层次的自我满足感</description>
     </item>
     
   </channel>

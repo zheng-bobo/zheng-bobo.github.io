@@ -6,10 +6,28 @@
     <description>Recent content in Categories on Blowing in the wind</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Tue, 02 Feb 2021 12:06:47 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 11 Feb 2021 09:45:47 +0800</lastBuildDate>
     
 	<atom:link href="https://zheng-bobo.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>network</title>
+      <link>https://zheng-bobo.github.io/categories/network/</link>
+      <pubDate>Thu, 11 Feb 2021 09:45:47 +0800</pubDate>
+      
+      <guid>https://zheng-bobo.github.io/categories/network/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>翻译</title>
+      <link>https://zheng-bobo.github.io/categories/%E7%BF%BB%E8%AF%91/</link>
+      <pubDate>Thu, 11 Feb 2021 09:45:47 +0800</pubDate>
+      
+      <guid>https://zheng-bobo.github.io/categories/%E7%BF%BB%E8%AF%91/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>architecture</title>
@@ -35,24 +53,6 @@
       <pubDate>Thu, 06 Feb 2020 21:06:10 +0800</pubDate>
       
       <guid>https://zheng-bobo.github.io/categories/operating-system/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>network</title>
-      <link>https://zheng-bobo.github.io/categories/network/</link>
-      <pubDate>Thu, 16 Jan 2020 10:25:00 +0800</pubDate>
-      
-      <guid>https://zheng-bobo.github.io/categories/network/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>翻译</title>
-      <link>https://zheng-bobo.github.io/categories/%E7%BF%BB%E8%AF%91/</link>
-      <pubDate>Sat, 30 Nov 2019 13:14:00 +0800</pubDate>
-      
-      <guid>https://zheng-bobo.github.io/categories/%E7%BF%BB%E8%AF%91/</guid>
       <description></description>
     </item>
     
