@@ -284,10 +284,32 @@ struct pollfd {
   
 *   epoll具有更好的性能-O(1)代替O(n)
   
-*   epoll可以表现为水平触发或边沿触发（请参见手册页）
+*   epoll可以表现为水平触发或边沿触发(EPOLLLT和EPOLLET两种触发模式)（请参见手册页）
   
 *   epoll是特定于Linux的，因此不可移植
 
 &emsp;&emsp;我meetup中有关Liunx IO的幻灯片[here](https://www.slideshare.net/liranbh/linux-io-72197884)
 
 &emsp;&emsp;你可以查看所有代码[here](https://www.slideshare.net/liranbh/linux-io-72197884)
+
+<blockquote class="blockquote-center">
+文章正文结束 <br/>
+<!--&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;——郑燮-->
+<!-- 右对齐 -->
+</blockquote>
+
+### 个人理解
+
+1.select、poll、epoll都是同步模型 (三者将数据从内核拷贝到用户态的过程是阻塞的);
+
+2.select/poll 每次返回得轮训检查监听的文件描述符是否有预期的IO操作,时间复杂度O(N);epoll无需轮训,直接返回有预期IO操作的文件描述符结构,时间复杂度O(1);
+
+3.select监听的文件描述符有限制(一般为1024),poll,epoll没有限制(最大值为65535);
+
+4.select每次返回只返回符合预期的fd,所以每次都需要重新创建fd_set,poll将pollfd结构体events、revents分开，无需每次创建;
+
+5.epoll有ET和LT两种模式,select/poll则只存在LT模式。
+
+### 扩展阅读
+[Linux下的I/O复用与epoll详解]（https://www.cnblogs.com/lojunren/p/3856290.html）
+[彻底学会使用epoll(一)——ET模式实现分析](http://blog.chinaunix.net/uid-28541347-id-4273856.html)
