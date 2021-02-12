@@ -51,7 +51,7 @@
 
 <meta itemprop="datePublished" content="2021-02-11T09:45:47&#43;08:00" />
 <meta itemprop="dateModified" content="2021-02-11T09:45:47&#43;08:00" />
-<meta itemprop="wordCount" content="3303">
+<meta itemprop="wordCount" content="3300">
 
 
 
@@ -139,7 +139,7 @@
             <a href="/categories/network/"> network </a>
             <a href="/categories/%E7%BF%BB%E8%AF%91/"> 翻译 </a>
             </div>
-          <span class="more-meta"> 约 3303 字 </span>
+          <span class="more-meta"> 约 3300 字 </span>
           <span class="more-meta"> 预计阅读 7 分钟 </span>
         
       </div>
@@ -568,10 +568,14 @@ fd_set是一个元素为int,长度为32的数组(32 *32bit=1024bits,每一位代
 
 <p>&emsp;&emsp;当使用select或poll时,我们自己管理用户空间,并在每次调用时发送集合并等待函数返回。每添加一个socket,我们都要将它加到集合中,然后再次调用select/poll。</p>
 
-<p>&emsp;&emsp;epoll系统调用可帮助我们在内核中创建和管理上下文。我们将任务分为3个步骤:
-*   使用epoll_create在内核中创建上下文
-*   使用epoll_ctl向/从上下文中添加和删除文件描述符
-*   使用epoll_wait等待上下文中的事件</p>
+<p>&emsp;&emsp;epoll系统调用可帮助我们在内核中创建和管理上下文。我们将任务分为3个步骤:</p>
+
+<ul>
+<li>使用epoll_create在内核中创建上下文</li>
+<li>使用epoll_ctl向/从上下文中添加和删除文件描述符</li>
+<li>使用epoll_wait等待上下文中的事件
+<br /></li>
+</ul>
 
 <p>&emsp;&emsp;上面例子改用epoll:</p>
 <div class="highlight"><div class="chroma">
