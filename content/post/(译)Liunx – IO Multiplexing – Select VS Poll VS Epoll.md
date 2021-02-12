@@ -300,16 +300,18 @@ struct pollfd {
 
 ### 个人理解
 
-1.select、poll、epoll都是同步模型 (三者将数据从内核拷贝到用户态的过程是阻塞的);
+1.  select、poll、epoll都是同步模型 (三者将数据从内核拷贝到用户态的过程是阻塞的);
 
-2.select/poll 每次返回得轮训检查监听的文件描述符是否有预期的IO操作,时间复杂度O(N);epoll无需轮训,直接返回有预期IO操作的文件描述符结构,时间复杂度O(1);
+2.  select/poll 每次返回得轮训检查监听的文件描述符是否有预期的IO操作,时间复杂度O(N);epoll无需轮训,直接返回有预期IO操作的文件描述符结构,时间复杂度O(1);
 
-3.select监听的文件描述符有限制(一般为1024),poll,epoll没有限制(最大值为65535);
+3.  select监听的文件描述符有限制(一般为1024),poll,epoll没有限制(最大值为65535);
 
-4.select每次返回只返回符合预期的fd,所以每次都需要重新创建fd_set,poll将pollfd结构体events、revents分开，无需每次创建;
+4.  select每次返回只返回符合预期的fd,所以每次都需要重新创建fd_set,poll将pollfd结构体events、revents分开，无需每次创建;
 
-5.epoll有ET和LT两种模式,select/poll则只存在LT模式。
+5.  epoll有ET和LT两种模式,select/poll则只存在LT模式。
 
 ### 扩展阅读
-[Linux下的I/O复用与epoll详解]（https://www.cnblogs.com/lojunren/p/3856290.html）
-[彻底学会使用epoll(一)——ET模式实现分析](http://blog.chinaunix.net/uid-28541347-id-4273856.html)
+
+&emsp;&emsp;[Linux下的I/O复用与epoll详解](https://www.cnblogs.com/lojunren/p/3856290.html)
+
+&emsp;&emsp;[彻底学会使用epoll(一)——ET模式实现分析](http://blog.chinaunix.net/uid-28541347-id-4273856.html)
