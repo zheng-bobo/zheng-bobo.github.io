@@ -241,6 +241,7 @@ struct pollfd {
 &emsp;&emsp;当使用select或poll时,我们自己管理用户空间,并在每次调用时发送集合并等待函数返回。每添加一个socket,我们都要将它加到集合中,然后再次调用select/poll。
 
 &emsp;&emsp;epoll系统调用可帮助我们在内核中创建和管理上下文。我们将任务分为3个步骤:
+
 *   使用epoll_create在内核中创建上下文
 *   使用epoll_ctl向/从上下文中添加和删除文件描述符
 *   使用epoll_wait等待上下文中的事件
