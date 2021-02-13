@@ -315,3 +315,5 @@ struct pollfd {
 &emsp;&emsp;[Linux下的I/O复用与epoll详解](https://www.cnblogs.com/lojunren/p/3856290.html)
 
 &emsp;&emsp;[彻底学会使用epoll(一)——ET模式实现分析](http://blog.chinaunix.net/uid-28541347-id-4273856.html)
+
+&emsp;&emsp;[Go netpoller 原生网络模型之源码全面揭秘](https://strikefreedom.top/go-netpoll-io-multiplexing-reactor)
