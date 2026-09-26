@@ -1,0 +1,72 @@
+{{- define "title" }}{{ T "archive" }} - {{ .Site.Title }}{{ end -}}
+
+{{- define "content" }}
+{{- $posts := .Data.Pages.ByDate.Reverse -}}
+{{- $recentPosts := first 5 $posts -}}
+{{- $isChinese := eq .Site.Language.Lang "zh-cn" -}}
+
+<section class="blog-archive-layout">
+  <aside class="blog-archive-sidebar" aria-labelledby="blog-archive-title">
+    <div class="blog-archive-sidebar-header">
+      <h1 id="blog-archive-title">{{ if $isChinese }}文章归档{{ else }}Archive{{ end }}</h1>
+      <p>{{ if $isChinese }}按年份浏览全部 {{ len $posts }} 篇文章{{ else }}Browse all {{ len $posts }} posts by year{{ end }}</p>
+    </div>
+
+    <nav class="blog-archive-years" aria-label="{{ if $isChinese }}按年份排列的文章{{ else }}Posts grouped by year{{ end }}">
+      {{- range $index, $post := $posts -}}
+        {{- $year := $post.Date.Format "2006" -}}
+        {{- $previousPost := $index | add -1 | index $posts -}}
+        {{- if or (eq $index 0) (ne ($previousPost.Date.Format "2006") $year) }}
+          <h2 class="blog-archive-year" id="year-{{ $year }}">{{ $year }}</h2>
+        {{- end }}
+        <a class="blog-archive-index-item" href="{{ $post.RelPermalink }}">
+          <time datetime="{{ $post.Date.Format "2006-01-02" }}">{{ $post.Date.Format "01-02" }}</time>
+          <span>{{ $post.Title }}</span>
+        </a>
+      {{- end }}
+    </nav>
+  </aside>
+
+  <div class="blog-recent-posts" aria-labelledby="blog-recent-title">
+    <header class="blog-recent-header">
+      <p class="blog-recent-kicker">{{ if $isChinese }}最近更新{{ else }}Latest writing{{ end }}</p>
+      <h1 id="blog-recent-title">{{ if $isChinese }}最新 5 篇文章{{ else }}Five latest posts{{ end }}</h1>
+      <p>{{ if $isChinese }}阅读近期文章的摘要，或进入全文继续阅读。{{ else }}Read a short preview, then continue with the full article.{{ end }}</p>
+    </header>
+
+    {{- range $recentPosts }}
+      <article class="blog-summary-card">
+        <header>
+          <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+          <div class="blog-summary-meta">
+            <time datetime="{{ .Date.Format "2006-01-02" }}">
+              {{- if $isChinese }}{{ .Date.Format "2006年01月02日" }}{{ else }}{{ .Date.Format "January 2, 2006" }}{{ end -}}
+            </time>
+            <span aria-hidden="true">·</span>
+            <span>{{ T "readingTime" .ReadingTime }}</span>
+          </div>
+        </header>
+
+        <p class="blog-summary-excerpt">{{ .Summary | plainify | truncate 320 }}</p>
+
+        <footer class="blog-summary-footer">
+          {{- with .Params.tags }}
+            <div class="blog-summary-tags" aria-label="{{ if $isChinese }}标签{{ else }}Tags{{ end }}">
+              <span class="blog-summary-tags-label">{{ if $isChinese }}标签{{ else }}Tags{{ end }}</span>
+              <ul>
+                {{- range . }}
+                  <li><a href="{{ "tags" | relLangURL }}/{{ . | urlize }}/">{{ . }}</a></li>
+                {{- end }}
+              </ul>
+            </div>
+          {{- end }}
+          <a class="blog-summary-read-more" href="{{ .RelPermalink }}">
+            {{- if $isChinese }}阅读全文{{ else }}Read more{{ end -}}
+            <span aria-hidden="true">→</span>
+          </a>
+        </footer>
+      </article>
+    {{- end }}
+  </div>
+</section>
+{{- end }}
