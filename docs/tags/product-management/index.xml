@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Product Management on Blowing in the wind</title>
+    <link>https://zheng-bobo.github.io/tags/product-management/</link>
+    <description>Recent content in Product Management on Blowing in the wind</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 23 Mar 2026 12:22:13 +0100</lastBuildDate>
+    
+	<atom:link href="https://zheng-bobo.github.io/tags/product-management/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>CS230：AI 时代的职业建议</title>
+      <link>https://zheng-bobo.github.io/post/cs230-career-advice-in-ai/</link>
+      <pubDate>Mon, 23 Mar 2026 12:22:13 +0100</pubDate>
+      
+      <guid>https://zheng-bobo.github.io/post/cs230-career-advice-in-ai/</guid>
+      <description>&lt;p&gt;AI 正在快速改变软件工程：写代码的成本持续下降，工程师能够完成的任务越来越复杂，产品研发的瓶颈也随之转移。这篇文章整理了 CS230 分享中关于 AI 职业发展的五点建议——理解变化、选择同行者、用产出衡量努力、打牢技术基础，以及关注 Small AI。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>
