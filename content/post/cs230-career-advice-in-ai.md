@@ -1,7 +1,7 @@
 ---
 title: "CS230：AI 时代的职业建议"
 date: 2026-03-23 12:22:13 +0100
-categories: [人工智能]
+categories: [职业发展]
 tags: [AI, 职业发展, 软件工程, Product Management, Small AI]
 ---
 
@@ -9,15 +9,22 @@ AI 正在快速改变软件工程：写代码的成本持续下降，工程师�
 
 <!--more-->
 
+> **来源**：[Stanford CS230 · Autumn 2025 · Lecture 9: Career Advice in AI](https://www.youtube.com/watch?v=AuZoDsNmG_s)（Andrew Ng、Laurence Moroney、Kian Katanforoosh）<br>
+> **原始笔记**：[CS230 Career Advice in AI](https://app.notion.com/p/CS230-Career-Advice-in-AI-32cf1cbefb538007be0dc82a434195a9)
+
 ## 1. AI 编程正在把瓶颈推向“构建什么”
 
 AI 能够处理的代码逻辑复杂度和连续工作能力，正在以很快的速度增长。讲座中给出的判断是：大约每隔两个多月，这种能力就会翻倍。
+
+![AI 可完成任务的时间跨度约每七个月翻倍，AI 编程约每七十天翻倍](/img/posts/cs230-career-advice/ai-coding-capability.png)
 
 当写代码变得更快、更便宜以后，软件开发中最稀缺的能力不再只是“如何实现”，而逐渐变成：
 
 > 应该构建什么？什么问题真正值得解决？
 
 换句话说，瓶颈正在从 Engineering 向 Product Management 转移。工程师与产品经理的比例可能继续下降，甚至趋近于 1:1。这里并不是说工程能力不再重要，而是单纯执行明确需求的价值在下降，能够定义需求、塑造产品的工程师会更加稀缺。
+
+![AI 编程降低构建成本后，获取反馈与产品管理成为新的瓶颈](/img/posts/cs230-career-advice/product-management-bottleneck.png)
 
 ### 工程师需要更接近用户
 
@@ -118,3 +125,7 @@ AI 时代的职业竞争力，可以归纳成五点：
 5. 在大模型之外，持续关注 Small AI 和底层算力的机会。
 
 AI 让实现产品变得更容易，也让判断力、同理心、沟通能力和环境选择变得更加重要。技术仍然是基础，但真正拉开差距的，会是一个人如何用技术发现问题、理解用户并持续创造价值。
+
+## 原始笔记长图
+
+![CS230 Career Advice in AI 原始 Notion 笔记长图](/img/posts/cs230-career-advice/career-advice-in-ai.jpg)
