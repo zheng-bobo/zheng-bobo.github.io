@@ -5,7 +5,7 @@ url: "/about/"
 date: 2026-09-26
 description: "Zheng Xuzhang 的个人介绍：分布式系统、AI 系统与工程实践。"
 eyebrow: "SYSTEMS · AI · ENGINEERING"
-heading: "你好，我是 Zheng Xuzhang。"
+heading: "我是 Bobo。"
 deck: "我关心复杂系统如何在真实世界里稳定、高效地工作，也在学习如何把同样的工程思维带进 AI。"
 ---
 
