@@ -147,7 +147,7 @@ article.post:has(> .post-toc) > .post-header .post-title {
 .post .post-toc {
   width: 220px;
   max-height: calc(100vh - 40px);
-  margin-left: calc(100% + 32px);
+  margin-left: -252px;
   padding: 14px 16px;
   overflow-y: auto;
   color: var(--reading-muted);
@@ -249,7 +249,7 @@ article.post:has(> .post-toc) > .post-header .post-title {
   border-color: var(--reading-rule);
 }
 
-@media (max-width: 1439px) {
+@media (max-width: 1279px) {
   .post .post-toc {
     display: none;
   }
