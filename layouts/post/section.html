@@ -64,13 +64,7 @@
     </nav>
   </aside>
 
-  <div class="blog-recent-posts" aria-labelledby="blog-recent-title">
-    <header class="blog-recent-header">
-      <p class="blog-recent-kicker">{{ if $isChinese }}最近更新{{ else }}Latest writing{{ end }}</p>
-      <h1 id="blog-recent-title">{{ if $isChinese }}最新 5 篇文章{{ else }}Five latest posts{{ end }}</h1>
-      <p>{{ if $isChinese }}阅读近期文章的摘要，或进入全文继续阅读。{{ else }}Read a short preview, then continue with the full article.{{ end }}</p>
-    </header>
-
+  <div class="blog-recent-posts" aria-label="{{ if $isChinese }}最近文章{{ else }}Recent posts{{ end }}">
     {{- range $recentPosts }}
       <article class="blog-summary-card">
         <header>
@@ -84,7 +78,11 @@
           </div>
         </header>
 
-        <p class="blog-summary-excerpt">{{ .Summary | plainify | truncate 320 }}</p>
+        <div class="blog-summary-excerpt post">
+          <div class="post-content">
+            <div class="post-summary">{{ .Summary }}</div>
+          </div>
+        </div>
 
         <footer class="blog-summary-footer">
           {{- with .Params.tags }}

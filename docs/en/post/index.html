@@ -169,7 +169,7 @@
       <div class="content-wrapper">
         <div id="content" class="content">
 
-<link rel="stylesheet" href="/css/readability.css?v=9ba086572a1350a02bf328ce69c24db5">
+<link rel="stylesheet" href="/css/readability.css?v=9345df82e05ec3f7fc480651eebe4f76">
 
 <style>
 
@@ -301,12 +301,7 @@
     </nav>
   </aside>
 
-  <div class="blog-recent-posts" aria-labelledby="blog-recent-title">
-    <header class="blog-recent-header">
-      <p class="blog-recent-kicker">Latest writing</p>
-      <h1 id="blog-recent-title">Five latest posts</h1>
-      <p>Read a short preview, then continue with the full article.</p>
-    </header>
+  <div class="blog-recent-posts" aria-label="Recent posts">
       <article class="blog-summary-card">
         <header>
           <h2><a href="/en/post/transformer-architecture/">Transformer Architecture: From Token Embeddings to the Training Loop</a></h2>
@@ -317,8 +312,44 @@
           </div>
         </header>
 
-        <p class="blog-summary-excerpt">Transformer appears to be made up of many components, but a GPT-style forward path can be summarized as:
-1 2 3 4 5 6 7 8 9 10 11 12 13  Token IDs ↓ Token Embedding + Position Embedding ↓ [LayerNorm → Self-Attention → Residual] ↓ [LayerNorm → FFN → Residual] ↓ Repeat for multiple Transformer blocks ↓ Final LayerNorm → …</p>
+        <div class="blog-summary-excerpt post">
+          <div class="post-content">
+            <div class="post-summary"><p>Transformer appears to be made up of many components, but a GPT-style forward path can be summarized as:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Token IDs
+   ↓
+Token Embedding + Position Embedding
+   ↓
+[LayerNorm → Self-Attention → Residual]
+   ↓
+[LayerNorm → FFN → Residual]
+   ↓
+Repeat for multiple Transformer blocks
+   ↓
+Final LayerNorm → LM Head
+   ↓
+Next-token logits → Cross-Entropy Loss</code></pre></td></tr></table>
+</div>
+</div>
+<p>This article starts from a simple GPT implementation and explains the role and tensor shape of each step along the data flow. The complete source code is placed at the end of the article. After reading the previous principles, you can compare and understand it with the code.</p></div>
+          </div>
+        </div>
 
         <footer class="blog-summary-footer">
             <div class="blog-summary-tags" aria-label="Tags">
@@ -345,8 +376,13 @@
           </div>
         </header>
 
-        <p class="blog-summary-excerpt">“Agent” is often used as a broad label for any system that calls tools or takes multiple steps. Anthropic&amp;rsquo;s engineering work offers a more useful distinction: a workflow follows code paths defined in advance; an agent lets the model dynamically choose its process from environmental feedback.
-This first article in …</p>
+        <div class="blog-summary-excerpt post">
+          <div class="post-content">
+            <div class="post-summary"><p>“Agent” is often used as a broad label for any system that calls tools or takes multiple steps. Anthropic&rsquo;s engineering work offers a more useful distinction: <strong>a workflow follows code paths defined in advance; an agent lets the model dynamically choose its process from environmental feedback.</strong></p>
+
+<p>This first article in the “Anthropic Agent Evolution” series establishes the vocabulary: augmented LLMs, fixed workflows, autonomous agents, and the harness that surrounds the model.</p></div>
+          </div>
+        </div>
 
         <footer class="blog-summary-footer">
             <div class="blog-summary-tags" aria-label="Tags">
@@ -373,8 +409,13 @@ This first article in …</p>
           </div>
         </header>
 
-        <p class="blog-summary-excerpt">The central tension in long-running work is not whether a model can write code. It is that a task may last hours or days while every context window is finite. Replaying the entire history eventually creates both capacity and noise problems.
-Anthropic&amp;rsquo;s first long-running agent harness answered with a simple …</p>
+        <div class="blog-summary-excerpt post">
+          <div class="post-content">
+            <div class="post-summary"><p>The central tension in long-running work is not whether a model can write code. It is that a task may last hours or days while every context window is finite. Replaying the entire history eventually creates both capacity and noise problems.</p>
+
+<p>Anthropic&rsquo;s first long-running agent harness answered with a simple principle: <strong>reset conversational context, but externalize project state into structured artifacts that the next agent can recover.</strong></p></div>
+          </div>
+        </div>
 
         <footer class="blog-summary-footer">
             <div class="blog-summary-tags" aria-label="Tags">
@@ -401,8 +442,13 @@ Anthropic&amp;rsquo;s first long-running agent harness answered with a simple �
           </div>
         </header>
 
-        <p class="blog-summary-excerpt">The first harness let an agent continue across context windows, but continuity is not quality. Generators routinely mistake “mostly runs” for “good enough,” especially in subjective product and design work.
-Anthropic&amp;rsquo;s next step separated planning, generation, and evaluation so that an external evaluator became a …</p>
+        <div class="blog-summary-excerpt post">
+          <div class="post-content">
+            <div class="post-summary"><p>The first harness let an agent continue across context windows, but continuity is not quality. Generators routinely mistake “mostly runs” for “good enough,” especially in subjective product and design work.</p>
+
+<p>Anthropic&rsquo;s next step separated planning, generation, and evaluation so that an external evaluator became a source of evidence the generator had to respond to.</p></div>
+          </div>
+        </div>
 
         <footer class="blog-summary-footer">
             <div class="blog-summary-tags" aria-label="Tags">
@@ -430,7 +476,13 @@ Anthropic&amp;rsquo;s next step separated planning, generation, and evaluation s
           </div>
         </header>
 
-        <p class="blog-summary-excerpt">Earlier harnesses focused on how a model could continue work and improve quality. A managed service introduces system questions: how is a session persisted, how does work recover after a harness crash, how can sandboxes be replaced, how do customer VPCs connect, and how are credentials kept away from model-generated …</p>
+        <div class="blog-summary-excerpt post">
+          <div class="post-content">
+            <div class="post-summary"><p>Earlier harnesses focused on how a model could continue work and improve quality. A managed service introduces system questions: how is a session persisted, how does work recover after a harness crash, how can sandboxes be replaced, how do customer VPCs connect, and how are credentials kept away from model-generated code?</p>
+
+<p>Anthropic Managed Agents answers by <strong>decoupling the brain, hands, and session behind stable interfaces.</strong></p></div>
+          </div>
+        </div>
 
         <footer class="blog-summary-footer">
             <div class="blog-summary-tags" aria-label="Tags">

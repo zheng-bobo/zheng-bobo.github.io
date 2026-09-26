@@ -17,6 +17,26 @@ for page in docs/post/index.html docs/en/post/index.html; do
     echo "Archive layout check failed: sidebar missing from $page" >&2
     exit 1
   fi
+
+  if grep -Eq '最新 5 篇文章|Five latest posts|阅读近期文章的摘要|Read a short preview' "$page"; then
+    echo "Archive layout check failed: removed intro header still appears in $page" >&2
+    exit 1
+  fi
+
+  if ! grep -q 'class="blog-summary-excerpt post"' "$page"; then
+    echo "Archive layout check failed: rich summary wrapper missing from $page" >&2
+    exit 1
+  fi
 done
 
-echo "Archive layout check passed: versioned CSS, sidebar, and five summaries are present."
+if ! grep -q 'class="language-text"' docs/post/index.html; then
+  echo "Archive layout check failed: Transformer code block missing from Chinese summary" >&2
+  exit 1
+fi
+
+if ! grep -q 'class="language-text"' docs/en/post/index.html; then
+  echo "Archive layout check failed: Transformer code block missing from English summary" >&2
+  exit 1
+fi
+
+echo "Archive layout check passed: intro removed; rich summaries, code blocks, sidebar, and five posts are present."
