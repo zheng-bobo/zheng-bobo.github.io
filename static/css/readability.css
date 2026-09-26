@@ -197,6 +197,8 @@ article.post:has(> .post-toc) > .post-header .post-title {
 
   .post .post-toc {
     display: block;
+    position: fixed !important;
+    top: 20px !important;
   }
 }
 
