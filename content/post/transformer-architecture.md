@@ -4,6 +4,7 @@ date: 2026-09-14 10:25:02 +0200
 categories: [人工智能]
 tags: [Transformer, GPT, Attention, PyTorch, 深度学习]
 mathjax: true
+mathjaxEnableSingleDollar: true
 ---
 
 Transformer 看起来由许多组件组成，但一条 GPT 风格的前向路径可以概括为：
