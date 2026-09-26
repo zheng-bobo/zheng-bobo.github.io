@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Stanford CS329A：Self-Improving AI Agents 的完整技术框架 - Blowing in the wind</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="zhengxz" /><meta name="description" content="Self-Improving AI Agent 并不是一个会无限递归修改自己的神秘系统。更实际的理解是：Agent 在生成、行动、观察和验证之间形成闭环，把推理时获得的反馈用于改进当前答案、后续决策，甚至下一轮训练。
+这篇文章沿着 Stanford CS329A 的课程主线，把测试时计算、验证器、工具反馈、规划搜索、强化学习、深度研究与长程评测串成一个完整框架。
+" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.59.1 with theme even" />
+
+
+<link rel="canonical" href="https://zheng-bobo.github.io/post/stanford-cs329a-self-improving-ai-agents/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.4747d1be8010357c5daf4cd103b0bc1cff65936180045419874ea97f32138102.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Stanford CS329A：Self-Improving AI Agents 的完整技术框架" />
+<meta property="og:description" content="Self-Improving AI Agent 并不是一个会无限递归修改自己的神秘系统。更实际的理解是：Agent 在生成、行动、观察和验证之间形成闭环，把推理时获得的反馈用于改进当前答案、后续决策，甚至下一轮训练。
+
+这篇文章沿着 Stanford CS329A 的课程主线，把测试时计算、验证器、工具反馈、规划搜索、强化学习、深度研究与长程评测串成一个完整框架。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zheng-bobo.github.io/post/stanford-cs329a-self-improving-ai-agents/" />
+<meta property="article:published_time" content="2026-08-11T06:27:01+02:00" />
+<meta property="article:modified_time" content="2026-08-11T06:27:01+02:00" />
+<meta itemprop="name" content="Stanford CS329A：Self-Improving AI Agents 的完整技术框架">
+<meta itemprop="description" content="Self-Improving AI Agent 并不是一个会无限递归修改自己的神秘系统。更实际的理解是：Agent 在生成、行动、观察和验证之间形成闭环，把推理时获得的反馈用于改进当前答案、后续决策，甚至下一轮训练。
+
+这篇文章沿着 Stanford CS329A 的课程主线，把测试时计算、验证器、工具反馈、规划搜索、强化学习、深度研究与长程评测串成一个完整框架。">
+
+
+<meta itemprop="datePublished" content="2026-08-11T06:27:01&#43;02:00" />
+<meta itemprop="dateModified" content="2026-08-11T06:27:01&#43;02:00" />
+<meta itemprop="wordCount" content="4434">
+
+
+
+<meta itemprop="keywords" content="AI Agents,Test-Time Compute,Verifier,ReAct,LATS,Reinforcement Learning," />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Stanford CS329A：Self-Improving AI Agents 的完整技术框架"/>
+<meta name="twitter:description" content="Self-Improving AI Agent 并不是一个会无限递归修改自己的神秘系统。更实际的理解是：Agent 在生成、行动、观察和验证之间形成闭环，把推理时获得的反馈用于改进当前答案、后续决策，甚至下一轮训练。
+
+这篇文章沿着 Stanford CS329A 的课程主线，把测试时计算、验证器、工具反馈、规划搜索、强化学习、深度研究与长程评测串成一个完整框架。"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Bobo</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">首页</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">归档</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">分类</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Bobo</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">首页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">归档</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">分类</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Stanford CS329A：Self-Improving AI Agents 的完整技术框架</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2026-08-11 </span>
+        <div class="post-category">
+            <a href="/categories/ai-agents/"> AI Agents </a>
+            </div>
+          <span class="more-meta"> 约 4434 字 </span>
+          <span class="more-meta"> 预计阅读 9 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#1-什么是-self-improving-agent">1. 什么是 Self-Improving Agent？</a></li>
+<li><a href="#2-测试时计算扩展-不要只生成一次">2. 测试时计算扩展：不要只生成一次</a>
+<ul>
+<li><a href="#三种常见策略">三种常见策略</a>
+<ul>
+<li><a href="#2-1-并行采样-best-of-n">2.1 并行采样：Best-of-N</a></li>
+<li><a href="#2-2-顺序修正-sequential-revisions">2.2 顺序修正：Sequential Revisions</a></li>
+<li><a href="#2-3-搜索-beam-search-tree-search">2.3 搜索：Beam Search / Tree Search</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#3-验证器-自我改进系统的瓶颈">3. 验证器：自我改进系统的瓶颈</a>
+<ul>
+<li><a href="#验证器为什么会失败">验证器为什么会失败？</a></li>
+</ul></li>
+<li><a href="#4-工具与环境反馈-让推理接触现实">4. 工具与环境反馈：让推理接触现实</a></li>
+<li><a href="#5-规划与多步推理-搜索一棵行动树">5. 规划与多步推理：搜索一棵行动树</a></li>
+<li><a href="#6-从测试时扩展走向训练时扩展">6. 从测试时扩展走向训练时扩展</a></li>
+<li><a href="#7-deep-research-从静态-rag-到动态搜索">7. Deep Research：从静态 RAG 到动态搜索</a></li>
+<li><a href="#8-如何评估长程-agent">8. 如何评估长程 Agent？</a></li>
+<li><a href="#9-一个统一的工程架构">9. 一个统一的工程架构</a></li>
+<li><a href="#10-结论-反馈质量决定改进上限">10. 结论：反馈质量决定改进上限</a></li>
+<li><a href="#参考资料">参考资料</a></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>Self-Improving AI Agent 并不是一个会无限递归修改自己的神秘系统。更实际的理解是：Agent 在生成、行动、观察和验证之间形成闭环，把推理时获得的反馈用于改进当前答案、后续决策，甚至下一轮训练。</p>
+
+<p>这篇文章沿着 Stanford CS329A 的课程主线，把测试时计算、验证器、工具反馈、规划搜索、强化学习、深度研究与长程评测串成一个完整框架。</p>
+
+<blockquote>
+<p><strong>课程</strong>：<a href="https://cs329a.stanford.edu/">Stanford CS329A · Self-Improving AI Agents</a></p>
+
+<p><strong>核心问题</strong>：如何让 Agent 从自己的尝试与环境反馈中学习，而不只是依赖更多人工标注？</p>
+</blockquote>
+
+<h2 id="1-什么是-self-improving-agent">1. 什么是 Self-Improving Agent？</h2>
+
+<p>一个可以自我改进的 Agent，至少需要完成下面这个闭环：</p>
+
+<ol>
+<li><strong>Generate / Act</strong>：生成候选答案，或在环境中执行动作；</li>
+<li><strong>Observe / Verify</strong>：读取工具结果、执行反馈或验证器评分；</li>
+<li><strong>Select / Reflect</strong>：选择更好的轨迹，分析失败原因并修正；</li>
+<li><strong>Update</strong>：更新上下文、记忆、搜索策略，或者模型参数；</li>
+<li><strong>Evaluate</strong>：在独立任务上确认改进是否真实存在。</li>
+</ol>
+
+<p><img src="/img/posts/cs329a-self-improving-agents/self-improvement-loop.png" alt="从预训练、微调到测试时反馈的自我改进闭环" /></p>
+
+<p>这个框架里有两种不同的“扩展”：</p>
+
+<ul>
+<li><strong>Test-time scaling</strong>：模型参数不变，在回答一个问题时投入更多采样、搜索和验证计算；</li>
+<li><strong>Train-time scaling</strong>：把成功与失败轨迹变成训练信号，通过监督学习或强化学习更新模型。</li>
+</ul>
+
+<p>前者解决“这一次怎样答得更好”，后者解决“下一次怎样更容易答好”。真正的自我改进系统通常会把两者连接起来。</p>
+
+<h2 id="2-测试时计算扩展-不要只生成一次">2. 测试时计算扩展：不要只生成一次</h2>
+
+<p>最简单的测试时扩展是 <strong>Repeated Sampling</strong>：对同一道题独立生成多个候选答案，再从中选择一个。</p>
+
+<p>如果单次生成正确答案的概率为 $p$，并且各次采样近似独立，那么生成 $k$ 次后，至少出现一个正确答案的概率是：</p>
+
+<p>$$
+\mathrm{pass@}k = 1-(1-p)^k
+$$</p>
+
+<p>这说明即使模型参数不变，只要增加采样次数，候选集合的 <strong>Coverage</strong> 就可能提高。Large Language Monkeys 的实验中，DeepSeek-Coder-V2-Instruct 在当时 SWE-bench Lite 上的单次成功率为 15.9%，采样 250 次后的问题覆盖率达到 56%。</p>
+
+<p>但 coverage 高不等于最终结果好。系统还必须在多个候选中识别正确答案，也就是提高 <strong>Precision</strong>。如果选择器只会多数投票，而错误答案恰好高度相似，那么再多采样也未必有用。</p>
+
+<p><img src="/img/posts/cs329a-self-improving-agents/verification-gap.png" alt="候选覆盖率与多数投票、奖励模型选择效果之间的差距" /></p>
+
+<p>因此，测试时计算扩展真正包含两个问题：</p>
+
+<ul>
+<li><strong>生成问题</strong>：能不能探索到正确解？</li>
+<li><strong>选择问题</strong>：看见正确解以后，能不能把它选出来？</li>
+</ul>
+
+<h3 id="三种常见策略">三种常见策略</h3>
+
+<h4 id="2-1-并行采样-best-of-n">2.1 并行采样：Best-of-N</h4>
+
+<p>同时生成 $N$ 个彼此独立的候选，用规则、测试用例或奖励模型给它们打分，返回得分最高的结果。它简单、并行度高，适合有可靠验证器的任务。</p>
+
+<h4 id="2-2-顺序修正-sequential-revisions">2.2 顺序修正：Sequential Revisions</h4>
+
+<p>每一步都基于上一版答案和反馈继续修正。它更像调试：先生成，再定位问题，再修改。优点是能够复用已有工作；缺点是早期错误可能把后续推理锁在错误路径上。</p>
+
+<h4 id="2-3-搜索-beam-search-tree-search">2.3 搜索：Beam Search / Tree Search</h4>
+
+<p>保留多条中间推理轨迹，在每一步扩展并剪枝。相比只评价最终答案，搜索需要验证器判断“当前这一步是否值得继续”。</p>
+
+<p><img src="/img/posts/cs329a-self-improving-agents/parallel-sequential-combined.png" alt="并行采样、顺序修正，以及二者结合的搜索方式" /></p>
+
+<p>最好的策略不一定是固定生成同样多的样本。<strong>Compute-optimal scaling</strong> 会根据问题难度分配预算：简单题很快停止，中等难度题投入更多搜索；如果最难问题的候选中几乎从不出现正确答案，那么继续增加采样的边际收益会迅速下降。</p>
+
+<p><img src="/img/posts/cs329a-self-improving-agents/compute-optimal-search.png" alt="根据问题难度分配测试时计算预算" /></p>
+
+<p>这也解释了一个看似矛盾的现象：在部分问题上，小模型加测试时计算可以超过大得多的模型；但在模型能力边界之外，增加计算无法凭空创造不存在的解题能力。</p>
+
+<h2 id="3-验证器-自我改进系统的瓶颈">3. 验证器：自我改进系统的瓶颈</h2>
+
+<p>验证器接收问题、候选答案，有时还包括完整推理轨迹，然后估计答案正确的概率。</p>
+
+<p><img src="/img/posts/cs329a-self-improving-agents/verifier-architecture.png" alt="验证器对候选解进行评分的基本架构" /></p>
+
+<p>最常见的两类学习式验证器是：</p>
+
+<ul>
+<li><strong>Outcome Reward Model（ORM）</strong>：只评价最终答案；</li>
+<li><strong>Process Reward Model（PRM）</strong>：评价中间推理步骤，为每一步提供信号。</li>
+</ul>
+
+<p>ORM 的标注和使用都比较简单，但它无法区分“推理正确”和“碰巧答对”。PRM 可以把错误定位到某一步，改善长推理链中的 credit assignment，也更容易解释为什么一条轨迹被保留或剪枝。在 <em>Let&rsquo;s Verify Step by Step</em> 的数学推理实验中，过程监督优于结果监督；这是一项具体实验结论，并不意味着 PRM 在所有任务上都天然占优。</p>
+
+<h3 id="验证器为什么会失败">验证器为什么会失败？</h3>
+
+<ol>
+<li><strong>训练数据太小</strong>：验证器记住表面模式，却没有学会判断正确性；</li>
+<li><strong>生成—验证差距</strong>：生成器能产出正确答案，验证器却认不出来；</li>
+<li><strong>Reward hacking</strong>：Agent 学会迎合评分规则，而不是完成真实目标；</li>
+<li><strong>同源偏差</strong>：生成器和验证器共享相似盲点，错误会被稳定放大；</li>
+<li><strong>分布偏移</strong>：在短题上训练的验证器，不一定能判断长程任务。</li>
+</ol>
+
+<p>工程上应优先使用更可靠的外部信号：代码单元测试、编译器、形式化证明、数据库约束或环境状态。学习式 verifier 更适合补充这些信号，而不是在存在确定性检查时取代它们。多个较弱验证器的聚合也能缩小生成—验证差距，但前提是它们的错误不完全相关。</p>
+
+<h2 id="4-工具与环境反馈-让推理接触现实">4. 工具与环境反馈：让推理接触现实</h2>
+
+<p>只在模型内部“思考”，很容易让错误前提一路传递。工具调用把推理连接到外部世界：浏览器可以检索事实，代码解释器可以运行程序，数据库可以返回真实记录，环境则能告诉 Agent 一个动作是否有效。</p>
+
+<p>WebGPT 展示了语言模型如何通过浏览器搜索与引用信息。ReAct 进一步把 <strong>Reasoning</strong> 与 <strong>Acting</strong> 交错在同一条轨迹中：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Thought      当前缺少什么信息？
+Action       调用搜索、代码或业务工具
+Observation  读取环境返回的结果
+Thought      根据新证据修正计划</code></pre></td></tr></table>
+</div>
+</div>
+<p><img src="/img/posts/cs329a-self-improving-agents/react.png" alt="ReAct 将推理、动作和环境观察放在同一个循环中" /></p>
+
+<p>这种模式的关键不是“会调用工具”，而是让 observation 真正改变后续决策。如果 Agent 无论工具返回什么都坚持原计划，那么工具只是一种装饰。</p>
+
+<p>代码任务尤其适合从环境反馈中学习：编译错误、测试结果和运行时异常都能提供比“答案好不好”更具体的信号。RLEF 等工作进一步用执行反馈训练模型学习多步修正。不过，执行环境也带来新的风险：不可信代码必须隔离运行，工具输出可能含有噪声或提示注入，测试用例本身也可能不完整。</p>
+
+<h2 id="5-规划与多步推理-搜索一棵行动树">5. 规划与多步推理：搜索一棵行动树</h2>
+
+<p>长程 Agent 任务不是一次问答，而是一系列互相依赖的决策。前一步会改变环境，后一步只能基于新的状态继续。只沿单一路径向前，很容易因为一个局部错误导致整条任务失败。</p>
+
+<p>LATS（Language Agent Tree Search）把 Agent 的行动轨迹组织成树，并借鉴 Monte Carlo Tree Search：</p>
+
+<ol>
+<li><strong>Selection</strong>：根据价值与探索奖励选择节点；</li>
+<li><strong>Expansion</strong>：生成多个可能的下一步动作；</li>
+<li><strong>Evaluation</strong>：结合模型价值判断和环境反馈评分；</li>
+<li><strong>Backpropagation</strong>：把结果沿路径回传；</li>
+<li><strong>Reflection</strong>：总结失败原因，影响后续搜索。</li>
+</ol>
+
+<p><img src="/img/posts/cs329a-self-improving-agents/lats-uct.png" alt="LATS 使用价值函数、UCT 选择与回传更新行动树" /></p>
+
+<p>常见的 UCT 形式是：</p>
+
+<p>$$
+\mathrm{UCT}(i)=\bar{X}_i+c\sqrt{\frac{\ln N}{n_i}}
+$$</p>
+
+<p>其中 $\bar{X}_i$ 表示节点的平均价值，$N$ 是父节点访问次数，$n_i$ 是当前节点访问次数，$c$ 控制 exploitation 与 exploration 的平衡。</p>
+
+<p>树搜索并非免费午餐。它只有在评价器能比较可靠地区分路径质量时才值得投入；弱判别器会让搜索把更多算力花在错误方向上。对于可以拆成独立子任务的问题，也可以使用 planner 先分解计划，再让多个 executor 并行执行，最后汇总结果。</p>
+
+<p><img src="/img/posts/cs329a-self-improving-agents/sprint-framework.png" alt="Planner 分解任务并由多个 Executor 并行执行" /></p>
+
+<h2 id="6-从测试时扩展走向训练时扩展">6. 从测试时扩展走向训练时扩展</h2>
+
+<p>测试时搜索会产生大量数据：候选解、工具调用、验证分数、成功轨迹和失败反思。Train-time scaling 的目标，是把这些一次性的计算沉淀进模型参数。</p>
+
+<p>一个典型训练闭环是：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">当前策略生成候选
+      ↓
+验证器或环境给出反馈
+      ↓
+筛选轨迹 / 分配步骤信用
+      ↓
+监督学习或强化学习更新策略
+      ↓
+在独立任务上评估，再进入下一轮</code></pre></td></tr></table>
+</div>
+</div>
+<p>STaR 是一个代表性思路：模型生成推理过程，只用能够导向正确答案的推理继续训练；对于失败样本，则在已知答案的条件下重新生成解释。如此反复，让模型逐轮学会更有效的推理方式。</p>
+
+<p>强化学习进一步直接优化环境奖励，但 reasoning RL 很容易出现训练不稳定、长度投机、奖励黑客或能力退化。DAPO 等工作表明，采样、裁剪、长度控制、动态过滤和批次构造这些看似细小的实现选择，会显著影响最终效果。这里真正可扩展的不是“多跑一些 RL”，而是一条可靠的数据—反馈—更新流水线。</p>
+
+<h2 id="7-deep-research-从静态-rag-到动态搜索">7. Deep Research：从静态 RAG 到动态搜索</h2>
+
+<p>传统 RAG 通常在生成前检索一次，把若干文档塞进上下文。它有三个典型限制：</p>
+
+<ul>
+<li>查询来自原始问题，尚未暴露推理中的真正知识缺口；</li>
+<li>检索结果可能过长、相互冲突或与当前步骤无关；</li>
+<li>后续推理发现新问题时，系统无法主动再次检索。</li>
+</ul>
+
+<p>Agentic search 把检索变成推理过程中的动作。Search-o1 的核心思路是：模型在遇到知识缺口时暂停生成，提出查询，读取文档，再通过 Reason-in-Documents 提炼与当前推理有关的信息，最后继续回答。</p>
+
+<p><img src="/img/posts/cs329a-self-improving-agents/search-o1-framework.png" alt="Search-o1 在推理过程中动态检索并整合外部知识" /></p>
+
+<p>这使 Deep Research Agent 不再是“一次搜索 + 一次总结”，而是一个迭代过程：提出子问题、搜索证据、比较来源、发现冲突、补充检索、形成带依据的结论。与此同时，它也必须记录来源、控制检索成本，并避免网页内容中的指令劫持 Agent 的目标。</p>
+
+<h2 id="8-如何评估长程-agent">8. 如何评估长程 Agent？</h2>
+
+<p>单题准确率无法描述 Agent 是否能稳定完成真实工作。长程评测至少应该同时观察：</p>
+
+<ul>
+<li><strong>成功率</strong>：最终任务是否完成；</li>
+<li><strong>任务时间跨度</strong>：相当于人类多长时间的工作；</li>
+<li><strong>成本与延迟</strong>：使用了多少 token、工具调用和实际时间；</li>
+<li><strong>恢复能力</strong>：工具失败或计划走偏后能否回退；</li>
+<li><strong>验证器校准</strong>：高分是否真的意味着高成功率；</li>
+<li><strong>安全性</strong>：是否越权、泄露数据或执行不可逆操作。</li>
+</ul>
+
+<p>如果一个任务包含 $n$ 个关键步骤，每一步独立成功率都为 $p$，整条链路成功率近似为 $p^n$。例如每一步都有 95% 的成功率，连续 20 步全部成功的概率也只有约 36%。虽然现实中的步骤并不独立，这个简化模型仍然说明：长程任务会放大微小的不可靠性。</p>
+
+<p><em>Measuring AI Ability to Complete Long Tasks</em> 提出了一个直观指标：模型能以 50% 成功率完成的任务，其人类专家通常需要多长时间。这个 time horizon 适合观察能力随时间的变化，但它依赖具体任务分布，不能被理解为模型在所有真实工作上的通用时长承诺。</p>
+
+<h2 id="9-一个统一的工程架构">9. 一个统一的工程架构</h2>
+
+<p>把前面的内容放在一起，一个可落地的 Self-Improving Agent 通常包含以下组件：</p>
+
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>职责</th>
+<th>关键问题</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Generator / Policy</td>
+<td>生成答案或动作</td>
+<td>候选是否足够多样？</td>
+</tr>
+
+<tr>
+<td>Environment / Tools</td>
+<td>返回真实状态与执行反馈</td>
+<td>反馈是否可信、可隔离？</td>
+</tr>
+
+<tr>
+<td>Verifier / Reward</td>
+<td>判断结果与过程质量</td>
+<td>会不会过拟合或被利用？</td>
+</tr>
+
+<tr>
+<td>Search / Controller</td>
+<td>分配预算、扩展与剪枝</td>
+<td>什么难度值得继续搜索？</td>
+</tr>
+
+<tr>
+<td>Memory / Buffer</td>
+<td>保存轨迹、证据与经验</td>
+<td>如何避免错误记忆累积？</td>
+</tr>
+
+<tr>
+<td>Learner</td>
+<td>用反馈更新策略</td>
+<td>改进能否跨任务泛化？</td>
+</tr>
+
+<tr>
+<td>Evaluator</td>
+<td>在独立任务上度量变化</td>
+<td>是否同时衡量质量、成本和安全？</td>
+</tr>
+</tbody>
+</table>
+
+<p>整体循环可以写成下面的伪代码：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">while</span> <span class="n">budget_remaining</span><span class="p">:</span>
+    <span class="n">candidates</span> <span class="o">=</span> <span class="n">policy</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+    <span class="n">observations</span> <span class="o">=</span> <span class="n">environment</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="n">verifier</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">candidates</span><span class="p">,</span> <span class="n">observations</span><span class="p">)</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="n">select_or_revise</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">candidates</span><span class="p">,</span> <span class="n">scores</span><span class="p">)</span>
+    <span class="n">replay_buffer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">candidates</span><span class="p">,</span> <span class="n">observations</span><span class="p">,</span> <span class="n">scores</span><span class="p">)</span>
+
+<span class="n">policy</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">replay_buffer</span><span class="o">.</span><span class="n">filtered_trajectories</span><span class="p">())</span>
+<span class="n">evaluate_on_held_out_tasks</span><span class="p">(</span><span class="n">policy</span><span class="p">)</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>这里最重要的一行不是 <code>policy.update</code>，而是反馈进入 buffer 之前的验证与过滤。错误反馈一旦被模型反复学习，就会从一次失败变成稳定行为。</p>
+
+<h2 id="10-结论-反馈质量决定改进上限">10. 结论：反馈质量决定改进上限</h2>
+
+<p>Self-Improving AI Agents 的核心，不是让模型“自己想得更久”，而是建立一个可验证的闭环：</p>
+
+<ol>
+<li>测试时计算提高候选覆盖率；</li>
+<li>验证器和环境反馈负责识别好轨迹；</li>
+<li>搜索与规划把预算投入更有希望的路径；</li>
+<li>工具让模型获得外部证据和可执行反馈；</li>
+<li>训练把成功经验沉淀为下一轮能力；</li>
+<li>长程评测确认这种改进是否可靠、经济且安全。</li>
+</ol>
+
+<p>它的能力上限最终受制于反馈质量。没有可靠验证器，更多采样只会产生更多无法选择的答案；没有独立评测，自我训练可能只是把偏差越放越大；没有安全边界，行动能力越强，错误的代价也越高。</p>
+
+<p>真正值得追求的不是“能够无限自我改进”的口号，而是一个每轮变化都可测量、可追踪、可纠错的工程系统。</p>
+
+<h2 id="参考资料">参考资料</h2>
+
+<ul>
+<li><a href="https://cs329a.stanford.edu/">Stanford CS329A: Self-Improving AI Agents</a></li>
+<li><a href="https://arxiv.org/abs/2408.03314">Scaling LLM Test-Time Compute Optimally can be More Effective than Scaling Model Parameters</a></li>
+<li><a href="https://arxiv.org/abs/2407.21787">Large Language Monkeys: Scaling Inference Compute with Repeated Sampling</a></li>
+<li><a href="https://arxiv.org/abs/2305.20050">Let&rsquo;s Verify Step by Step</a></li>
+<li><a href="https://arxiv.org/abs/2506.18203">Shrinking the Generation-Verification Gap with Weak Verifiers</a></li>
+<li><a href="https://arxiv.org/abs/2210.03629">ReAct: Synergizing Reasoning and Acting in Language Models</a></li>
+<li><a href="https://arxiv.org/abs/2112.09332">WebGPT: Browser-assisted Question-answering with Human Feedback</a></li>
+<li><a href="https://arxiv.org/abs/2410.02089">RLEF: Grounding Code LLMs in Execution Feedback with Reinforcement Learning</a></li>
+<li><a href="https://arxiv.org/abs/2310.04406">Language Agent Tree Search Unifies Reasoning, Acting, and Planning in Language Models</a></li>
+<li><a href="https://arxiv.org/abs/2402.10890">When is Tree Search Useful for LLM Planning?</a></li>
+<li><a href="https://arxiv.org/abs/2203.14465">Self-Taught Reasoner: Bootstrapping Reasoning With Reasoning</a></li>
+<li><a href="https://arxiv.org/abs/2503.14476">DAPO: An Open-Source LLM Reinforcement Learning System at Scale</a></li>
+<li><a href="https://arxiv.org/abs/2501.05366">Search-o1: Agentic Search-Enhanced Large Reasoning Models</a></li>
+<li><a href="https://arxiv.org/abs/2503.14499">Measuring AI Ability to Complete Long Tasks</a></li>
+</ul>
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">zhengxz</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2026-08-11
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/ai-agents/">AI Agents</a>
+          <a href="/tags/test-time-compute/">Test-Time Compute</a>
+          <a href="/tags/verifier/">Verifier</a>
+          <a href="/tags/react/">ReAct</a>
+          <a href="/tags/lats/">LATS</a>
+          <a href="/tags/reinforcement-learning/">Reinforcement Learning</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/transformer-architecture/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Transformer Architecture：从 Token Embedding 到训练循环</span>
+            <span class="prev-text nav-mobile">上一篇</span>
+          </a>
+        <a class="next" href="/post/cs230-career-advice-in-ai/">
+            <span class="next-text nav-default">CS230：AI 时代的职业建议</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+  <a href="https://zheng-bobo.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2019 - 
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span>zhengxz</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.5/es5/tex-mml-chtml.js" integrity="sha256-HGLuEfFcsUJGhvB8cQ8nr0gai9EucOOaIxFw7qxmd+w=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
