@@ -47,18 +47,13 @@ copyright = ""            # default: author.name ↓        # 默认为下面配
       identifier = "archives"
       url = "/post/"
     [[languages.zh-cn.menu.main]]
-      name = "标签"
-      weight = 30
-      identifier = "tags"
-      url = "/tags/"
-    [[languages.zh-cn.menu.main]]
       name = "分类"
-      weight = 40
+      weight = 30
       identifier = "categories"
       url = "/categories/"
     [[languages.zh-cn.menu.main]]
       name = "关于我"
-      weight = 50
+      weight = 40
       identifier = "about"
       url = "/about/"
 
@@ -79,18 +74,13 @@ copyright = ""            # default: author.name ↓        # 默认为下面配
       identifier = "archives"
       url = "/en/post/"
     [[languages.en.menu.main]]
-      name = "Tags"
-      weight = 30
-      identifier = "tags"
-      url = "/en/tags/"
-    [[languages.en.menu.main]]
       name = "Categories"
-      weight = 40
+      weight = 30
       identifier = "categories"
       url = "/en/categories/"
     [[languages.en.menu.main]]
       name = "About"
-      weight = 50
+      weight = 40
       identifier = "about"
       url = "/en/about/"
 
