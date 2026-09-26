@@ -18,20 +18,9 @@ mathjaxEnableSingleDollar: true
 
 ## 0. 默认参数：先看训练脚本暴露了什么
 
-`base_train.py` 的命令行参数分为日志、运行设备、FP8、模型结构、训练时长、优化、评估和输出八组。完整默认配置如下：
+`base_train.py` 暴露的参数很多。阅读训练主线时不必一开始记住全部参数，先保留会直接影响模型规模、训练 token 数、batch 和优化过程的核心项：
 
 ```python
-parser = argparse.ArgumentParser(description="Pretrain base model")
-# Logging
-parser.add_argument("--run", type=str, default="dummy", help="wandb run name ('dummy' disables wandb logging)")
-parser.add_argument("--metrics-jsonl", type=str, default="", help="optional path for structured train/validation metrics")
-parser.add_argument("--log-train-bpb", action="store_true", help="compute and log training bits per byte for every optimization step")
-# Runtime
-parser.add_argument("--device-type", type=str, default="", help="cuda|cpu|mps (empty = autodetect)")
-# FP8 training
-parser.add_argument("--fp8", action="store_true", help="enable FP8 training (requires H100+ GPU)")
-parser.add_argument("--fp8-recipe", type=str, default="tensorwise",
-                    choices=["rowwise", "tensorwise"], help="FP8 scaling recipe: tensorwise (faster, recommended) or rowwise (more accurate but slower)")
 # Model architecture
 parser.add_argument("--depth", type=int, default=20, help="depth of the Transformer model")
 parser.add_argument("--aspect-ratio", type=int, default=64, help="model_dim = depth * aspect_ratio")
@@ -54,17 +43,6 @@ parser.add_argument("--warmup-steps", type=int, default=40, help="number of step
 parser.add_argument("--warmdown-ratio", type=float, default=0.65, help="ratio of iterations for LR warmdown")
 parser.add_argument("--final-lr-frac", type=float, default=0.05, help="final LR as fraction of initial LR")
 parser.add_argument("--resume-from-step", type=int, default=-1, help="resume training from this step (-1 = disable)")
-# Evaluation
-parser.add_argument("--eval-every", type=int, default=250, help="evaluate val bpb every N steps (-1 = disable)")
-parser.add_argument("--eval-tokens", type=int, default=80*524288, help="number of tokens to evaluate val loss on")
-parser.add_argument("--core-metric-every", type=int, default=2000, help="evaluate CORE metric every N steps (-1 = disable)")
-parser.add_argument("--core-metric-max-per-task", type=int, default=500, help="examples per task for CORE metric")
-parser.add_argument("--sample-every", type=int, default=2000, help="sample from model every N steps (-1 = disable)")
-parser.add_argument("--save-every", type=int, default=-1, help="save checkpoints every N steps (-1 = only at end)")
-# Output
-parser.add_argument("--model-tag", type=str, default=None, help="override model tag for checkpoint directory name")
-args = parser.parse_args()
-user_config = vars(args).copy()  # for logging
 ```
 
 这里有两个容易混淆的 batch 概念：`device_batch_size` 是单个 rank 一次前向处理的序列数；`total_batch_size` 以 token 数计量，表示所有 GPU 和梯度累积 micro-step 合起来的一次参数更新规模。
@@ -80,10 +58,10 @@ if device_type == "cuda":
 伪随机数生成器本质上是确定性的状态机，可以用简化的线性同余模型理解：
 
 $$
-x_{n+1}=(a x_n+c)\bmod m
+x\_{n+1}=(a x\_n+c)\bmod m
 $$
 
-seed 设置初始状态 $x_0$。相同 seed、算法和调用顺序会产生相同序列；但完整复现还取决于硬件、CUDA 算子和分布式执行顺序。
+seed 设置初始状态 $x\_0$。相同 seed、算法和调用顺序会产生相同序列；但完整复现还取决于硬件、CUDA 算子和分布式执行顺序。
 
 ## 2. Distributed Data Parallel
 
@@ -225,9 +203,9 @@ logits = logits[..., :self.config.vocab_size]
 | $T$ | 每条序列的 token 数 |
 | $d$ | `n_embd`，隐藏维度 |
 | $H$ | Query head 数 |
-| $H_{kv}$ | Key/Value head 数 |
+| $H\_{kv}$ | Key/Value head 数 |
 | $D=d/H$ | 每个 head 的维度 |
-| $V, V_p$ | 原始词表、补齐词表大小 |
+| $V, V\_p$ | 原始词表、补齐词表大小 |
 
 ```text
 idx [B, T]
@@ -320,7 +298,7 @@ for block in self.transformer.h:
     torch.nn.init.uniform_(block.attn.c_v.weight, -s, s)
 ```
 
-均匀分布 $U(-s,s)$ 的标准差是 $s/\sqrt{3}=1/\sqrt{n_{embd}}$。Attention 和 MLP 输出投影从零开始：
+均匀分布 $U(-s,s)$ 的标准差是 $s/\sqrt{3}=1/\sqrt{n\_{embd}}$。Attention 和 MLP 输出投影从零开始：
 
 ```python
 for block in self.transformer.h:
@@ -355,10 +333,10 @@ target_tokens = int(args.target_param_data_ratio * num_scaling_params)
 
 ### 6.2 估计总 batch size
 
-nanochat 参考 [Power Lines](https://arxiv.org/abs/2505.13738) 的经验关系 $B_{opt}\propto D^{0.383}$：
+nanochat 参考 [Power Lines](https://arxiv.org/abs/2505.13738) 的经验关系 $B\_{opt}\propto D^{0.383}$：
 
 $$
-B_{pred}=B_{REF}\left(\frac{D}{D_{REF}}\right)^{0.383}
+B\_{pred}=B\_{REF}\left(\frac{D}{D\_{REF}}\right)^{0.383}
 $$
 
 ```python
@@ -403,7 +381,7 @@ weight_decay_scaled = (
 ```
 
 $$
-\lambda_{scaled}=\lambda_{ref}\sqrt{\frac{B}{B_{REF}}}\frac{D_{REF}}{D}
+\lambda\_{scaled}=\lambda\_{ref}\sqrt{\frac{B}{B\_{REF}}}\frac{D\_{REF}}{D}
 $$
 
 第一项匹配 batch/learning-rate 缩放，第二项补偿训练 token horizon。
@@ -553,10 +531,33 @@ def get_weight_decay(it):
 Muon momentum 前 400 步从 0.85 升到 0.97，warmdown 时降到 0.90；weight decay 按余弦曲线降到 0：
 
 $$
-wd(it)=wd_{scaled}\frac{1+\cos(\pi\,it/N)}{2}
+wd(it)=wd\_{scaled}\frac{1+\cos(\pi\,it/N)}{2}
 $$
 
 这两项只作用于 `kind == "muon"` 的参数组。
+
+## 11. nanochat 与标准简易 Transformer 有什么不同
+
+nanochat 仍然遵循 decoder-only Transformer 的核心路径：token embedding、causal self-attention、MLP、残差连接、LM Head 和 next-token loss。但它不是教学代码的直接放大版，而是加入了许多面向现代训练和 GPU 效率的设计。
+
+| 维度 | 标准简易 Transformer | 本文版本的 nanochat |
+|---|---|---|
+| 位置编码 | 常见实现使用可学习 Position Embedding | 使用 RoPE，直接作用于 Q、K |
+| 归一化 | LayerNorm，通常带可学习参数 | 无可学习参数的 RMSNorm |
+| MLP 激活 | GELU 或 ReLU | ReLU² |
+| Attention 范围 | 每层使用完整 causal attention | `SSSL` 滑动窗口模式，最后一层强制完整上下文 |
+| Q/K/V heads | 通常是标准 Multi-Head Attention | 代码支持 GQA；当前训练构造中 `n_kv_head = n_head` |
+| Value 路径 | V 只来自当前 hidden state 的线性投影 | 部分层额外加入带门控的 Value Embedding |
+| Embedding 交互 | token embedding 直接进入 Transformer blocks | Smear 会把前一个 token 的 embedding 混入当前位置 |
+| 残差路径 | 标准 `x + sublayer(x)` | 额外包含 x0 blending、residual scaling 等设计 |
+| 输出层 | 可能与 token embedding 共享权重 | `wte` 与 `lm_head` 不共享，并将词表补齐到 64 的倍数 |
+| 优化器 | 常见教学实现统一使用 AdamW | Transformer 矩阵使用 Muon，其余参数分组使用 AdamW |
+| 训练规模 | 手动指定 steps、batch 和学习率 | 根据参数量与经验 scaling laws 推导 token horizon、batch 和缩放系数 |
+| 数据管线 | 常见实现直接切固定长度序列 | 使用 BOS-aligned best-fit packing，并保存可恢复的数据读取状态 |
+
+因此，两类代码适合解决不同问题：标准简易 Transformer 更适合先理解 Attention、残差连接、张量形状和语言模型 loss；nanochat 更适合继续研究如何把模型变成可扩展、可恢复、面向真实硬件的预训练系统。
+
+如果希望先从最小实现理解标准结构，可以阅读：[Transformer Architecture：从 Token Embedding 到训练循环](https://zheng-bobo.github.io/post/transformer-architecture/)。读懂其中的数据流后，再回来看 nanochat 的工程改造会更清晰。
 
 ## 总结
 

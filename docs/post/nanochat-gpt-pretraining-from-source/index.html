@@ -54,7 +54,7 @@
 
 <meta itemprop="datePublished" content="2026-09-26T21:00:00&#43;02:00" />
 <meta itemprop="dateModified" content="2026-09-26T21:00:00&#43;02:00" />
-<meta itemprop="wordCount" content="4351">
+<meta itemprop="wordCount" content="4856">
 
 
 
@@ -185,8 +185,8 @@
         <div class="post-category">
             <a href="/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/"> 人工智能 </a>
             </div>
-          <span class="more-meta"> 约 4351 字 </span>
-          <span class="more-meta"> 预计阅读 9 分钟 </span>
+          <span class="more-meta"> 约 4856 字 </span>
+          <span class="more-meta"> 预计阅读 10 分钟 </span>
 
       </div>
     </header>
@@ -231,6 +231,7 @@
 <li><a href="#10-2-learning-rate-schedule">10.2 Learning-rate schedule</a></li>
 <li><a href="#10-3-muon-momentum-与-weight-decay">10.3 Muon momentum 与 weight decay</a></li>
 </ul></li>
+<li><a href="#11-nanochat-与标准简易-transformer-有什么不同">11. nanochat 与标准简易 Transformer 有什么不同</a></li>
 <li><a href="#总结">总结</a></li>
 <li><a href="#参考资料">参考资料</a></li>
 </ul></li>
@@ -249,7 +250,7 @@
 
 <h2 id="0-默认参数-先看训练脚本暴露了什么">0. 默认参数：先看训练脚本暴露了什么</h2>
 
-<p><code>base_train.py</code> 的命令行参数分为日志、运行设备、FP8、模型结构、训练时长、优化、评估和输出八组。完整默认配置如下：</p>
+<p><code>base_train.py</code> 暴露的参数很多。阅读训练主线时不必一开始记住全部参数，先保留会直接影响模型规模、训练 token 数、batch 和优化过程的核心项：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt"> 1
@@ -274,42 +275,9 @@
 </span><span class="lnt">20
 </span><span class="lnt">21
 </span><span class="lnt">22
-</span><span class="lnt">23
-</span><span class="lnt">24
-</span><span class="lnt">25
-</span><span class="lnt">26
-</span><span class="lnt">27
-</span><span class="lnt">28
-</span><span class="lnt">29
-</span><span class="lnt">30
-</span><span class="lnt">31
-</span><span class="lnt">32
-</span><span class="lnt">33
-</span><span class="lnt">34
-</span><span class="lnt">35
-</span><span class="lnt">36
-</span><span class="lnt">37
-</span><span class="lnt">38
-</span><span class="lnt">39
-</span><span class="lnt">40
-</span><span class="lnt">41
-</span><span class="lnt">42
-</span><span class="lnt">43
-</span><span class="lnt">44
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&#34;Pretrain base model&#34;</span><span class="p">)</span>
-<span class="c1"># Logging</span>
-<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--run&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&#34;dummy&#34;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;wandb run name (&#39;dummy&#39; disables wandb logging)&#34;</span><span class="p">)</span>
-<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--metrics-jsonl&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&#34;&#34;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;optional path for structured train/validation metrics&#34;</span><span class="p">)</span>
-<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--log-train-bpb&#34;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&#34;store_true&#34;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;compute and log training bits per byte for every optimization step&#34;</span><span class="p">)</span>
-<span class="c1"># Runtime</span>
-<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--device-type&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&#34;&#34;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;cuda|cpu|mps (empty = autodetect)&#34;</span><span class="p">)</span>
-<span class="c1"># FP8 training</span>
-<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--fp8&#34;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&#34;store_true&#34;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;enable FP8 training (requires H100+ GPU)&#34;</span><span class="p">)</span>
-<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--fp8-recipe&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&#34;tensorwise&#34;</span><span class="p">,</span>
-                    <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&#34;rowwise&#34;</span><span class="p">,</span> <span class="s2">&#34;tensorwise&#34;</span><span class="p">],</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;FP8 scaling recipe: tensorwise (faster, recommended) or rowwise (more accurate but slower)&#34;</span><span class="p">)</span>
-<span class="c1"># Model architecture</span>
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># Model architecture</span>
 <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--depth&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;depth of the Transformer model&#34;</span><span class="p">)</span>
 <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--aspect-ratio&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;model_dim = depth * aspect_ratio&#34;</span><span class="p">)</span>
 <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--head-dim&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;target head dimension for attention&#34;</span><span class="p">)</span>
@@ -330,18 +298,7 @@
 <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--warmup-steps&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;number of steps for LR warmup&#34;</span><span class="p">)</span>
 <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--warmdown-ratio&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.65</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;ratio of iterations for LR warmdown&#34;</span><span class="p">)</span>
 <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--final-lr-frac&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;final LR as fraction of initial LR&#34;</span><span class="p">)</span>
-<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--resume-from-step&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;resume training from this step (-1 = disable)&#34;</span><span class="p">)</span>
-<span class="c1"># Evaluation</span>
-<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--eval-every&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">250</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;evaluate val bpb every N steps (-1 = disable)&#34;</span><span class="p">)</span>
-<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--eval-tokens&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">80</span><span class="o">*</span><span class="mi">524288</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;number of tokens to evaluate val loss on&#34;</span><span class="p">)</span>
-<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--core-metric-every&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;evaluate CORE metric every N steps (-1 = disable)&#34;</span><span class="p">)</span>
-<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--core-metric-max-per-task&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;examples per task for CORE metric&#34;</span><span class="p">)</span>
-<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--sample-every&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;sample from model every N steps (-1 = disable)&#34;</span><span class="p">)</span>
-<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--save-every&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;save checkpoints every N steps (-1 = only at end)&#34;</span><span class="p">)</span>
-<span class="c1"># Output</span>
-<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--model-tag&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;override model tag for checkpoint directory name&#34;</span><span class="p">)</span>
-<span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
-<span class="n">user_config</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># for logging</span></code></pre></td></tr></table>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--resume-from-step&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;resume training from this step (-1 = disable)&#34;</span><span class="p">)</span></code></pre></td></tr></table>
 </div>
 </div>
 <p>这里有两个容易混淆的 batch 概念：<code>device_batch_size</code> 是单个 rank 一次前向处理的序列数；<code>total_batch_size</code> 以 token 数计量，表示所有 GPU 和梯度累积 micro-step 合起来的一次参数更新规模。</p>
@@ -858,7 +815,7 @@ x + mlp_output       = x + 0 = x</code></pre></td></tr></table>
 <p>nanochat 参考 <a href="https://arxiv.org/abs/2505.13738">Power Lines</a> 的经验关系 $B_{opt}\propto D^{0.383}$：</p>
 
 <p>$$
-B<em>{pred}=B</em>{REF}\left(\frac{D}{D_{REF}}\right)^{0.383}
+B_{pred}=B_{REF}\left(\frac{D}{D_{REF}}\right)^{0.383}
 $$</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -928,7 +885,7 @@ batch_lr_scale = sqrt(0.25) = 0.5</code></pre></td></tr></table>
 </div>
 </div>
 <p>$$
-\lambda<em>{scaled}=\lambda</em>{ref}\sqrt{\frac{B}{B<em>{REF}}}\frac{D</em>{REF}}{D}
+\lambda_{scaled}=\lambda_{ref}\sqrt{\frac{B}{B_{REF}}}\frac{D_{REF}}{D}
 $$</p>
 
 <p>第一项匹配 batch/learning-rate 缩放，第二项补偿训练 token horizon。</p>
@@ -1203,6 +1160,98 @@ wd(it)=wd_{scaled}\frac{1+\cos(\pi\,it/N)}{2}
 $$</p>
 
 <p>这两项只作用于 <code>kind == &quot;muon&quot;</code> 的参数组。</p>
+
+<h2 id="11-nanochat-与标准简易-transformer-有什么不同">11. nanochat 与标准简易 Transformer 有什么不同</h2>
+
+<p>nanochat 仍然遵循 decoder-only Transformer 的核心路径：token embedding、causal self-attention、MLP、残差连接、LM Head 和 next-token loss。但它不是教学代码的直接放大版，而是加入了许多面向现代训练和 GPU 效率的设计。</p>
+
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>标准简易 Transformer</th>
+<th>本文版本的 nanochat</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>位置编码</td>
+<td>常见实现使用可学习 Position Embedding</td>
+<td>使用 RoPE，直接作用于 Q、K</td>
+</tr>
+
+<tr>
+<td>归一化</td>
+<td>LayerNorm，通常带可学习参数</td>
+<td>无可学习参数的 RMSNorm</td>
+</tr>
+
+<tr>
+<td>MLP 激活</td>
+<td>GELU 或 ReLU</td>
+<td>ReLU²</td>
+</tr>
+
+<tr>
+<td>Attention 范围</td>
+<td>每层使用完整 causal attention</td>
+<td><code>SSSL</code> 滑动窗口模式，最后一层强制完整上下文</td>
+</tr>
+
+<tr>
+<td>Q/K/V heads</td>
+<td>通常是标准 Multi-Head Attention</td>
+<td>代码支持 GQA；当前训练构造中 <code>n_kv_head = n_head</code></td>
+</tr>
+
+<tr>
+<td>Value 路径</td>
+<td>V 只来自当前 hidden state 的线性投影</td>
+<td>部分层额外加入带门控的 Value Embedding</td>
+</tr>
+
+<tr>
+<td>Embedding 交互</td>
+<td>token embedding 直接进入 Transformer blocks</td>
+<td>Smear 会把前一个 token 的 embedding 混入当前位置</td>
+</tr>
+
+<tr>
+<td>残差路径</td>
+<td>标准 <code>x + sublayer(x)</code></td>
+<td>额外包含 x0 blending、residual scaling 等设计</td>
+</tr>
+
+<tr>
+<td>输出层</td>
+<td>可能与 token embedding 共享权重</td>
+<td><code>wte</code> 与 <code>lm_head</code> 不共享，并将词表补齐到 64 的倍数</td>
+</tr>
+
+<tr>
+<td>优化器</td>
+<td>常见教学实现统一使用 AdamW</td>
+<td>Transformer 矩阵使用 Muon，其余参数分组使用 AdamW</td>
+</tr>
+
+<tr>
+<td>训练规模</td>
+<td>手动指定 steps、batch 和学习率</td>
+<td>根据参数量与经验 scaling laws 推导 token horizon、batch 和缩放系数</td>
+</tr>
+
+<tr>
+<td>数据管线</td>
+<td>常见实现直接切固定长度序列</td>
+<td>使用 BOS-aligned best-fit packing，并保存可恢复的数据读取状态</td>
+</tr>
+</tbody>
+</table>
+
+<p>因此，两类代码适合解决不同问题：标准简易 Transformer 更适合先理解 Attention、残差连接、张量形状和语言模型 loss；nanochat 更适合继续研究如何把模型变成可扩展、可恢复、面向真实硬件的预训练系统。</p>
+
+<p>如果希望先从最小实现理解标准结构，可以阅读：<a href="https://zheng-bobo.github.io/post/transformer-architecture/">Transformer Architecture：从 Token Embedding 到训练循环</a>。读懂其中的数据流后，再回来看 nanochat 的工程改造会更清晰。</p>
 
 <h2 id="总结">总结</h2>
 
