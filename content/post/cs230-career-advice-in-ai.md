@@ -10,7 +10,6 @@ AI 正在快速改变软件工程：写代码的成本持续下降，工程师�
 <!--more-->
 
 > **来源**：[Stanford CS230 · Autumn 2025 · Lecture 9: Career Advice in AI](https://www.youtube.com/watch?v=AuZoDsNmG_s)（Andrew Ng、Laurence Moroney、Kian Katanforoosh）<br>
-> **原始笔记**：[CS230 Career Advice in AI](https://app.notion.com/p/CS230-Career-Advice-in-AI-32cf1cbefb538007be0dc82a434195a9)
 
 ## 1. AI 编程正在把瓶颈推向“构建什么”
 
@@ -125,7 +124,3 @@ AI 时代的职业竞争力，可以归纳成五点：
 5. 在大模型之外，持续关注 Small AI 和底层算力的机会。
 
 AI 让实现产品变得更容易，也让判断力、同理心、沟通能力和环境选择变得更加重要。技术仍然是基础，但真正拉开差距的，会是一个人如何用技术发现问题、理解用户并持续创造价值。
-
-## 原始笔记长图
-
-![CS230 Career Advice in AI 原始 Notion 笔记长图](/img/posts/cs230-career-advice/career-advice-in-ai.jpg)
