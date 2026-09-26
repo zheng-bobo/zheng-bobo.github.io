@@ -24,7 +24,7 @@ Final LayerNorm → LM Head
 Next-token logits → Cross-Entropy Loss
 ```
 
-本文从一个简单的 GPT 实现出发，沿着数据流解释每一步的作用和张量形状。
+本文从一个简单的 GPT 实现出发，沿着数据流解释每一步的作用和张量形状。完整源码放在文章最后，读完前面的原理后可以结合代码对照理解。
 
 <!--more-->
 

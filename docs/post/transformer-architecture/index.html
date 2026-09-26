@@ -17,7 +17,7 @@
 
 
 <meta name="author" content="zhengxz" /><meta name="description" content="Transformer 看起来由许多组件组成，但一条 GPT 风格的前向路径可以概括为：
-1 2 3 4 5 6 7 8 9 10 11 12 13  Token IDs ↓ Token Embedding &#43; Position Embedding ↓ [LayerNorm → Self-Attention → Residual] ↓ [LayerNorm → FFN → Residual] ↓ 重复多个 Transformer Blocks ↓ Final LayerNorm → LM Head ↓ Next-token logits → Cross-Entropy Loss   本文从一个简单的 GPT 实现出发，沿着数据流解释每一步的作用和张量形状。
+1 2 3 4 5 6 7 8 9 10 11 12 13  Token IDs ↓ Token Embedding &#43; Position Embedding ↓ [LayerNorm → Self-Attention → Residual] ↓ [LayerNorm → FFN → Residual] ↓ 重复多个 Transformer Blocks ↓ Final LayerNorm → LM Head ↓ Next-token logits → Cross-Entropy Loss   本文从一个简单的 GPT 实现出发，沿着数据流解释每一步的作用和张量形状。完整源码放在文章最后，读完前面的原理后可以结合代码对照理解。
 " /><meta name="keywords" content="Hugo, theme, even" />
 
 
@@ -75,7 +75,7 @@ Final LayerNorm → LM Head
 Next-token logits → Cross-Entropy Loss
 
 
-本文从一个简单的 GPT 实现出发，沿着数据流解释每一步的作用和张量形状。" />
+本文从一个简单的 GPT 实现出发，沿着数据流解释每一步的作用和张量形状。完整源码放在文章最后，读完前面的原理后可以结合代码对照理解。" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://zheng-bobo.github.io/post/transformer-architecture/" />
 <meta property="article:published_time" content="2026-09-14T10:25:02+02:00" />
@@ -114,12 +114,12 @@ Final LayerNorm → LM Head
 Next-token logits → Cross-Entropy Loss
 
 
-本文从一个简单的 GPT 实现出发，沿着数据流解释每一步的作用和张量形状。">
+本文从一个简单的 GPT 实现出发，沿着数据流解释每一步的作用和张量形状。完整源码放在文章最后，读完前面的原理后可以结合代码对照理解。">
 
 
 <meta itemprop="datePublished" content="2026-09-14T10:25:02&#43;02:00" />
 <meta itemprop="dateModified" content="2026-09-14T10:25:02&#43;02:00" />
-<meta itemprop="wordCount" content="2896">
+<meta itemprop="wordCount" content="2926">
 
 
 
@@ -159,7 +159,7 @@ Final LayerNorm → LM Head
 Next-token logits → Cross-Entropy Loss
 
 
-本文从一个简单的 GPT 实现出发，沿着数据流解释每一步的作用和张量形状。"/>
+本文从一个简单的 GPT 实现出发，沿着数据流解释每一步的作用和张量形状。完整源码放在文章最后，读完前面的原理后可以结合代码对照理解。"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -239,7 +239,7 @@ Next-token logits → Cross-Entropy Loss
         <div class="post-category">
             <a href="/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/"> 人工智能 </a>
             </div>
-          <span class="more-meta"> 约 2896 字 </span>
+          <span class="more-meta"> 约 2926 字 </span>
           <span class="more-meta"> 预计阅读 6 分钟 </span>
         
       </div>
@@ -315,7 +315,7 @@ Final LayerNorm → LM Head
 Next-token logits → Cross-Entropy Loss</code></pre></td></tr></table>
 </div>
 </div>
-<p>本文从一个简单的 GPT 实现出发，沿着数据流解释每一步的作用和张量形状。</p>
+<p>本文从一个简单的 GPT 实现出发，沿着数据流解释每一步的作用和张量形状。完整源码放在文章最后，读完前面的原理后可以结合代码对照理解。</p>
 
 <h2 id="1-token-embedding">1. Token Embedding</h2>
 <div class="highlight"><div class="chroma">
