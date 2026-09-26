@@ -312,13 +312,19 @@
           <div class="blog-summary-meta">
             <time datetime="2026-09-26">2026年09月26日</time>
             <span aria-hidden="true">·</span>
-            <span>预计阅读 10 分钟</span>
+            <span>预计阅读 14 分钟</span>
           </div>
         </header>
 
         <div class="blog-summary-excerpt post">
           <div class="post-content">
-            <div class="post-summary"><p>本文沿着 <code>scripts/base_train.py</code> 的执行顺序阅读 nanochat：从命令行参数、随机种子和 DDP 环境开始，依次进入模型构建、权重初始化、Scaling Laws、优化器、DataLoader、梯度累积与单步训练。重点不是抽象介绍 GPT，而是理解源码中的每一段配置如何落到真实训练过程里。</p></div>
+            <div class="post-summary"><p>本文沿着 <code>scripts/base_train.py</code> 的执行顺序阅读 nanochat：从命令行参数、随机种子和 DDP 环境开始，依次进入模型构建、权重初始化、Scaling Laws、优化器、DataLoader、梯度累积与单步训练。重点不是抽象介绍 GPT，而是理解源码中的每一段配置如何落到真实训练过程里。</p>
+
+<blockquote>
+<p><strong>前置知识</strong></p>
+
+<p>本文默认读者已经了解 token embedding、causal self-attention、MLP、残差连接和交叉熵。如果这些概念还不熟悉，建议先阅读我的简易实现文章：<a href="https://zheng-bobo.github.io/post/transformer-architecture/">Transformer Architecture：从 Token Embedding 到训练循环</a>，再回来读 nanochat 的工程化实现。</p>
+</blockquote></div>
           </div>
         </div>
 

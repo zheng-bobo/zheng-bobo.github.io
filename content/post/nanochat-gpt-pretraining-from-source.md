@@ -10,6 +10,10 @@ mathjaxEnableSingleDollar: true
 
 本文沿着 `scripts/base_train.py` 的执行顺序阅读 nanochat：从命令行参数、随机种子和 DDP 环境开始，依次进入模型构建、权重初始化、Scaling Laws、优化器、DataLoader、梯度累积与单步训练。重点不是抽象介绍 GPT，而是理解源码中的每一段配置如何落到真实训练过程里。
 
+> **前置知识**
+>
+> 本文默认读者已经了解 token embedding、causal self-attention、MLP、残差连接和交叉熵。如果这些概念还不熟悉，建议先阅读我的简易实现文章：[Transformer Architecture：从 Token Embedding 到训练循环](https://zheng-bobo.github.io/post/transformer-architecture/)，再回来读 nanochat 的工程化实现。
+
 <!--more-->
 
 > **源码版本说明**
@@ -124,6 +128,14 @@ model_dim = ((base_dim + args.head_dim - 1) // args.head_dim) * args.head_dim
 num_heads = model_dim // args.head_dim
 ```
 
+以 depth-2 为例，推导过程不是直接把 `depth × aspect_ratio` 当作最终宽度，而是先计算基础宽度，再对齐到 `head_dim`：
+
+```text
+base_dim = 2 × 64 = 128
+model_dim = ceil(128 / 128) × 128 = 128
+num_heads = 128 / 128 = 1
+```
+
 `model_dim` 被向上取整为 `head_dim` 的倍数。以 `depth=2`、`aspect_ratio=64`、`head_dim=128` 为例：
 
 ```text
@@ -164,7 +176,13 @@ model.to_empty(device=device)       # allocate uninitialized storage
 model.init_weights()                # initialize every tensor
 ```
 
-`build_model_meta()` 只建立参数形状；`to_empty()` 直接在目标设备分配未初始化空间；`init_weights()` 初始化权重及 RoPE 的 cos/sin buffers。这样避免先在 CPU 建立完整模型再复制到 GPU 的额外峰值内存。
+这三步分别完成不同工作：
+
+1. `build_model_meta()` 在 `with torch.device("meta")` 中建立模型。PyTorch 此时知道每层形状，但没有为权重分配真实存储。
+2. `model.to_empty(device=device)` 在目标设备为参数和 buffer 分配空间，但不复制或初始化数值，因此此时不能直接计算。
+3. `model.init_weights()` 按模型定义初始化权重，并生成 RoPE 所需的 cos/sin buffers。执行完成后模型才可以正常前向传播。
+
+这种流程避免先在 CPU 创建一份真实模型、再搬到 GPU 的额外峰值内存。恢复训练时，checkpoint 权重会覆盖初始化值，但仍需要先正确建立参数结构。
 
 ### 5.2 Embedding、Blocks 与 LM Head
 
@@ -183,6 +201,14 @@ self.transformer = nn.ModuleDict({
 })
 self.lm_head = Linear(config.n_embd, padded_vocab_size, bias=False)
 ```
+
+这里三个对象的职责不同：
+
+- `self.transformer.wte` 是输入 token embedding 表；
+- `self.transformer.h` 是由 `n_layer` 个 Transformer Block 组成的列表；
+- `self.lm_head` 将最后的 hidden state 映射为词表中每个 token 的 logits。
+
+补齐词表只改变底层矩阵尺寸，不会产生新的有效 token。输出时仍会裁剪回 tokenizer 的真实 `vocab_size`。
 
 ```text
 最后隐藏状态: [B, T, n_embd]
@@ -215,6 +241,8 @@ x   [B, T, d]
 
 RMSNorm 和 smear 不改变主张量形状。进入 block 后：
 
+Smear 会把前一个 token 的 embedding 以门控方式混入当前位置，相当于在 Attention 之前增加一条廉价的局部信息通道；它改变数值，但形状仍然是 `[B,T,d]`。
+
 | 投影 | 线性层权重形状 | 输出形状 |
 |---|---:|---:|
 | Q | `[H×D, d]` | `[B, T, H, D]` |
@@ -232,6 +260,11 @@ v = self.c_v(x).view(B, T, self.n_kv_head, self.head_dim)
 ```
 
 因果遮罩、RoPE 和滑动窗口改变可关注的位置，但不改变主张量形状。MLP 的形状变化为：
+
+- 因果遮罩保证位置 $t$ 不能看到未来 token；
+- RoPE 旋转 Q、K，在点积注意力中编码相对位置信息；
+- 滑动窗口限制部分层只读取附近 token，从而降低长序列 Attention 的成本；
+- QK Norm 在注意力计算前稳定 Q、K 的尺度。
 
 ```text
 [B, T, d]
@@ -275,6 +308,8 @@ attention   [B, T, 1, 128] → [B, T, 128]
 MLP         [B, T, 128] → [B, T, 512] → [B, T, 128]
 lm_head     [B, T, 128] → [B, T, vocab_size]
 ```
+
+因此词表大小只影响 embedding 表和最终 LM Head。无论词表是 8K 还是 32K，Transformer blocks 内部的 `[B,T,d]`、Q/K/V 和 MLP 维度都由模型配置决定。
 
 ### 5.6 `init_weights`
 
@@ -331,6 +366,25 @@ target_tokens = int(args.target_param_data_ratio * num_scaling_params)
 
 默认 ratio 为 12，所以目标 token 数约为 scaling parameters 的 12 倍。
 
+`num_scaling_params()` 会按用途统计参数，而不是只返回一个总数：
+
+| 参数组 | 内容 |
+|---|---|
+| `wte` | 输入 token embedding |
+| `value_embeds` | 各层可选的 value embedding |
+| `lm_head` | 输出语言模型头 |
+| `transformer_matrices` | Attention、MLP 等 block 矩阵 |
+| `scalars` | residual、x0 blending 等可学习标量 |
+| `total` | 上述参数总量 |
+
+代码用 `transformer_matrices + lm_head` 作为 scaling parameters；`estimate_flops()` 则估计模型处理一个 token 需要的 FLOPs。默认情况下：
+
+```text
+target_tokens = 12 × num_scaling_params
+```
+
+如果显式指定 `--num-iterations` 或 `--target-flops`，训练时长会走对应的更高优先级分支，而不是使用默认 data/parameter ratio。
+
 ### 6.2 估计总 batch size
 
 nanochat 参考 [Power Lines](https://arxiv.org/abs/2505.13738) 的经验关系 $B\_{opt}\propto D^{0.383}$：
@@ -347,6 +401,8 @@ total_batch_size = 2 ** round(math.log2(predicted_batch_size))
 ```
 
 最后取最近的 2 的幂。指数与参考点都是经验选择，不是对所有模型都严格最优的定律。
+
+例如预测 batch 约为 300,000 tokens，最近的 2 的幂是 262,144。规整到 2 的幂不是数学最优性要求，而是为了让 batch、梯度累积和硬件执行更容易对齐。
 
 ### 6.3 根据 batch 缩放学习率
 
@@ -368,6 +424,8 @@ batch_ratio = 131072 / 524288 = 0.25
 batch_lr_scale = sqrt(0.25) = 0.5
 ```
 
+也就是说，总 batch 缩小到参考值的四分之一时，传入 AdamW 和 Muon 参数组的基础学习率都会缩小到一半。源码注释也明确指出：对 AdamW 使用平方根缩放较常见，但把同一规则用于 Muon 是实现中的经验假设。
+
 ### 6.4 缩放 weight decay
 
 脚本采用 [T_epoch](https://arxiv.org/abs/2405.13698) 框架：
@@ -386,6 +444,11 @@ $$
 
 第一项匹配 batch/learning-rate 缩放，第二项补偿训练 token horizon。
 
+- `sqrt(total_batch_size / B_REF)` 与前面的 batch 学习率缩放保持一致；
+- `D_REF / target_tokens` 表示训练 token 少于参考计划时增强衰减，训练时间更长时减弱衰减。
+
+例如 batch 是参考值的 $1/4$、token horizon 是参考值的 $1/2$：batch 项为 $1/2$，horizon 项为 2，两者相乘后 weight decay 保持不变。若 token horizon 与参考值相同，则 weight decay 变为原来的一半。
+
 ## 7. 初始化 Optimizer
 
 ```python
@@ -402,11 +465,13 @@ optimizer = model.setup_optimizer(
 |---|---|---|
 | `unembedding_lr` | `lm_head` | hidden state 到词表 logits 的输出层学习率 |
 | `embedding_lr` | `wte`、value embeddings | 输入 embedding 学习率；value embedding 额外乘 0.5 |
-| `scalar_lr` | 部分可学习标量 | `resid_lambdas`、`x0_lambdas` 等 |
+| `scalar_lr` | 部分可学习标量 | `resid_lambdas`、`x0_lambdas` 等；`resid_lambdas` 还会再乘 0.01 |
 | `matrix_lr` | Transformer 二维矩阵 | Muon 的基础学习率 |
 | `weight_decay` | Muon 矩阵参数 | 已按 batch 和 token horizon 缩放的衰减强度 |
 
 一个 `optimizer.step()` 背后同时包含 AdamW 与 Muon 参数组，并非所有权重共享同一种更新规则。
+
+从参数性质看，Transformer blocks 中的二维矩阵适合 Muon；embedding、LM Head 和各种标量继续使用 AdamW。Value embedding 使用 `embedding_lr`，但源码会额外乘 0.5；smear 相关参数也有单独的设置。按参数类型分组后，每组可以拥有不同的学习率、betas、momentum 和 weight decay。
 
 ## 8. 初始化训练与验证 DataLoader
 
@@ -437,6 +502,10 @@ y = tokens[:, 1:]   # [B, T]
 
 `y` 是 `x` 右移一位后的 next-token 目标；`state` 写入 checkpoint，供中断恢复。
 
+更具体地说，加载器会在候选文档中寻找能完整装入当前序列剩余空间的较长文档；没有完整文档能放入时，再裁剪内容填满窗口。这样能减少 padding 浪费，并让每行从 BOS 开始。代价是少量被裁剪的 token 可能不会进入训练。
+
+`dataloader_state_dict` 记录数据读取位置。模型、优化器和随机状态即使都恢复成功，如果没有恢复 DataLoader 进度，训练仍可能重复读取或跳过一段数据。
+
 ## 9. 计算 `grad_accum_steps`
 
 ```python
@@ -452,6 +521,8 @@ $$
 $$
 
 若 `total_batch_size=65536`，则 `grad_accum_steps=8`，累积 8 次 forward/backward 后才更新一次参数。
+
+`total_batch_size` 表示一次 `optimizer.step()` 对应的全局 token 数，而不是单张 GPU 上的序列条数。源码会先检查它能否被 `world_tokens_per_fwdbwd` 整除，避免产生不完整的梯度累积步。
 
 ## 10. 单步训练
 
@@ -488,7 +559,21 @@ optimizer.step()
 model.zero_grad(set_to_none=True)
 ```
 
-`set_to_none=True` 通常比逐元素清零更省内存。backward 后立刻调用下一次 `next(train_loader)`，还能让 CPU 分词、数据搬运尽量与 GPU 工作重叠，并同步保存最新的数据加载状态。
+逐行看这一段：
+
+- `model(x, y)` 计算当前 micro-batch 的 loss；
+- `loss / grad_accum_steps` 将每次反向传播的贡献按累积次数归一化；
+- `loss.backward()` 把梯度累加到参数的 `.grad`，不会自动清空之前的结果；
+- `optimizer.step()` 在全部 micro-step 完成后只执行一次参数更新；
+- `zero_grad(set_to_none=True)` 为下一次全局 step 清理梯度。
+
+`set_to_none=True` 通常比逐元素清零更省内存。backward 后立刻调用：
+
+```python
+x, y, dataloader_state_dict = next(train_loader)
+```
+
+这里 `x` 是下一批输入，`y` 是对应目标，`dataloader_state_dict` 是最新读取进度。提前请求下一批还能让 CPU 分词和 Host-to-Device copy 尽量与 GPU 工作重叠。
 
 ### 10.2 Learning-rate schedule
 
@@ -505,7 +590,16 @@ def get_lr_multiplier(it):
         return progress + (1 - progress) * args.final_lr_frac
 ```
 
-它分为线性 warmup、恒定学习率、线性 warmdown 三段，末尾降到 `final_lr_frac`，默认是基础学习率的 5%。
+相关变量及默认意义如下：
+
+| 变量 | 默认值或来源 | 含义 |
+|---|---|---|
+| `num_iterations` | 默认由 `target_tokens // total_batch_size` 得到 | 总参数更新次数；显式参数优先 |
+| `warmup_steps` | 40 | 线性预热步数 |
+| `warmdown_ratio` | 0.65 | 用于线性衰减的训练步数比例 |
+| `final_lr_frac` | 0.05 | 训练结束时相对基础学习率的比例 |
+
+调度器分为三段：前 `warmup_steps` 步从 `1/warmup_steps` 线性升到 1；中间保持 1；最后 `round(warmdown_ratio × num_iterations)` 步线性降到 `final_lr_frac`。
 
 ### 10.3 Muon momentum 与 weight decay
 
@@ -528,7 +622,13 @@ def get_weight_decay(it):
     )
 ```
 
-Muon momentum 前 400 步从 0.85 升到 0.97，warmdown 时降到 0.90；weight decay 按余弦曲线降到 0：
+Muon momentum 的调度分为三段：
+
+- 前 400 步从 0.85 线性升到 0.97；
+- 中间阶段保持 0.97；
+- 进入 learning-rate warmdown 后，从 0.97 线性降到 0.90。
+
+它控制 Muon 更新中历史方向的权重，AdamW 参数组不会在这段代码里设置 momentum。Muon weight decay 则按余弦曲线降到 0：
 
 $$
 wd(it)=wd\_{scaled}\frac{1+\cos(\pi\,it/N)}{2}

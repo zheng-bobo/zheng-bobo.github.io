@@ -17,6 +17,8 @@
 
 
 <meta name="author" content="zhengxz" /><meta name="description" content="本文沿着 scripts/base_train.py 的执行顺序阅读 nanochat：从命令行参数、随机种子和 DDP 环境开始，依次进入模型构建、权重初始化、Scaling Laws、优化器、DataLoader、梯度累积与单步训练。重点不是抽象介绍 GPT，而是理解源码中的每一段配置如何落到真实训练过程里。
+ 前置知识
+本文默认读者已经了解 token embedding、causal self-attention、MLP、残差连接和交叉熵。如果这些概念还不熟悉，建议先阅读我的简易实现文章：Transformer Architecture：从 Token Embedding 到训练循环，再回来读 nanochat 的工程化实现。
 " /><meta name="keywords" content="Hugo, theme, even" />
 
 
@@ -43,25 +45,43 @@
 
 
 <meta property="og:title" content="nanochat 源码解读：从参数配置到单步训练" />
-<meta property="og:description" content="本文沿着 scripts/base_train.py 的执行顺序阅读 nanochat：从命令行参数、随机种子和 DDP 环境开始，依次进入模型构建、权重初始化、Scaling Laws、优化器、DataLoader、梯度累积与单步训练。重点不是抽象介绍 GPT，而是理解源码中的每一段配置如何落到真实训练过程里。" />
+<meta property="og:description" content="本文沿着 scripts/base_train.py 的执行顺序阅读 nanochat：从命令行参数、随机种子和 DDP 环境开始，依次进入模型构建、权重初始化、Scaling Laws、优化器、DataLoader、梯度累积与单步训练。重点不是抽象介绍 GPT，而是理解源码中的每一段配置如何落到真实训练过程里。
+
+
+前置知识
+
+本文默认读者已经了解 token embedding、causal self-attention、MLP、残差连接和交叉熵。如果这些概念还不熟悉，建议先阅读我的简易实现文章：Transformer Architecture：从 Token Embedding 到训练循环，再回来读 nanochat 的工程化实现。
+" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://zheng-bobo.github.io/post/nanochat-gpt-pretraining-from-source/" />
 <meta property="article:published_time" content="2026-09-26T21:00:00+02:00" />
 <meta property="article:modified_time" content="2026-09-26T21:00:00+02:00" /><meta property="og:site_name" content="Blowing in the wind" />
 <meta itemprop="name" content="nanochat 源码解读：从参数配置到单步训练">
-<meta itemprop="description" content="本文沿着 scripts/base_train.py 的执行顺序阅读 nanochat：从命令行参数、随机种子和 DDP 环境开始，依次进入模型构建、权重初始化、Scaling Laws、优化器、DataLoader、梯度累积与单步训练。重点不是抽象介绍 GPT，而是理解源码中的每一段配置如何落到真实训练过程里。">
+<meta itemprop="description" content="本文沿着 scripts/base_train.py 的执行顺序阅读 nanochat：从命令行参数、随机种子和 DDP 环境开始，依次进入模型构建、权重初始化、Scaling Laws、优化器、DataLoader、梯度累积与单步训练。重点不是抽象介绍 GPT，而是理解源码中的每一段配置如何落到真实训练过程里。
+
+
+前置知识
+
+本文默认读者已经了解 token embedding、causal self-attention、MLP、残差连接和交叉熵。如果这些概念还不熟悉，建议先阅读我的简易实现文章：Transformer Architecture：从 Token Embedding 到训练循环，再回来读 nanochat 的工程化实现。
+">
 
 
 <meta itemprop="datePublished" content="2026-09-26T21:00:00&#43;02:00" />
 <meta itemprop="dateModified" content="2026-09-26T21:00:00&#43;02:00" />
-<meta itemprop="wordCount" content="4856">
+<meta itemprop="wordCount" content="6675">
 
 
 
 <meta itemprop="keywords" content="nanochat,GPT,Transformer,LLM Training,PyTorch," />
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="nanochat 源码解读：从参数配置到单步训练"/>
-<meta name="twitter:description" content="本文沿着 scripts/base_train.py 的执行顺序阅读 nanochat：从命令行参数、随机种子和 DDP 环境开始，依次进入模型构建、权重初始化、Scaling Laws、优化器、DataLoader、梯度累积与单步训练。重点不是抽象介绍 GPT，而是理解源码中的每一段配置如何落到真实训练过程里。"/>
+<meta name="twitter:description" content="本文沿着 scripts/base_train.py 的执行顺序阅读 nanochat：从命令行参数、随机种子和 DDP 环境开始，依次进入模型构建、权重初始化、Scaling Laws、优化器、DataLoader、梯度累积与单步训练。重点不是抽象介绍 GPT，而是理解源码中的每一段配置如何落到真实训练过程里。
+
+
+前置知识
+
+本文默认读者已经了解 token embedding、causal self-attention、MLP、残差连接和交叉熵。如果这些概念还不熟悉，建议先阅读我的简易实现文章：Transformer Architecture：从 Token Embedding 到训练循环，再回来读 nanochat 的工程化实现。
+"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -185,8 +205,8 @@
         <div class="post-category">
             <a href="/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/"> 人工智能 </a>
             </div>
-          <span class="more-meta"> 约 4856 字 </span>
-          <span class="more-meta"> 预计阅读 10 分钟 </span>
+          <span class="more-meta"> 约 6675 字 </span>
+          <span class="more-meta"> 预计阅读 14 分钟 </span>
 
       </div>
     </header>
@@ -241,6 +261,12 @@
 </div>
     <div class="post-content">
       <p>本文沿着 <code>scripts/base_train.py</code> 的执行顺序阅读 nanochat：从命令行参数、随机种子和 DDP 环境开始，依次进入模型构建、权重初始化、Scaling Laws、优化器、DataLoader、梯度累积与单步训练。重点不是抽象介绍 GPT，而是理解源码中的每一段配置如何落到真实训练过程里。</p>
+
+<blockquote>
+<p><strong>前置知识</strong></p>
+
+<p>本文默认读者已经了解 token embedding、causal self-attention、MLP、残差连接和交叉熵。如果这些概念还不熟悉，建议先阅读我的简易实现文章：<a href="https://zheng-bobo.github.io/post/transformer-architecture/">Transformer Architecture：从 Token Embedding 到训练循环</a>，再回来读 nanochat 的工程化实现。</p>
+</blockquote>
 
 <blockquote>
 <p><strong>源码版本说明</strong></p>
@@ -419,6 +445,19 @@ $$</p>
 <span class="n">num_heads</span> <span class="o">=</span> <span class="n">model_dim</span> <span class="o">//</span> <span class="n">args</span><span class="o">.</span><span class="n">head_dim</span></code></pre></td></tr></table>
 </div>
 </div>
+<p>以 depth-2 为例，推导过程不是直接把 <code>depth × aspect_ratio</code> 当作最终宽度，而是先计算基础宽度，再对齐到 <code>head_dim</code>：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">base_dim = 2 × 64 = 128
+model_dim = ceil(128 / 128) × 128 = 128
+num_heads = 128 / 128 = 1</code></pre></td></tr></table>
+</div>
+</div>
 <p><code>model_dim</code> 被向上取整为 <code>head_dim</code> 的倍数。以 <code>depth=2</code>、<code>aspect_ratio=64</code>、<code>head_dim=128</code> 为例：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -483,7 +522,15 @@ head_dim = 128</code></pre></td></tr></table>
 <span class="n">model</span><span class="o">.</span><span class="n">init_weights</span><span class="p">()</span>                <span class="c1"># initialize every tensor</span></code></pre></td></tr></table>
 </div>
 </div>
-<p><code>build_model_meta()</code> 只建立参数形状；<code>to_empty()</code> 直接在目标设备分配未初始化空间；<code>init_weights()</code> 初始化权重及 RoPE 的 cos/sin buffers。这样避免先在 CPU 建立完整模型再复制到 GPU 的额外峰值内存。</p>
+<p>这三步分别完成不同工作：</p>
+
+<ol>
+<li><code>build_model_meta()</code> 在 <code>with torch.device(&quot;meta&quot;)</code> 中建立模型。PyTorch 此时知道每层形状，但没有为权重分配真实存储。</li>
+<li><code>model.to_empty(device=device)</code> 在目标设备为参数和 buffer 分配空间，但不复制或初始化数值，因此此时不能直接计算。</li>
+<li><code>model.init_weights()</code> 按模型定义初始化权重，并生成 RoPE 所需的 cos/sin buffers。执行完成后模型才可以正常前向传播。</li>
+</ol>
+
+<p>这种流程避免先在 CPU 创建一份真实模型、再搬到 GPU 的额外峰值内存。恢复训练时，checkpoint 权重会覆盖初始化值，但仍需要先正确建立参数结构。</p>
 
 <h3 id="5-2-embedding-blocks-与-lm-head">5.2 Embedding、Blocks 与 LM Head</h3>
 
@@ -515,7 +562,17 @@ head_dim = 128</code></pre></td></tr></table>
 <span class="p">})</span>
 <span class="bp">self</span><span class="o">.</span><span class="n">lm_head</span> <span class="o">=</span> <span class="n">Linear</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">n_embd</span><span class="p">,</span> <span class="n">padded_vocab_size</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span></code></pre></td></tr></table>
 </div>
-</div><div class="highlight"><div class="chroma">
+</div>
+<p>这里三个对象的职责不同：</p>
+
+<ul>
+<li><code>self.transformer.wte</code> 是输入 token embedding 表；</li>
+<li><code>self.transformer.h</code> 是由 <code>n_layer</code> 个 Transformer Block 组成的列表；</li>
+<li><code>self.lm_head</code> 将最后的 hidden state 映射为词表中每个 token 的 logits。</li>
+</ul>
+
+<p>补齐词表只改变底层矩阵尺寸，不会产生新的有效 token。输出时仍会裁剪回 tokenizer 的真实 <code>vocab_size</code>。</p>
+<div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
 </span><span class="lnt">2
@@ -597,6 +654,8 @@ x   [B, T, d]</code></pre></td></tr></table>
 </div>
 <p>RMSNorm 和 smear 不改变主张量形状。进入 block 后：</p>
 
+<p>Smear 会把前一个 token 的 embedding 以门控方式混入当前位置，相当于在 Attention 之前增加一条廉价的局部信息通道；它改变数值，但形状仍然是 <code>[B,T,d]</code>。</p>
+
 <table>
 <thead>
 <tr>
@@ -646,6 +705,13 @@ x   [B, T, d]</code></pre></td></tr></table>
 </div>
 </div>
 <p>因果遮罩、RoPE 和滑动窗口改变可关注的位置，但不改变主张量形状。MLP 的形状变化为：</p>
+
+<ul>
+<li>因果遮罩保证位置 $t$ 不能看到未来 token；</li>
+<li>RoPE 旋转 Q、K，在点积注意力中编码相对位置信息；</li>
+<li>滑动窗口限制部分层只读取附近 token，从而降低长序列 Attention 的成本；</li>
+
+<li><p>QK Norm 在注意力计算前稳定 Q、K 的尺度。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
@@ -658,14 +724,16 @@ x   [B, T, d]</code></pre></td></tr></table>
 </span></code></pre></td>
 <td class="lntd">
 <pre class="chroma"><code class="language-text" data-lang="text">[B, T, d]
-  → c_fc，权重 [4d, d]
+→ c_fc，权重 [4d, d]
 [B, T, 4d]
-  → ReLU²
+→ ReLU²
 [B, T, 4d]
-  → c_proj，权重 [d, 4d]
+→ c_proj，权重 [d, 4d]
 [B, T, d]</code></pre></td></tr></table>
 </div>
-</div>
+</div></li>
+</ul>
+
 <p>残差连接要求加法两边形状一致，所以 block 输入输出均为 <code>[B,T,d]</code>。</p>
 
 <h3 id="5-4-value-embedding">5.4 Value Embedding</h3>
@@ -717,6 +785,8 @@ MLP         [B, T, 128] → [B, T, 512] → [B, T, 128]
 lm_head     [B, T, 128] → [B, T, vocab_size]</code></pre></td></tr></table>
 </div>
 </div>
+<p>因此词表大小只影响 embedding 表和最终 LM Head。无论词表是 8K 还是 32K，Transformer blocks 内部的 <code>[B,T,d]</code>、Q/K/V 和 MLP 维度都由模型配置决定。</p>
+
 <h3 id="5-6-init-weights">5.6 <code>init_weights</code></h3>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -810,6 +880,60 @@ x + mlp_output       = x + 0 = x</code></pre></td></tr></table>
 </div>
 <p>默认 ratio 为 12，所以目标 token 数约为 scaling parameters 的 12 倍。</p>
 
+<p><code>num_scaling_params()</code> 会按用途统计参数，而不是只返回一个总数：</p>
+
+<table>
+<thead>
+<tr>
+<th>参数组</th>
+<th>内容</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><code>wte</code></td>
+<td>输入 token embedding</td>
+</tr>
+
+<tr>
+<td><code>value_embeds</code></td>
+<td>各层可选的 value embedding</td>
+</tr>
+
+<tr>
+<td><code>lm_head</code></td>
+<td>输出语言模型头</td>
+</tr>
+
+<tr>
+<td><code>transformer_matrices</code></td>
+<td>Attention、MLP 等 block 矩阵</td>
+</tr>
+
+<tr>
+<td><code>scalars</code></td>
+<td>residual、x0 blending 等可学习标量</td>
+</tr>
+
+<tr>
+<td><code>total</code></td>
+<td>上述参数总量</td>
+</tr>
+</tbody>
+</table>
+
+<p>代码用 <code>transformer_matrices + lm_head</code> 作为 scaling parameters；<code>estimate_flops()</code> 则估计模型处理一个 token 需要的 FLOPs。默认情况下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">target_tokens = 12 × num_scaling_params</code></pre></td></tr></table>
+</div>
+</div>
+<p>如果显式指定 <code>--num-iterations</code> 或 <code>--target-flops</code>，训练时长会走对应的更高优先级分支，而不是使用默认 data/parameter ratio。</p>
+
 <h3 id="6-2-估计总-batch-size">6.2 估计总 batch size</h3>
 
 <p>nanochat 参考 <a href="https://arxiv.org/abs/2505.13738">Power Lines</a> 的经验关系 $B_{opt}\propto D^{0.383}$：</p>
@@ -832,6 +956,8 @@ $$</p>
 </div>
 </div>
 <p>最后取最近的 2 的幂。指数与参考点都是经验选择，不是对所有模型都严格最优的定律。</p>
+
+<p>例如预测 batch 约为 300,000 tokens，最近的 2 的幂是 262,144。规整到 2 的幂不是数学最优性要求，而是为了让 batch、梯度累积和硬件执行更容易对齐。</p>
 
 <h3 id="6-3-根据-batch-缩放学习率">6.3 根据 batch 缩放学习率</h3>
 <div class="highlight"><div class="chroma">
@@ -865,6 +991,8 @@ $$</p>
 batch_lr_scale = sqrt(0.25) = 0.5</code></pre></td></tr></table>
 </div>
 </div>
+<p>也就是说，总 batch 缩小到参考值的四分之一时，传入 AdamW 和 Muon 参数组的基础学习率都会缩小到一半。源码注释也明确指出：对 AdamW 使用平方根缩放较常见，但把同一规则用于 Muon 是实现中的经验假设。</p>
+
 <h3 id="6-4-缩放-weight-decay">6.4 缩放 weight decay</h3>
 
 <p>脚本采用 <a href="https://arxiv.org/abs/2405.13698">T_epoch</a> 框架：</p>
@@ -889,6 +1017,13 @@ batch_lr_scale = sqrt(0.25) = 0.5</code></pre></td></tr></table>
 $$</p>
 
 <p>第一项匹配 batch/learning-rate 缩放，第二项补偿训练 token horizon。</p>
+
+<ul>
+<li><code>sqrt(total_batch_size / B_REF)</code> 与前面的 batch 学习率缩放保持一致；</li>
+<li><code>D_REF / target_tokens</code> 表示训练 token 少于参考计划时增强衰减，训练时间更长时减弱衰减。</li>
+</ul>
+
+<p>例如 batch 是参考值的 $<sup>1</sup>&frasl;<sub>4</sub>$、token horizon 是参考值的 $<sup>1</sup>&frasl;<sub>2</sub>$：batch 项为 $<sup>1</sup>&frasl;<sub>2</sub>$，horizon 项为 2，两者相乘后 weight decay 保持不变。若 token horizon 与参考值相同，则 weight decay 变为原来的一半。</p>
 
 <h2 id="7-初始化-optimizer">7. 初始化 Optimizer</h2>
 <div class="highlight"><div class="chroma">
@@ -936,7 +1071,7 @@ $$</p>
 <tr>
 <td><code>scalar_lr</code></td>
 <td>部分可学习标量</td>
-<td><code>resid_lambdas</code>、<code>x0_lambdas</code> 等</td>
+<td><code>resid_lambdas</code>、<code>x0_lambdas</code> 等；<code>resid_lambdas</code> 还会再乘 0.01</td>
 </tr>
 
 <tr>
@@ -954,6 +1089,8 @@ $$</p>
 </table>
 
 <p>一个 <code>optimizer.step()</code> 背后同时包含 AdamW 与 Muon 参数组，并非所有权重共享同一种更新规则。</p>
+
+<p>从参数性质看，Transformer blocks 中的二维矩阵适合 Muon；embedding、LM Head 和各种标量继续使用 AdamW。Value embedding 使用 <code>embedding_lr</code>，但源码会额外乘 0.5；smear 相关参数也有单独的设置。按参数类型分组后，每组可以拥有不同的学习率、betas、momentum 和 weight decay。</p>
 
 <h2 id="8-初始化训练与验证-dataloader">8. 初始化训练与验证 DataLoader</h2>
 <div class="highlight"><div class="chroma">
@@ -1000,6 +1137,10 @@ $$</p>
 </div>
 <p><code>y</code> 是 <code>x</code> 右移一位后的 next-token 目标；<code>state</code> 写入 checkpoint，供中断恢复。</p>
 
+<p>更具体地说，加载器会在候选文档中寻找能完整装入当前序列剩余空间的较长文档；没有完整文档能放入时，再裁剪内容填满窗口。这样能减少 padding 浪费，并让每行从 BOS 开始。代价是少量被裁剪的 token 可能不会进入训练。</p>
+
+<p><code>dataloader_state_dict</code> 记录数据读取位置。模型、优化器和随机状态即使都恢复成功，如果没有恢复 DataLoader 进度，训练仍可能重复读取或跳过一段数据。</p>
+
 <h2 id="9-计算-grad-accum-steps">9. 计算 <code>grad_accum_steps</code></h2>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -1020,6 +1161,8 @@ $$</p>
 $$</p>
 
 <p>若 <code>total_batch_size=65536</code>，则 <code>grad_accum_steps=8</code>，累积 8 次 forward/backward 后才更新一次参数。</p>
+
+<p><code>total_batch_size</code> 表示一次 <code>optimizer.step()</code> 对应的全局 token 数，而不是单张 GPU 上的序列条数。源码会先检查它能否被 <code>world_tokens_per_fwdbwd</code> 整除，避免产生不完整的梯度累积步。</p>
 
 <h2 id="10-单步训练">10. 单步训练</h2>
 <div class="highlight"><div class="chroma">
@@ -1083,7 +1226,26 @@ $$</p>
 <span class="n">model</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">(</span><span class="n">set_to_none</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span></code></pre></td></tr></table>
 </div>
 </div>
-<p><code>set_to_none=True</code> 通常比逐元素清零更省内存。backward 后立刻调用下一次 <code>next(train_loader)</code>，还能让 CPU 分词、数据搬运尽量与 GPU 工作重叠，并同步保存最新的数据加载状态。</p>
+<p>逐行看这一段：</p>
+
+<ul>
+<li><code>model(x, y)</code> 计算当前 micro-batch 的 loss；</li>
+<li><code>loss / grad_accum_steps</code> 将每次反向传播的贡献按累积次数归一化；</li>
+<li><code>loss.backward()</code> 把梯度累加到参数的 <code>.grad</code>，不会自动清空之前的结果；</li>
+<li><code>optimizer.step()</code> 在全部 micro-step 完成后只执行一次参数更新；</li>
+<li><code>zero_grad(set_to_none=True)</code> 为下一次全局 step 清理梯度。</li>
+</ul>
+
+<p><code>set_to_none=True</code> 通常比逐元素清零更省内存。backward 后立刻调用：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">dataloader_state_dict</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">train_loader</span><span class="p">)</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>这里 <code>x</code> 是下一批输入，<code>y</code> 是对应目标，<code>dataloader_state_dict</code> 是最新读取进度。提前请求下一批还能让 CPU 分词和 Host-to-Device copy 尽量与 GPU 工作重叠。</p>
 
 <h3 id="10-2-learning-rate-schedule">10.2 Learning-rate schedule</h3>
 <div class="highlight"><div class="chroma">
@@ -1112,7 +1274,45 @@ $$</p>
         <span class="k">return</span> <span class="n">progress</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">progress</span><span class="p">)</span> <span class="o">*</span> <span class="n">args</span><span class="o">.</span><span class="n">final_lr_frac</span></code></pre></td></tr></table>
 </div>
 </div>
-<p>它分为线性 warmup、恒定学习率、线性 warmdown 三段，末尾降到 <code>final_lr_frac</code>，默认是基础学习率的 5%。</p>
+<p>相关变量及默认意义如下：</p>
+
+<table>
+<thead>
+<tr>
+<th>变量</th>
+<th>默认值或来源</th>
+<th>含义</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><code>num_iterations</code></td>
+<td>默认由 <code>target_tokens // total_batch_size</code> 得到</td>
+<td>总参数更新次数；显式参数优先</td>
+</tr>
+
+<tr>
+<td><code>warmup_steps</code></td>
+<td>40</td>
+<td>线性预热步数</td>
+</tr>
+
+<tr>
+<td><code>warmdown_ratio</code></td>
+<td>0.65</td>
+<td>用于线性衰减的训练步数比例</td>
+</tr>
+
+<tr>
+<td><code>final_lr_frac</code></td>
+<td>0.05</td>
+<td>训练结束时相对基础学习率的比例</td>
+</tr>
+</tbody>
+</table>
+
+<p>调度器分为三段：前 <code>warmup_steps</code> 步从 <code>1/warmup_steps</code> 线性升到 1；中间保持 1；最后 <code>round(warmdown_ratio × num_iterations)</code> 步线性降到 <code>final_lr_frac</code>。</p>
 
 <h3 id="10-3-muon-momentum-与-weight-decay">10.3 Muon momentum 与 weight decay</h3>
 <div class="highlight"><div class="chroma">
@@ -1153,7 +1353,15 @@ $$</p>
     <span class="p">)</span></code></pre></td></tr></table>
 </div>
 </div>
-<p>Muon momentum 前 400 步从 0.85 升到 0.97，warmdown 时降到 0.90；weight decay 按余弦曲线降到 0：</p>
+<p>Muon momentum 的调度分为三段：</p>
+
+<ul>
+<li>前 400 步从 0.85 线性升到 0.97；</li>
+<li>中间阶段保持 0.97；</li>
+<li>进入 learning-rate warmdown 后，从 0.97 线性降到 0.90。</li>
+</ul>
+
+<p>它控制 Muon 更新中历史方向的权重，AdamW 参数组不会在这段代码里设置 momentum。Muon weight decay 则按余弦曲线降到 0：</p>
 
 <p>$$
 wd(it)=wd_{scaled}\frac{1+\cos(\pi\,it/N)}{2}

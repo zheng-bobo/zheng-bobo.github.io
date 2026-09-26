@@ -18,6 +18,7 @@
 
 <meta name="author" content="zhengxz" /><meta name="description" content="This article follows the execution order of scripts/base_train.py: command-line arguments, random seeds, DDP setup, model construction, weight initialization, scaling laws, optimizers, data loading, gradient accumulation, and finally one complete training step.
 1 2 3 4  documents → tokenizer and sequence packing → inputs/targets → GPT forward → cross-entropy loss → backward and gradient accumulation → optimizer step → evaluation, sampling, checkpointing, and resume   The organization and code-reading path follow my nanochat Notion notes. The prose has been edited for clarity, while the source snippets and their original reading sequence are preserved.
+ Prerequisite: If token embeddings, causal self-attention, MLPs, residual connections, or next-token loss are still unfamiliar, start with Transformer Architecture: From Token Embedding to the Training Loop and then return to this source-level walkthrough.
 " /><meta name="keywords" content="Hugo, theme, even" />
 
 
@@ -59,7 +60,11 @@ documents → tokenizer and sequence packing → inputs/targets
           → evaluation, sampling, checkpointing, and resume
 
 
-The organization and code-reading path follow my nanochat Notion notes. The prose has been edited for clarity, while the source snippets and their original reading sequence are preserved." />
+The organization and code-reading path follow my nanochat Notion notes. The prose has been edited for clarity, while the source snippets and their original reading sequence are preserved.
+
+
+Prerequisite: If token embeddings, causal self-attention, MLPs, residual connections, or next-token loss are still unfamiliar, start with Transformer Architecture: From Token Embedding to the Training Loop and then return to this source-level walkthrough.
+" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://zheng-bobo.github.io/en/post/nanochat-gpt-pretraining-from-source/" />
 <meta property="article:published_time" content="2026-09-26T21:00:00+02:00" />
@@ -80,12 +85,16 @@ documents → tokenizer and sequence packing → inputs/targets
           → evaluation, sampling, checkpointing, and resume
 
 
-The organization and code-reading path follow my nanochat Notion notes. The prose has been edited for clarity, while the source snippets and their original reading sequence are preserved.">
+The organization and code-reading path follow my nanochat Notion notes. The prose has been edited for clarity, while the source snippets and their original reading sequence are preserved.
+
+
+Prerequisite: If token embeddings, causal self-attention, MLPs, residual connections, or next-token loss are still unfamiliar, start with Transformer Architecture: From Token Embedding to the Training Loop and then return to this source-level walkthrough.
+">
 
 
 <meta itemprop="datePublished" content="2026-09-26T21:00:00&#43;02:00" />
 <meta itemprop="dateModified" content="2026-09-26T21:00:00&#43;02:00" />
-<meta itemprop="wordCount" content="1289">
+<meta itemprop="wordCount" content="1322">
 
 
 
@@ -107,7 +116,11 @@ documents → tokenizer and sequence packing → inputs/targets
           → evaluation, sampling, checkpointing, and resume
 
 
-The organization and code-reading path follow my nanochat Notion notes. The prose has been edited for clarity, while the source snippets and their original reading sequence are preserved."/>
+The organization and code-reading path follow my nanochat Notion notes. The prose has been edited for clarity, while the source snippets and their original reading sequence are preserved.
+
+
+Prerequisite: If token embeddings, causal self-attention, MLPs, residual connections, or next-token loss are still unfamiliar, start with Transformer Architecture: From Token Embedding to the Training Loop and then return to this source-level walkthrough.
+"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -231,7 +244,7 @@ The organization and code-reading path follow my nanochat Notion notes. The pros
         <div class="post-category">
             <a href="/en/categories/artificial-intelligence/"> Artificial Intelligence </a>
             </div>
-          <span class="more-meta"> 1289 words </span>
+          <span class="more-meta"> 1322 words </span>
           <span class="more-meta"> 7 mins read </span>
 
       </div>
@@ -283,6 +296,10 @@ The organization and code-reading path follow my nanochat Notion notes. The pros
 </div>
 </div>
 <p>The organization and code-reading path follow my nanochat Notion notes. The prose has been edited for clarity, while the source snippets and their original reading sequence are preserved.</p>
+
+<blockquote>
+<p><strong>Prerequisite:</strong> If token embeddings, causal self-attention, MLPs, residual connections, or next-token loss are still unfamiliar, start with <a href="https://zheng-bobo.github.io/en/post/transformer-architecture/">Transformer Architecture: From Token Embedding to the Training Loop</a> and then return to this source-level walkthrough.</p>
+</blockquote>
 
 <blockquote>
 <p><strong>Source version</strong></p>

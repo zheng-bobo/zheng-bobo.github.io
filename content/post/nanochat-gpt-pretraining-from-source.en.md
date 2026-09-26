@@ -19,6 +19,8 @@ documents → tokenizer and sequence packing → inputs/targets
 
 The organization and code-reading path follow my nanochat Notion notes. The prose has been edited for clarity, while the source snippets and their original reading sequence are preserved.
 
+> **Prerequisite:** If token embeddings, causal self-attention, MLPs, residual connections, or next-token loss are still unfamiliar, start with [Transformer Architecture: From Token Embedding to the Training Loop](https://zheng-bobo.github.io/en/post/transformer-architecture/) and then return to this source-level walkthrough.
+
 <!--more-->
 
 > **Source version**
