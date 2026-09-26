@@ -110,4 +110,3 @@ The next article moves from quality loops to runtime architecture: durability, r
 
 - [Anthropic: Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps)
 - [Anthropic: Building effective agents](https://www.anthropic.com/engineering/building-effective-agents)
-

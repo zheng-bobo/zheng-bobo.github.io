@@ -122,4 +122,3 @@ Harness 的每个组件都编码了一个假设：“模型自己做不到这件
 
 - [Anthropic: Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps)
 - [Anthropic: Building effective agents](https://www.anthropic.com/engineering/building-effective-agents)
-

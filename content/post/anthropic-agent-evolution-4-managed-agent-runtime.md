@@ -131,4 +131,3 @@ OpenAI Agents API 也把托管 Harness 与执行环境分开，并根据任务�
 - [Anthropic: Scaling Managed Agents—Decoupling the brain from the hands](https://www.anthropic.com/engineering/managed-agents)
 - [Claude Platform: Using agent memory](https://platform.claude.com/docs/en/managed-agents/memory)
 - [OpenAI Agents API: Architecture](https://developers.openai.com/api/docs/guides/agents-api/architecture)
-

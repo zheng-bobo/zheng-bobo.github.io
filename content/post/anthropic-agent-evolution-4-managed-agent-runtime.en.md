@@ -129,4 +129,3 @@ Stronger models do not eliminate harnesses; they change what harnesses should do
 - [Anthropic: Scaling Managed Agents—Decoupling the brain from the hands](https://www.anthropic.com/engineering/managed-agents)
 - [Claude Platform: Using agent memory](https://platform.claude.com/docs/en/managed-agents/memory)
 - [OpenAI Agents API: Architecture](https://developers.openai.com/api/docs/guides/agents-api/architecture)
-

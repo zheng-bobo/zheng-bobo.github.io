@@ -111,4 +111,3 @@ Initializer + Coding Agent 解决了跨 Context 连续性，却没有完全解�
 
 - [Anthropic: Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)
 - [Anthropic: Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps)
-
