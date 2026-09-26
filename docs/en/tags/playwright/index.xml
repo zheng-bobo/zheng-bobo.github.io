@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Playwright on Blowing in the wind</title>
+    <link>https://zheng-bobo.github.io/en/tags/playwright/</link>
+    <description>Recent content in Playwright on Blowing in the wind</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Sat, 12 Sep 2026 21:06:45 +0200</lastBuildDate>
+
+  <atom:link href="https://zheng-bobo.github.io/en/tags/playwright/index.xml" rel="self" type="application/rss+xml" />
+
+
+    <item>
+      <title>Anthropic Agent Evolution III: The Planner–Generator–Evaluator Quality Loop</title>
+      <link>https://zheng-bobo.github.io/en/post/anthropic-agent-evolution-3-planner-generator-evaluator/</link>
+      <pubDate>Sat, 12 Sep 2026 21:06:45 +0200</pubDate>
+
+      <guid>https://zheng-bobo.github.io/en/post/anthropic-agent-evolution-3-planner-generator-evaluator/</guid>
+      <description>&lt;p&gt;The first harness let an agent continue across context windows, but continuity is not quality. Generators routinely mistake “mostly runs” for “good enough,” especially in subjective product and design work.&lt;/p&gt;
+
+&lt;p&gt;Anthropic&amp;rsquo;s next step separated planning, generation, and evaluation so that an external evaluator became a source of evidence the generator had to respond to.&lt;/p&gt;</description>
+    </item>
+
+  </channel>
+</rss>

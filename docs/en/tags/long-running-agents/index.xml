@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Long-Running Agents on Blowing in the wind</title>
+    <link>https://zheng-bobo.github.io/en/tags/long-running-agents/</link>
+    <description>Recent content in Long-Running Agents on Blowing in the wind</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Sat, 12 Sep 2026 21:07:45 +0200</lastBuildDate>
+
+  <atom:link href="https://zheng-bobo.github.io/en/tags/long-running-agents/index.xml" rel="self" type="application/rss+xml" />
+
+
+    <item>
+      <title>Anthropic Agent Evolution II: Context Reset and Structured Handoff</title>
+      <link>https://zheng-bobo.github.io/en/post/anthropic-agent-evolution-2-context-reset-and-handoff/</link>
+      <pubDate>Sat, 12 Sep 2026 21:07:45 +0200</pubDate>
+
+      <guid>https://zheng-bobo.github.io/en/post/anthropic-agent-evolution-2-context-reset-and-handoff/</guid>
+      <description>&lt;p&gt;The central tension in long-running work is not whether a model can write code. It is that a task may last hours or days while every context window is finite. Replaying the entire history eventually creates both capacity and noise problems.&lt;/p&gt;
+
+&lt;p&gt;Anthropic&amp;rsquo;s first long-running agent harness answered with a simple principle: &lt;strong&gt;reset conversational context, but externalize project state into structured artifacts that the next agent can recover.&lt;/strong&gt;&lt;/p&gt;</description>
+    </item>
+
+  </channel>
+</rss>

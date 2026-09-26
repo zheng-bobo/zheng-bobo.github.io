@@ -86,15 +86,155 @@
   </url>
 
   <url>
-    <loc>https://zheng-bobo.github.io/tags/ai-agents/</loc>
-    <lastmod>2026-08-11T06:27:01+02:00</lastmod>
+    <loc>https://zheng-bobo.github.io/tags/aci/</loc>
+    <lastmod>2026-09-12T21:08:45+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://zheng-bobo.github.io/tags/agent-harness/</loc>
+    <lastmod>2026-09-12T21:08:45+02:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <url>
     <loc>https://zheng-bobo.github.io/categories/ai-agents/</loc>
-    <lastmod>2026-08-11T06:27:01+02:00</lastmod>
+    <lastmod>2026-09-12T21:08:45+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://zheng-bobo.github.io/tags/ai-agents/</loc>
+    <lastmod>2026-09-12T21:08:45+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://zheng-bobo.github.io/tags/anthropic-agent-%E6%BC%94%E8%BF%9B/</loc>
+    <lastmod>2026-09-12T21:08:45+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://zheng-bobo.github.io/post/anthropic-agent-evolution-1-from-workflows-to-agents/</loc>
+    <lastmod>2026-09-12T21:08:45+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://zheng-bobo.github.io/tags/workflow/</loc>
+    <lastmod>2026-09-12T21:08:45+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://zheng-bobo.github.io/post/anthropic-agent-evolution-2-context-reset-and-handoff/</loc>
+    <lastmod>2026-09-12T21:07:45+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://zheng-bobo.github.io/tags/context-engineering/</loc>
+    <lastmod>2026-09-12T21:07:45+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://zheng-bobo.github.io/tags/context-reset/</loc>
+    <lastmod>2026-09-12T21:07:45+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://zheng-bobo.github.io/tags/long-running-agents/</loc>
+    <lastmod>2026-09-12T21:07:45+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://zheng-bobo.github.io/post/anthropic-agent-evolution-3-planner-generator-evaluator/</loc>
+    <lastmod>2026-09-12T21:06:45+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://zheng-bobo.github.io/tags/evaluator/</loc>
+    <lastmod>2026-09-12T21:06:45+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://zheng-bobo.github.io/tags/multi-agent/</loc>
+    <lastmod>2026-09-12T21:06:45+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://zheng-bobo.github.io/tags/playwright/</loc>
+    <lastmod>2026-09-12T21:06:45+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://zheng-bobo.github.io/tags/software-engineering/</loc>
+    <lastmod>2026-09-12T21:06:45+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://zheng-bobo.github.io/tags/agent-runtime/</loc>
+    <lastmod>2026-09-12T21:05:45+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://zheng-bobo.github.io/post/anthropic-agent-evolution-4-managed-agent-runtime/</loc>
+    <lastmod>2026-09-12T21:05:45+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://zheng-bobo.github.io/tags/codex/</loc>
+    <lastmod>2026-09-12T21:05:45+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://zheng-bobo.github.io/tags/managed-agents/</loc>
+    <lastmod>2026-09-12T21:05:45+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://zheng-bobo.github.io/tags/sandbox/</loc>
+    <lastmod>2026-09-12T21:05:45+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://zheng-bobo.github.io/tags/session/</loc>
+    <lastmod>2026-09-12T21:05:45+02:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>

@@ -57,11 +57,155 @@
     </item>
 
     <item>
+      <title>ACI</title>
+      <link>https://zheng-bobo.github.io/en/tags/aci/</link>
+      <pubDate>Sat, 12 Sep 2026 21:08:45 +0200</pubDate>
+
+      <guid>https://zheng-bobo.github.io/en/tags/aci/</guid>
+      <description></description>
+    </item>
+
+    <item>
+      <title>Agent Harness</title>
+      <link>https://zheng-bobo.github.io/en/tags/agent-harness/</link>
+      <pubDate>Sat, 12 Sep 2026 21:08:45 +0200</pubDate>
+
+      <guid>https://zheng-bobo.github.io/en/tags/agent-harness/</guid>
+      <description></description>
+    </item>
+
+    <item>
       <title>AI Agents</title>
       <link>https://zheng-bobo.github.io/en/tags/ai-agents/</link>
-      <pubDate>Tue, 11 Aug 2026 06:27:01 +0200</pubDate>
+      <pubDate>Sat, 12 Sep 2026 21:08:45 +0200</pubDate>
 
       <guid>https://zheng-bobo.github.io/en/tags/ai-agents/</guid>
+      <description></description>
+    </item>
+
+    <item>
+      <title>Anthropic Agent Evolution</title>
+      <link>https://zheng-bobo.github.io/en/tags/anthropic-agent-evolution/</link>
+      <pubDate>Sat, 12 Sep 2026 21:08:45 +0200</pubDate>
+
+      <guid>https://zheng-bobo.github.io/en/tags/anthropic-agent-evolution/</guid>
+      <description></description>
+    </item>
+
+    <item>
+      <title>Workflow</title>
+      <link>https://zheng-bobo.github.io/en/tags/workflow/</link>
+      <pubDate>Sat, 12 Sep 2026 21:08:45 +0200</pubDate>
+
+      <guid>https://zheng-bobo.github.io/en/tags/workflow/</guid>
+      <description></description>
+    </item>
+
+    <item>
+      <title>Context Engineering</title>
+      <link>https://zheng-bobo.github.io/en/tags/context-engineering/</link>
+      <pubDate>Sat, 12 Sep 2026 21:07:45 +0200</pubDate>
+
+      <guid>https://zheng-bobo.github.io/en/tags/context-engineering/</guid>
+      <description></description>
+    </item>
+
+    <item>
+      <title>Context Reset</title>
+      <link>https://zheng-bobo.github.io/en/tags/context-reset/</link>
+      <pubDate>Sat, 12 Sep 2026 21:07:45 +0200</pubDate>
+
+      <guid>https://zheng-bobo.github.io/en/tags/context-reset/</guid>
+      <description></description>
+    </item>
+
+    <item>
+      <title>Long-Running Agents</title>
+      <link>https://zheng-bobo.github.io/en/tags/long-running-agents/</link>
+      <pubDate>Sat, 12 Sep 2026 21:07:45 +0200</pubDate>
+
+      <guid>https://zheng-bobo.github.io/en/tags/long-running-agents/</guid>
+      <description></description>
+    </item>
+
+    <item>
+      <title>Evaluator</title>
+      <link>https://zheng-bobo.github.io/en/tags/evaluator/</link>
+      <pubDate>Sat, 12 Sep 2026 21:06:45 +0200</pubDate>
+
+      <guid>https://zheng-bobo.github.io/en/tags/evaluator/</guid>
+      <description></description>
+    </item>
+
+    <item>
+      <title>Multi-Agent</title>
+      <link>https://zheng-bobo.github.io/en/tags/multi-agent/</link>
+      <pubDate>Sat, 12 Sep 2026 21:06:45 +0200</pubDate>
+
+      <guid>https://zheng-bobo.github.io/en/tags/multi-agent/</guid>
+      <description></description>
+    </item>
+
+    <item>
+      <title>Playwright</title>
+      <link>https://zheng-bobo.github.io/en/tags/playwright/</link>
+      <pubDate>Sat, 12 Sep 2026 21:06:45 +0200</pubDate>
+
+      <guid>https://zheng-bobo.github.io/en/tags/playwright/</guid>
+      <description></description>
+    </item>
+
+    <item>
+      <title>Software Engineering</title>
+      <link>https://zheng-bobo.github.io/en/tags/software-engineering/</link>
+      <pubDate>Sat, 12 Sep 2026 21:06:45 +0200</pubDate>
+
+      <guid>https://zheng-bobo.github.io/en/tags/software-engineering/</guid>
+      <description></description>
+    </item>
+
+    <item>
+      <title>Agent Runtime</title>
+      <link>https://zheng-bobo.github.io/en/tags/agent-runtime/</link>
+      <pubDate>Sat, 12 Sep 2026 21:05:45 +0200</pubDate>
+
+      <guid>https://zheng-bobo.github.io/en/tags/agent-runtime/</guid>
+      <description></description>
+    </item>
+
+    <item>
+      <title>Codex</title>
+      <link>https://zheng-bobo.github.io/en/tags/codex/</link>
+      <pubDate>Sat, 12 Sep 2026 21:05:45 +0200</pubDate>
+
+      <guid>https://zheng-bobo.github.io/en/tags/codex/</guid>
+      <description></description>
+    </item>
+
+    <item>
+      <title>Managed Agents</title>
+      <link>https://zheng-bobo.github.io/en/tags/managed-agents/</link>
+      <pubDate>Sat, 12 Sep 2026 21:05:45 +0200</pubDate>
+
+      <guid>https://zheng-bobo.github.io/en/tags/managed-agents/</guid>
+      <description></description>
+    </item>
+
+    <item>
+      <title>Sandbox</title>
+      <link>https://zheng-bobo.github.io/en/tags/sandbox/</link>
+      <pubDate>Sat, 12 Sep 2026 21:05:45 +0200</pubDate>
+
+      <guid>https://zheng-bobo.github.io/en/tags/sandbox/</guid>
+      <description></description>
+    </item>
+
+    <item>
+      <title>Session</title>
+      <link>https://zheng-bobo.github.io/en/tags/session/</link>
+      <pubDate>Sat, 12 Sep 2026 21:05:45 +0200</pubDate>
+
+      <guid>https://zheng-bobo.github.io/en/tags/session/</guid>
       <description></description>
     </item>
 
@@ -143,15 +287,6 @@
       <pubDate>Mon, 23 Mar 2026 12:22:13 +0100</pubDate>
 
       <guid>https://zheng-bobo.github.io/en/tags/small-ai/</guid>
-      <description></description>
-    </item>
-
-    <item>
-      <title>Software Engineering</title>
-      <link>https://zheng-bobo.github.io/en/tags/software-engineering/</link>
-      <pubDate>Mon, 23 Mar 2026 12:22:13 +0100</pubDate>
-
-      <guid>https://zheng-bobo.github.io/en/tags/software-engineering/</guid>
       <description></description>
     </item>
 

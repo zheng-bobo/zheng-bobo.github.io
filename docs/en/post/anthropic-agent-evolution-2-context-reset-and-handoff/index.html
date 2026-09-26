@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Anthropic Agent Evolution II: Context Reset and Structured Handoff - Blowing in the wind</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="zhengxz" /><meta name="description" content="The central tension in long-running work is not whether a model can write code. It is that a task may last hours or days while every context window is finite. Replaying the entire history eventually creates both capacity and noise problems.
+Anthropic&amp;rsquo;s first long-running agent harness answered with a simple principle: reset conversational context, but externalize project state into structured artifacts that the next agent can recover.
+" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.59.1 with theme even" />
+
+
+<link rel="canonical" href="https://zheng-bobo.github.io/en/post/anthropic-agent-evolution-2-context-reset-and-handoff/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.4747d1be8010357c5daf4cd103b0bc1cff65936180045419874ea97f32138102.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/readability.css">
+<link rel="stylesheet" href="/css/about.css">
+
+
+<meta property="og:title" content="Anthropic Agent Evolution II: Context Reset and Structured Handoff" />
+<meta property="og:description" content="The central tension in long-running work is not whether a model can write code. It is that a task may last hours or days while every context window is finite. Replaying the entire history eventually creates both capacity and noise problems.
+
+Anthropic&rsquo;s first long-running agent harness answered with a simple principle: reset conversational context, but externalize project state into structured artifacts that the next agent can recover." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zheng-bobo.github.io/en/post/anthropic-agent-evolution-2-context-reset-and-handoff/" />
+<meta property="article:published_time" content="2026-09-12T21:07:45+02:00" />
+<meta property="article:modified_time" content="2026-09-12T21:07:45+02:00" /><meta property="og:site_name" content="Blowing in the wind" />
+<meta itemprop="name" content="Anthropic Agent Evolution II: Context Reset and Structured Handoff">
+<meta itemprop="description" content="The central tension in long-running work is not whether a model can write code. It is that a task may last hours or days while every context window is finite. Replaying the entire history eventually creates both capacity and noise problems.
+
+Anthropic&rsquo;s first long-running agent harness answered with a simple principle: reset conversational context, but externalize project state into structured artifacts that the next agent can recover.">
+
+
+<meta itemprop="datePublished" content="2026-09-12T21:07:45&#43;02:00" />
+<meta itemprop="dateModified" content="2026-09-12T21:07:45&#43;02:00" />
+<meta itemprop="wordCount" content="739">
+
+
+
+<meta itemprop="keywords" content="Anthropic Agent Evolution,Agent Harness,Context Engineering,Context Reset,Long-Running Agents," />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Anthropic Agent Evolution II: Context Reset and Structured Handoff"/>
+<meta name="twitter:description" content="The central tension in long-running work is not whether a model can write code. It is that a task may last hours or days while every context window is finite. Replaying the entire history eventually creates both capacity and noise problems.
+
+Anthropic&rsquo;s first long-running agent harness answered with a simple principle: reset conversational context, but externalize project state into structured artifacts that the next agent can recover."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/en/about/" class="logo">Bobo</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/en/">
+        <li class="mobile-menu-item">Blog</li>
+      </a><a href="/en/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/en/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/en/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/en/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item ">
+
+            <a href="/post/anthropic-agent-evolution-2-context-reset-and-handoff/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item active">
+
+            <a href="/en/post/anthropic-agent-evolution-2-context-reset-and-handoff/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/en/about/" class="logo">Bobo</a>
+</div>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item ">
+
+            <a href="/post/anthropic-agent-evolution-2-context-reset-and-handoff/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item active">
+
+            <a href="/en/post/anthropic-agent-evolution-2-context-reset-and-handoff/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/en/">Blog</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+
+    <header class="post-header">
+      <h1 class="post-title">Anthropic Agent Evolution II: Context Reset and Structured Handoff</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2026-09-12 </span>
+        <div class="post-category">
+            <a href="/en/categories/ai-agents/"> AI Agents </a>
+            </div>
+          <span class="more-meta"> 739 words </span>
+          <span class="more-meta"> 4 mins read </span>
+
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#1-why-is-compaction-not-enough">1. Why Is Compaction Not Enough?</a></li>
+<li><a href="#2-two-roles-initializer-and-coding-agent">2. Two Roles: Initializer and Coding Agent</a>
+<ul>
+<li><a href="#2-1-initializer-agent">2.1 Initializer Agent</a></li>
+<li><a href="#2-2-coding-agent">2.2 Coding Agent</a></li>
+</ul></li>
+<li><a href="#3-what-does-a-structured-handoff-carry">3. What Does a Structured Handoff Carry?</a></li>
+<li><a href="#4-why-one-feature-at-a-time">4. Why One Feature at a Time?</a></li>
+<li><a href="#5-testing-is-part-of-the-handoff">5. Testing Is Part of the Handoff</a></li>
+<li><a href="#6-limits-of-this-generation">6. Limits of This Generation</a></li>
+<li><a href="#sources">Sources</a></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>The central tension in long-running work is not whether a model can write code. It is that a task may last hours or days while every context window is finite. Replaying the entire history eventually creates both capacity and noise problems.</p>
+
+<p>Anthropic&rsquo;s first long-running agent harness answered with a simple principle: <strong>reset conversational context, but externalize project state into structured artifacts that the next agent can recover.</strong></p>
+
+<blockquote>
+<p><strong>Series</strong>: <a href="/en/post/anthropic-agent-evolution-1-from-workflows-to-agents/">I. From Workflows to Agents</a> · <strong>II. Context Reset and Structured Handoff</strong> · <a href="/en/post/anthropic-agent-evolution-3-planner-generator-evaluator/">III. Planner–Generator–Evaluator</a> · <a href="/en/post/anthropic-agent-evolution-4-managed-agent-runtime/">IV. Managed Agent Runtime</a></p>
+</blockquote>
+
+<h2 id="1-why-is-compaction-not-enough">1. Why Is Compaction Not Enough?</h2>
+
+<p>Context compaction summarizes older conversation while keeping the same agent and session. It is continuous, inexpensive, and operationally simple, but it does not guarantee a clean slate:</p>
+
+<ul>
+<li>a summary can omit details whose importance becomes clear only later;</li>
+<li>stale plans, incorrect assumptions, and noise can survive compression;</li>
+<li>the model may still sense an approaching limit and wrap up prematurely;</li>
+<li>a new turn may see substantial progress and incorrectly declare victory.</li>
+</ul>
+
+<p>Context reset clears the window and starts a fresh agent. The cost is that recovery now depends on a complete handoff.</p>
+
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Advantages</th>
+<th>Risks</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Context compaction</td>
+<td>Preserves continuity; simpler orchestration; lower latency and token overhead</td>
+<td>Summaries may distort state; stale assumptions survive; no clean slate</td>
+</tr>
+
+<tr>
+<td>Context reset</td>
+<td>Removes accumulated noise; each run can refocus</td>
+<td>Requires excellent handoff artifacts; adds orchestration and recovery work</td>
+</tr>
+</tbody>
+</table>
+
+<p>The techniques can coexist: compact within a phase, then reset at meaningful boundaries or when context quality degrades.</p>
+
+<h2 id="2-two-roles-initializer-and-coding-agent">2. Two Roles: Initializer and Coding Agent</h2>
+
+<h3 id="2-1-initializer-agent">2.1 Initializer Agent</h3>
+
+<p>The first run establishes the environment instead of rushing into implementation:</p>
+
+<ul>
+<li><code>feature_list.json</code> records complete features, acceptance steps, and status.</li>
+<li><code>claude-progress.txt</code> records progress, test results, known issues, and next steps.</li>
+<li>An initial Git commit creates a traceable and recoverable baseline.</li>
+<li><code>init.sh</code> standardizes startup and basic verification.</li>
+</ul>
+
+<p>The feature list turns “finish the product” from a subjective impression into external facts that begin in a failing state and must be verified one by one.</p>
+
+<h3 id="2-2-coding-agent">2.2 Coding Agent</h3>
+
+<p>Every fresh context follows the same protocol:</p>
+
+<ol>
+<li>read the directory, Git history, progress log, and feature list;</li>
+<li>run <code>init.sh</code> and a basic end-to-end check;</li>
+<li>choose one high-priority failing feature;</li>
+<li>implement and validate it in the real environment;</li>
+<li>change <code>passes</code> only when evidence is sufficient;</li>
+<li>write progress, commit, and leave a clean state.</li>
+</ol>
+
+<p><img src="/img/posts/anthropic-agent-evolution/structured-handoff.png" alt="The complete context-reset and structured-handoff loop" /></p>
+
+<h2 id="3-what-does-a-structured-handoff-carry">3. What Does a Structured Handoff Carry?</h2>
+
+<p>A strong handoff is not a vague prose summary. It is a set of mutually checking state layers:</p>
+
+<ul>
+<li><strong>Spec / feature list</strong> says what the complete target is.</li>
+<li><strong>Progress log</strong> says what the previous run attempted and where risks remain.</li>
+<li><strong>Git history</strong> says what actually changed.</li>
+<li><strong>Code and tests</strong> are the final source of truth for current system behavior.</li>
+<li><strong>Startup scripts</strong> say how to restore a verifiable environment.</li>
+</ul>
+
+<p>Context reset cleans the model&rsquo;s temporary workspace; structured handoff preserves durable project state outside the model.</p>
+
+<blockquote>
+<p><strong>Fresh context + durable artifacts + ground-truth tests = sustainable long-running execution</strong></p>
+</blockquote>
+
+<h2 id="4-why-one-feature-at-a-time">4. Why One Feature at a Time?</h2>
+
+<p>A bare agent tends to one-shot an application, leaving a half-built state when context expires. The next agent cannot easily reconstruct the design intent or determine which parts are trustworthy.</p>
+
+<p>Incremental work constrains each session to a mergeable state: the diff is understandable, completion maps to executable checks, and the session does not leave unrelated damage behind.</p>
+
+<p>This resembles an effective engineering handoff. Teams do not share every conversation; they share issues, commits, tests, and a runnable system.</p>
+
+<h2 id="5-testing-is-part-of-the-handoff">5. Testing Is Part of the Handoff</h2>
+
+<p>Model self-evaluation is insufficient. Unit tests and <code>curl</code> can still miss broken user journeys. For web applications, an agent should use browser automation to click, type, and observe UI and backend state as a user would.</p>
+
+<p>“Tests passed” therefore cannot be prose in a progress file. It must correspond to reproducible steps and environmental feedback. Each new session begins with smoke tests; if the previous session damaged the baseline, repair comes before new feature work.</p>
+
+<h2 id="6-limits-of-this-generation">6. Limits of This Generation</h2>
+
+<p>Initializer + coding agent solves cross-context continuity, but not judgment:</p>
+
+<ul>
+<li>generators remain too optimistic about their own work;</li>
+<li>subjective quality does not fit a single pass/fail field;</li>
+<li>complex applications need checks and balances across planning, implementation, and QA;</li>
+<li>harness components can become obsolete as models improve.</li>
+</ul>
+
+<p>That leads directly to the next stage: separating the agent doing the work from the agent judging it in a Planner–Generator–Evaluator system.</p>
+
+<h2 id="sources">Sources</h2>
+
+<ul>
+<li><a href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents">Anthropic: Effective harnesses for long-running agents</a></li>
+<li><a href="https://www.anthropic.com/engineering/harness-design-long-running-apps">Anthropic: Harness design for long-running application development</a></li>
+</ul>
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">zhengxz</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2026-09-12
+
+    </span>
+  </p>
+
+
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/en/tags/anthropic-agent-evolution/">Anthropic Agent Evolution</a>
+          <a href="/en/tags/agent-harness/">Agent Harness</a>
+          <a href="/en/tags/context-engineering/">Context Engineering</a>
+          <a href="/en/tags/context-reset/">Context Reset</a>
+          <a href="/en/tags/long-running-agents/">Long-Running Agents</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/en/post/anthropic-agent-evolution-1-from-workflows-to-agents/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Anthropic Agent Evolution I: From Workflows to Agents—and Why Harnesses Matter</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/en/post/anthropic-agent-evolution-3-planner-generator-evaluator/">
+            <span class="next-text nav-default">Anthropic Agent Evolution III: The Planner–Generator–Evaluator Quality Loop</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+
+
+
+
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+  <a href="https://zheng-bobo.github.io/en/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+
+
+  <span class="copyright-year">
+    &copy;
+    2019 -
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span>zhengxz</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

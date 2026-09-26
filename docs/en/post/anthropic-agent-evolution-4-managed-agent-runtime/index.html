@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Anthropic Agent Evolution IV: Managed Agent Runtime—Session, Harness, and Sandbox - Blowing in the wind</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="zhengxz" /><meta name="description" content="Earlier harnesses focused on how a model could continue work and improve quality. A managed service introduces system questions: how is a session persisted, how does work recover after a harness crash, how can sandboxes be replaced, how do customer VPCs connect, and how are credentials kept away from model-generated code?
+Anthropic Managed Agents answers by decoupling the brain, hands, and session behind stable interfaces.
+" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.59.1 with theme even" />
+
+
+<link rel="canonical" href="https://zheng-bobo.github.io/en/post/anthropic-agent-evolution-4-managed-agent-runtime/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.4747d1be8010357c5daf4cd103b0bc1cff65936180045419874ea97f32138102.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/readability.css">
+<link rel="stylesheet" href="/css/about.css">
+
+
+<meta property="og:title" content="Anthropic Agent Evolution IV: Managed Agent Runtime—Session, Harness, and Sandbox" />
+<meta property="og:description" content="Earlier harnesses focused on how a model could continue work and improve quality. A managed service introduces system questions: how is a session persisted, how does work recover after a harness crash, how can sandboxes be replaced, how do customer VPCs connect, and how are credentials kept away from model-generated code?
+
+Anthropic Managed Agents answers by decoupling the brain, hands, and session behind stable interfaces." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zheng-bobo.github.io/en/post/anthropic-agent-evolution-4-managed-agent-runtime/" />
+<meta property="article:published_time" content="2026-09-12T21:05:45+02:00" />
+<meta property="article:modified_time" content="2026-09-12T21:05:45+02:00" /><meta property="og:site_name" content="Blowing in the wind" />
+<meta itemprop="name" content="Anthropic Agent Evolution IV: Managed Agent Runtime—Session, Harness, and Sandbox">
+<meta itemprop="description" content="Earlier harnesses focused on how a model could continue work and improve quality. A managed service introduces system questions: how is a session persisted, how does work recover after a harness crash, how can sandboxes be replaced, how do customer VPCs connect, and how are credentials kept away from model-generated code?
+
+Anthropic Managed Agents answers by decoupling the brain, hands, and session behind stable interfaces.">
+
+
+<meta itemprop="datePublished" content="2026-09-12T21:05:45&#43;02:00" />
+<meta itemprop="dateModified" content="2026-09-12T21:05:45&#43;02:00" />
+<meta itemprop="wordCount" content="943">
+
+
+
+<meta itemprop="keywords" content="Anthropic Agent Evolution,Managed Agents,Agent Runtime,Sandbox,Session,Codex," />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Anthropic Agent Evolution IV: Managed Agent Runtime—Session, Harness, and Sandbox"/>
+<meta name="twitter:description" content="Earlier harnesses focused on how a model could continue work and improve quality. A managed service introduces system questions: how is a session persisted, how does work recover after a harness crash, how can sandboxes be replaced, how do customer VPCs connect, and how are credentials kept away from model-generated code?
+
+Anthropic Managed Agents answers by decoupling the brain, hands, and session behind stable interfaces."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/en/about/" class="logo">Bobo</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/en/">
+        <li class="mobile-menu-item">Blog</li>
+      </a><a href="/en/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/en/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/en/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/en/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item ">
+
+            <a href="/post/anthropic-agent-evolution-4-managed-agent-runtime/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item active">
+
+            <a href="/en/post/anthropic-agent-evolution-4-managed-agent-runtime/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/en/about/" class="logo">Bobo</a>
+</div>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item ">
+
+            <a href="/post/anthropic-agent-evolution-4-managed-agent-runtime/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item active">
+
+            <a href="/en/post/anthropic-agent-evolution-4-managed-agent-runtime/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/en/">Blog</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+
+    <header class="post-header">
+      <h1 class="post-title">Anthropic Agent Evolution IV: Managed Agent Runtime—Session, Harness, and Sandbox</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2026-09-12 </span>
+        <div class="post-category">
+            <a href="/en/categories/ai-agents/"> AI Agents </a>
+            </div>
+          <span class="more-meta"> 943 words </span>
+          <span class="more-meta"> 5 mins read </span>
+
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#1-four-components-of-an-agent-runtime">1. Four Components of an Agent Runtime</a></li>
+<li><a href="#2-why-does-the-single-container-design-fail">2. Why Does the Single-Container Design Fail?</a></li>
+<li><a href="#3-decouple-the-brain-from-the-hands">3. Decouple the Brain From the Hands</a></li>
+<li><a href="#4-a-session-is-not-a-context-window">4. A Session Is Not a Context Window</a></li>
+<li><a href="#5-security-boundary-credentials-must-stay-outside-the-sandbox">5. Security Boundary: Credentials Must Stay Outside the Sandbox</a></li>
+<li><a href="#6-comparison-with-the-codex-agents-api">6. Comparison With the Codex Agents API</a>
+<ul>
+<li><a href="#6-1-no-environment">6.1 No Environment</a></li>
+<li><a href="#6-2-openai-hosted-environment">6.2 OpenAI-Hosted Environment</a></li>
+<li><a href="#6-3-self-hosted-environment">6.3 Self-Hosted Environment</a></li>
+</ul></li>
+<li><a href="#7-the-shared-direction">7. The Shared Direction</a></li>
+<li><a href="#8-what-changed-across-the-series">8. What Changed Across the Series?</a></li>
+<li><a href="#sources">Sources</a></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>Earlier harnesses focused on how a model could continue work and improve quality. A managed service introduces system questions: how is a session persisted, how does work recover after a harness crash, how can sandboxes be replaced, how do customer VPCs connect, and how are credentials kept away from model-generated code?</p>
+
+<p>Anthropic Managed Agents answers by <strong>decoupling the brain, hands, and session behind stable interfaces.</strong></p>
+
+<blockquote>
+<p><strong>Series</strong>: <a href="/en/post/anthropic-agent-evolution-1-from-workflows-to-agents/">I. From Workflows to Agents</a> · <a href="/en/post/anthropic-agent-evolution-2-context-reset-and-handoff/">II. Context Reset and Structured Handoff</a> · <a href="/en/post/anthropic-agent-evolution-3-planner-generator-evaluator/">III. Planner–Generator–Evaluator</a> · <strong>IV. Managed Agent Runtime</strong></p>
+</blockquote>
+
+<h2 id="1-four-components-of-an-agent-runtime">1. Four Components of an Agent Runtime</h2>
+
+<p>A managed agent can be decomposed into:</p>
+
+<ul>
+<li><strong>Session</strong>: an append-only event log of what happened;</li>
+<li><strong>Harness</strong>: the loop that calls the model, organizes context, and routes tool calls;</li>
+<li><strong>Sandbox</strong>: the environment for commands, files, and untrusted generated code;</li>
+<li><strong>Tools / resources</strong>: MCP servers, external services, and business capabilities.</li>
+</ul>
+
+<p><img src="/img/posts/anthropic-agent-evolution/managed-agent-components.webp" alt="Session, harness, sandbox, and tools in a managed agent" /></p>
+
+<p>Their lifecycles should not be coupled. The session must be durable; harnesses and sandboxes should be replaceable after failure.</p>
+
+<h2 id="2-why-does-the-single-container-design-fail">2. Why Does the Single-Container Design Fail?</h2>
+
+<p>Putting the session, harness, and sandbox in one container is initially convenient, but that container becomes a “pet” that cannot be lost:</p>
+
+<ul>
+<li>container failure destroys the session;</li>
+<li>debugging requires entering a container that may contain user data;</li>
+<li>the harness assumes resources live beside it;</li>
+<li>customer VPC and self-hosted execution become difficult;</li>
+<li>generated code shares an environment with credentials, increasing prompt-injection impact.</li>
+</ul>
+
+<p>A scalable system treats containers as cattle: replace a failed instance instead of nursing it back to health.</p>
+
+<h2 id="3-decouple-the-brain-from-the-hands">3. Decouple the Brain From the Hands</h2>
+
+<p>Anthropic treats Claude plus its harness as the brain, sandboxes and tools as the hands, and the event log as a separate session:</p>
+
+<ul>
+<li>the harness calls execution through <code>execute(name, input) → string</code>;</li>
+<li>sandbox failure becomes a tool error and a new sandbox can be provisioned;</li>
+<li>after harness failure, a new instance can <code>wake(sessionId)</code> and recover from the log;</li>
+<li>the session continues receiving events independently of any harness process.</li>
+</ul>
+
+<p>The split improves both scalability and latency. Sessions that do not yet need compute can start inference immediately and provision a sandbox only on the first execution call. Anthropic reports roughly 60% lower p50 time-to-first-token and more than 90% lower p95.</p>
+
+<h2 id="4-a-session-is-not-a-context-window">4. A Session Is Not a Context Window</h2>
+
+<p>This is the architecture&rsquo;s most important distinction:</p>
+
+<blockquote>
+<p><strong>A session is the recoverable event history; a context window is the limited view selected for one model call.</strong></p>
+</blockquote>
+
+<p>Compaction, trimming, and memory all decide what the next context retains. Those decisions can be irreversible if the original events existed only inside the context.</p>
+
+<p>Managed Agents persist the full event stream, then let the harness call <code>getEvents()</code> to select slices, rewind around an important moment, or apply new context-engineering transformations.</p>
+
+<ul>
+<li><strong>The session owns recoverability.</strong></li>
+<li><strong>The harness owns context policy.</strong></li>
+<li><strong>The context window owns only current reasoning.</strong></li>
+</ul>
+
+<p>A memory store is valuable durable state, but it is not a replacement for the event log. Memory contains knowledge the agent chose to extract; the session preserves raw facts that a future harness may reinterpret.</p>
+
+<h2 id="5-security-boundary-credentials-must-stay-outside-the-sandbox">5. Security Boundary: Credentials Must Stay Outside the Sandbox</h2>
+
+<p>If generated code shares an environment with access tokens, a prompt injection only needs to persuade the agent to read environment variables. The structural solution is not asking the model to behave; it is making credentials unreachable:</p>
+
+<ul>
+<li>repository tokens are bound to a resource during initialization;</li>
+<li>OAuth tokens live in a vault outside the sandbox;</li>
+<li>MCP calls pass through a proxy that retrieves credentials and invokes services;</li>
+<li>neither the harness nor generated code directly sees those credentials.</li>
+</ul>
+
+<p>As models improve, security assumptions based on what the model supposedly cannot do become increasingly fragile. Permissions must be enforced by architecture.</p>
+
+<h2 id="6-comparison-with-the-codex-agents-api">6. Comparison With the Codex Agents API</h2>
+
+<p>OpenAI&rsquo;s Agents API similarly separates the managed harness from execution and offers three environment modes.</p>
+
+<h3 id="6-1-no-environment">6.1 No Environment</h3>
+
+<p>When an agent only needs function tools or remote MCP and no shell or files, it can run without a sandbox.</p>
+
+<p><img src="/img/posts/anthropic-agent-evolution/codex-no-environment.webp" alt="Codex Agents API without an execution environment" /></p>
+
+<h3 id="6-2-openai-hosted-environment">6.2 OpenAI-Hosted Environment</h3>
+
+<p>When code, files, or artifacts are required, OpenAI manages the sandbox. The application sends work and consumes events while the harness routes built-in tool calls to the hosted environment.</p>
+
+<p><img src="/img/posts/anthropic-agent-evolution/codex-hosted-environment.webp" alt="Codex Agents API with an OpenAI-hosted environment" /></p>
+
+<h3 id="6-3-self-hosted-environment">6.3 Self-Hosted Environment</h3>
+
+<p>The application creates a session, receives an <code>environment_id</code> and <code>remote_url</code>, starts a VM, container, or Kubernetes pod, and connects an executor outbound. The cloud harness still manages the agent loop while shell and file tools execute in the customer&rsquo;s sandbox.</p>
+
+<p><img src="/img/posts/anthropic-agent-evolution/codex-self-hosted-flow.webp" alt="Lifecycle of a Codex self-hosted environment" /></p>
+
+<p>This closely resembles the brain/hands split: the application owns compute lifecycle, the Agents API owns the session and harness, and the executor runs commands inside the sandbox.</p>
+
+<h2 id="7-the-shared-direction">7. The Shared Direction</h2>
+
+<table>
+<thead>
+<tr>
+<th>Concern</th>
+<th>Anthropic Managed Agents</th>
+<th>OpenAI Agents API / Codex</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Durable task state</td>
+<td>Session event log</td>
+<td>Session + event stream</td>
+</tr>
+
+<tr>
+<td>Agent loop</td>
+<td>Managed harness</td>
+<td>Managed Codex harness</td>
+</tr>
+
+<tr>
+<td>Execution</td>
+<td>Replaceable sandbox</td>
+<td>None / hosted / self-hosted</td>
+</tr>
+
+<tr>
+<td>External tools</td>
+<td>MCP proxy / resources</td>
+<td>Function tools / MCP</td>
+</tr>
+
+<tr>
+<td>Recovery</td>
+<td>Rebuild harness from session</td>
+<td>Reconnect executor and event stream</td>
+</tr>
+
+<tr>
+<td>Security</td>
+<td>Credentials outside sandbox</td>
+<td>Responsibilities split across harness, app, and sandbox</td>
+</tr>
+</tbody>
+</table>
+
+<p>Agent runtimes are evolving from “a model with tools” into an operating-system-like abstraction. Stable interfaces isolate change so models, harness strategies, and execution infrastructure can evolve independently.</p>
+
+<h2 id="8-what-changed-across-the-series">8. What Changed Across the Series?</h2>
+
+<ol>
+<li><strong>Workflow → agent</strong> moved dynamic decisions into the model.</li>
+<li><strong>Context reset + handoff</strong> moved long-term state outside the model.</li>
+<li><strong>Generator + evaluator</strong> moved judgment into external verification.</li>
+<li><strong>Managed runtime</strong> turned sessions, harnesses, and sandboxes into recoverable services.</li>
+</ol>
+
+<p>Stronger models do not eliminate harnesses; they change what harnesses should do. Obsolete scaffolding should be removed, but state, verification, security, and recovery remain system problems rather than intelligence problems.</p>
+
+<h2 id="sources">Sources</h2>
+
+<ul>
+<li><a href="https://www.anthropic.com/engineering/managed-agents">Anthropic: Scaling Managed Agents—Decoupling the brain from the hands</a></li>
+<li><a href="https://platform.claude.com/docs/en/managed-agents/memory">Claude Platform: Using agent memory</a></li>
+<li><a href="https://developers.openai.com/api/docs/guides/agents-api/architecture">OpenAI Agents API: Architecture</a></li>
+</ul>
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">zhengxz</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2026-09-12
+
+    </span>
+  </p>
+
+
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/en/tags/anthropic-agent-evolution/">Anthropic Agent Evolution</a>
+          <a href="/en/tags/managed-agents/">Managed Agents</a>
+          <a href="/en/tags/agent-runtime/">Agent Runtime</a>
+          <a href="/en/tags/sandbox/">Sandbox</a>
+          <a href="/en/tags/session/">Session</a>
+          <a href="/en/tags/codex/">Codex</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/en/post/anthropic-agent-evolution-3-planner-generator-evaluator/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Anthropic Agent Evolution III: The Planner–Generator–Evaluator Quality Loop</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/en/post/stanford-cs329a-self-improving-ai-agents/">
+            <span class="next-text nav-default">Stanford CS329A: A Complete Framework for Self-Improving AI Agents</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+
+
+
+
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+  <a href="https://zheng-bobo.github.io/en/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+
+
+  <span class="copyright-year">
+    &copy;
+    2019 -
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span>zhengxz</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Anthropic Agent Evolution I: From Workflows to Agents—and Why Harnesses Matter - Blowing in the wind</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="zhengxz" /><meta name="description" content="“Agent” is often used as a broad label for any system that calls tools or takes multiple steps. Anthropic&amp;rsquo;s engineering work offers a more useful distinction: a workflow follows code paths defined in advance; an agent lets the model dynamically choose its process from environmental feedback.
+This first article in the “Anthropic Agent Evolution” series establishes the vocabulary: augmented LLMs, fixed workflows, autonomous agents, and the harness that surrounds the model.
+" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.59.1 with theme even" />
+
+
+<link rel="canonical" href="https://zheng-bobo.github.io/en/post/anthropic-agent-evolution-1-from-workflows-to-agents/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.4747d1be8010357c5daf4cd103b0bc1cff65936180045419874ea97f32138102.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/readability.css">
+<link rel="stylesheet" href="/css/about.css">
+
+
+<meta property="og:title" content="Anthropic Agent Evolution I: From Workflows to Agents—and Why Harnesses Matter" />
+<meta property="og:description" content="“Agent” is often used as a broad label for any system that calls tools or takes multiple steps. Anthropic&rsquo;s engineering work offers a more useful distinction: a workflow follows code paths defined in advance; an agent lets the model dynamically choose its process from environmental feedback.
+
+This first article in the “Anthropic Agent Evolution” series establishes the vocabulary: augmented LLMs, fixed workflows, autonomous agents, and the harness that surrounds the model." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zheng-bobo.github.io/en/post/anthropic-agent-evolution-1-from-workflows-to-agents/" />
+<meta property="article:published_time" content="2026-09-12T21:08:45+02:00" />
+<meta property="article:modified_time" content="2026-09-12T21:08:45+02:00" /><meta property="og:site_name" content="Blowing in the wind" />
+<meta itemprop="name" content="Anthropic Agent Evolution I: From Workflows to Agents—and Why Harnesses Matter">
+<meta itemprop="description" content="“Agent” is often used as a broad label for any system that calls tools or takes multiple steps. Anthropic&rsquo;s engineering work offers a more useful distinction: a workflow follows code paths defined in advance; an agent lets the model dynamically choose its process from environmental feedback.
+
+This first article in the “Anthropic Agent Evolution” series establishes the vocabulary: augmented LLMs, fixed workflows, autonomous agents, and the harness that surrounds the model.">
+
+
+<meta itemprop="datePublished" content="2026-09-12T21:08:45&#43;02:00" />
+<meta itemprop="dateModified" content="2026-09-12T21:08:45&#43;02:00" />
+<meta itemprop="wordCount" content="707">
+
+
+
+<meta itemprop="keywords" content="Anthropic Agent Evolution,AI Agents,Agent Harness,Workflow,ACI," />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Anthropic Agent Evolution I: From Workflows to Agents—and Why Harnesses Matter"/>
+<meta name="twitter:description" content="“Agent” is often used as a broad label for any system that calls tools or takes multiple steps. Anthropic&rsquo;s engineering work offers a more useful distinction: a workflow follows code paths defined in advance; an agent lets the model dynamically choose its process from environmental feedback.
+
+This first article in the “Anthropic Agent Evolution” series establishes the vocabulary: augmented LLMs, fixed workflows, autonomous agents, and the harness that surrounds the model."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/en/about/" class="logo">Bobo</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/en/">
+        <li class="mobile-menu-item">Blog</li>
+      </a><a href="/en/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/en/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/en/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/en/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item ">
+
+            <a href="/post/anthropic-agent-evolution-1-from-workflows-to-agents/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item active">
+
+            <a href="/en/post/anthropic-agent-evolution-1-from-workflows-to-agents/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/en/about/" class="logo">Bobo</a>
+</div>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item ">
+
+            <a href="/post/anthropic-agent-evolution-1-from-workflows-to-agents/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item active">
+
+            <a href="/en/post/anthropic-agent-evolution-1-from-workflows-to-agents/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/en/">Blog</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+
+    <header class="post-header">
+      <h1 class="post-title">Anthropic Agent Evolution I: From Workflows to Agents—and Why Harnesses Matter</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2026-09-12 </span>
+        <div class="post-category">
+            <a href="/en/categories/ai-agents/"> AI Agents </a>
+            </div>
+          <span class="more-meta"> 707 words </span>
+          <span class="more-meta"> 4 mins read </span>
+
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#1-the-starting-point-the-augmented-llm">1. The Starting Point: The Augmented LLM</a></li>
+<li><a href="#2-workflows-encode-known-paths-in-software">2. Workflows: Encode Known Paths in Software</a>
+<ul>
+<li><a href="#2-1-prompt-chaining">2.1 Prompt Chaining</a></li>
+<li><a href="#2-2-routing">2.2 Routing</a></li>
+<li><a href="#2-3-parallelization">2.3 Parallelization</a></li>
+<li><a href="#2-4-orchestrator-workers">2.4 Orchestrator–Workers</a></li>
+<li><a href="#2-5-evaluator-optimizer">2.5 Evaluator–Optimizer</a></li>
+</ul></li>
+<li><a href="#3-agents-let-the-model-direct-the-process">3. Agents: Let the Model Direct the Process</a></li>
+<li><a href="#4-why-does-the-model-need-a-harness">4. Why Does the Model Need a Harness?</a></li>
+<li><a href="#5-a-practical-complexity-ladder">5. A Practical Complexity Ladder</a></li>
+<li><a href="#sources">Sources</a></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>“Agent” is often used as a broad label for any system that calls tools or takes multiple steps. Anthropic&rsquo;s engineering work offers a more useful distinction: <strong>a workflow follows code paths defined in advance; an agent lets the model dynamically choose its process from environmental feedback.</strong></p>
+
+<p>This first article in the “Anthropic Agent Evolution” series establishes the vocabulary: augmented LLMs, fixed workflows, autonomous agents, and the harness that surrounds the model.</p>
+
+<blockquote>
+<p><strong>Series</strong>: <strong>I. From Workflows to Agents</strong> · <a href="/en/post/anthropic-agent-evolution-2-context-reset-and-handoff/">II. Context Reset and Structured Handoff</a> · <a href="/en/post/anthropic-agent-evolution-3-planner-generator-evaluator/">III. Planner–Generator–Evaluator</a> · <a href="/en/post/anthropic-agent-evolution-4-managed-agent-runtime/">IV. Managed Agent Runtime</a></p>
+</blockquote>
+
+<h2 id="1-the-starting-point-the-augmented-llm">1. The Starting Point: The Augmented LLM</h2>
+
+<p>The most basic agentic system is not a multi-agent team. It is an LLM with external capabilities:</p>
+
+<ul>
+<li><strong>Retrieval</strong> finds information outside model parameters.</li>
+<li><strong>Tools</strong> execute searches, code, APIs, or business actions.</li>
+<li><strong>Memory</strong> persists state beyond the current turn.</li>
+</ul>
+
+<p><img src="/img/posts/anthropic-agent-evolution/augmented-llm.png" alt="An augmented LLM interacting with retrieval, tools, and memory" /></p>
+
+<p>The important question is not merely whether tools exist, but whether their interfaces are usable by a model. An API that is comfortable for humans may still be difficult for an LLM. A good Agent–Computer Interface (ACI) needs explicit parameter names, boundaries, examples, useful errors, and structures that make mistakes difficult.</p>
+
+<p>Anthropic&rsquo;s advice is intentionally conservative: begin with the simplest call that works and add agentic components only when evaluation shows a measurable improvement. Complexity creates latency, cost, and additional failure modes.</p>
+
+<h2 id="2-workflows-encode-known-paths-in-software">2. Workflows: Encode Known Paths in Software</h2>
+
+<p>When a task can be decomposed ahead of time, a workflow is usually more predictable than an autonomous agent.</p>
+
+<h3 id="2-1-prompt-chaining">2.1 Prompt Chaining</h3>
+
+<p>Prompt chaining turns a task into sequential steps and can place gates between them. It fits tasks such as drafting an outline, checking it, and only then writing the document.</p>
+
+<p><img src="/img/posts/anthropic-agent-evolution/prompt-chaining.png" alt="Prompt chaining with an intermediate gate" /></p>
+
+<h3 id="2-2-routing">2.2 Routing</h3>
+
+<p>Routing classifies the input and selects a specialized model or prompt. Typical uses include customer-support triage, difficulty tiers, and cost-aware model selection.</p>
+
+<p><img src="/img/posts/anthropic-agent-evolution/routing.png" alt="Routing an input to a specialized path" /></p>
+
+<h3 id="2-3-parallelization">2.3 Parallelization</h3>
+
+<p>Parallelization either splits independent concerns or runs multiple attempts and aggregates them. The former improves latency; the latter improves confidence.</p>
+
+<p><img src="/img/posts/anthropic-agent-evolution/parallelization.png" alt="Parallel LLM calls followed by aggregation" /></p>
+
+<h3 id="2-4-orchestrator-workers">2.4 Orchestrator–Workers</h3>
+
+<p>When the subtasks cannot be known in advance, an orchestrator decomposes work dynamically, delegates to workers, and synthesizes their results. Its defining feature is that <strong>the model determines the task topology at runtime</strong>.</p>
+
+<p><img src="/img/posts/anthropic-agent-evolution/orchestrator-workers.png" alt="An orchestrator dynamically delegating work" /></p>
+
+<h3 id="2-5-evaluator-optimizer">2.5 Evaluator–Optimizer</h3>
+
+<p>One model generates while another evaluates and returns feedback until the result is accepted. This is the conceptual precursor to the later Planner–Generator–Evaluator harness.</p>
+
+<p><img src="/img/posts/anthropic-agent-evolution/evaluator-optimizer.png" alt="The evaluator–optimizer feedback loop" /></p>
+
+<h2 id="3-agents-let-the-model-direct-the-process">3. Agents: Let the Model Direct the Process</h2>
+
+<p>An agent is appropriate when a fixed path cannot be hard-coded. It repeatedly:</p>
+
+<ol>
+<li>interprets the goal and current state;</li>
+<li>selects a tool or action;</li>
+<li>receives ground truth from the environment;</li>
+<li>revises its plan;</li>
+<li>stops on completion, a blocker, or a defined limit.</li>
+</ol>
+
+<p><img src="/img/posts/anthropic-agent-evolution/autonomous-agent.png" alt="An autonomous agent acting on and receiving feedback from its environment" /></p>
+
+<p>Autonomy does not mean unbounded execution. Reliable agents still require budgets, iteration limits, permission boundaries, human checkpoints, and explicit completion criteria.</p>
+
+<p>For coding agents, the verifier is not the model&rsquo;s claim that the code looks correct. It is the compiler, tests, browser behavior, and the actual repository state.</p>
+
+<p><img src="/img/posts/anthropic-agent-evolution/coding-agent-flow.png" alt="High-level flow of a coding agent" /></p>
+
+<h2 id="4-why-does-the-model-need-a-harness">4. Why Does the Model Need a Harness?</h2>
+
+<p>A bare agent can finish a short task, but long-running work exposes four system problems:</p>
+
+<ul>
+<li><strong>Finite context</strong>: logs and failed attempts bury the information that matters now.</li>
+<li><strong>Continuity</strong>: a new context or session does not automatically know prior state.</li>
+<li><strong>Self-evaluation bias</strong>: generators systematically overrate their own work.</li>
+<li><strong>Runtime reliability</strong>: tools, sandboxes, networks, and the harness itself can fail.</li>
+</ul>
+
+<p>A harness is the engineering system around the model. It persists plans and checkpoints, selects relevant context, coordinates tools and subagents, validates results through external evidence, and recovers work after failure.</p>
+
+<p>In short: <strong>the model supplies reasoning; the harness supplies the institution that lets reasoning continue reliably.</strong></p>
+
+<h2 id="5-a-practical-complexity-ladder">5. A Practical Complexity Ladder</h2>
+
+<table>
+<thead>
+<tr>
+<th>Task characteristic</th>
+<th>Prefer</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>A single call is reliable</td>
+<td>Prompt + retrieval</td>
+</tr>
+
+<tr>
+<td>Steps are fixed and known</td>
+<td>Prompt chaining / routing</td>
+</tr>
+
+<tr>
+<td>Independent concerns or multiple perspectives</td>
+<td>Parallelization</td>
+</tr>
+
+<tr>
+<td>Subtasks emerge dynamically</td>
+<td>Orchestrator–workers</td>
+</tr>
+
+<tr>
+<td>Clear criteria support iterative improvement</td>
+<td>Evaluator–optimizer</td>
+</tr>
+
+<tr>
+<td>The path is open-ended and environment-driven</td>
+<td>Agent + harness</td>
+</tr>
+</tbody>
+</table>
+
+<p>The goal is not to maximize agency. <strong>Move up the ladder only when a simpler system falls short and evaluation proves that the added complexity pays for itself.</strong></p>
+
+<p>The next article addresses the first hard problem in long-running work: how does an agent continue after its context window is exhausted?</p>
+
+<h2 id="sources">Sources</h2>
+
+<ul>
+<li><a href="https://www.anthropic.com/engineering/building-effective-agents">Anthropic: Building effective agents</a></li>
+<li><a href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents">Anthropic: Effective harnesses for long-running agents</a></li>
+</ul>
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">zhengxz</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2026-09-12
+
+    </span>
+  </p>
+
+
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/en/tags/anthropic-agent-evolution/">Anthropic Agent Evolution</a>
+          <a href="/en/tags/ai-agents/">AI Agents</a>
+          <a href="/en/tags/agent-harness/">Agent Harness</a>
+          <a href="/en/tags/workflow/">Workflow</a>
+          <a href="/en/tags/aci/">ACI</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/en/post/transformer-architecture/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Transformer Architecture: From Token Embeddings to the Training Loop</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/en/post/anthropic-agent-evolution-2-context-reset-and-handoff/">
+            <span class="next-text nav-default">Anthropic Agent Evolution II: Context Reset and Structured Handoff</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+
+
+
+
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+  <a href="https://zheng-bobo.github.io/en/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+
+
+  <span class="copyright-year">
+    &copy;
+    2019 -
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span>zhengxz</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

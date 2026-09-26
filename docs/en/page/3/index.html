@@ -175,6 +175,103 @@
           <section id="posts" class="posts">
     <article class="post">
   <header class="post-header">
+    <h1 class="post-title"><a class="post-link" href="/en/post/implementing-raft-in-go-1/">Implementing the Raft Protocol in Go (1)</a></h1>
+    <div class="post-meta">
+      <span class="post-time"> 2019-12-22 </span>
+      <div class="post-category">
+          <a href="/en/categories/go/"> Go </a>
+          </div>
+        <span class="more-meta"> 4069 words </span>
+        <span class="more-meta"> 20 mins read </span>
+    </div>
+  </header>
+
+  <div class="post-content">
+    <div class="post-summary">
+      Introduction  The implementation idea comes from: MIT 6.824 course Lab 2: Raft
+ Before doing the experiment, you should read the raft paper carefully, here it is: raft paper raft translation
+Recommended reading: Students&rsquo; Guide to Raft Raft Understandable Distributed Consensus
+lab content  In this lab, you will implement most of the Raft design described in Extended Paper, including saving persistent state and reading it after a node fails and then restarts.
+    </div>
+    <div class="read-more">
+      <a href="/en/post/implementing-raft-in-go-1/" class="read-more-link">Read more...</a>
+    </div>
+  </div>
+</article>
+
+    <article class="post">
+  <header class="post-header">
+    <h1 class="post-title"><a class="post-link" href="/en/post/contiguous-stacks/">Translation: Contiguous Stacks</a></h1>
+    <div class="post-meta">
+      <span class="post-time"> 2019-11-30 </span>
+      <div class="post-category">
+          <a href="/en/categories/translation/"> Translation </a>
+          </div>
+        <span class="more-meta"> 1606 words </span>
+        <span class="more-meta"> 8 mins read </span>
+    </div>
+  </header>
+
+  <div class="post-content">
+    <div class="post-summary">
+      Contiguous stacks original address
+ Allocate a continuous stack memory space for each go coroutine. When the memory is used up, it will be reallocated/copied and grown.
+Why?  The current stack splitting mechanism has a &ldquo;hot split&rdquo; problem - if the stack space is almost full, calling the function will trigger the forced allocation of a new stack block. When the calling function returns, the new stack block will be released.
+    </div>
+    <div class="read-more">
+      <a href="/en/post/contiguous-stacks/" class="read-more-link">Read more...</a>
+    </div>
+  </div>
+</article>
+
+    <article class="post">
+  <header class="post-header">
+    <h1 class="post-title"><a class="post-link" href="/en/post/go-main-goroutine-scheduler-2/">Inside Go&#39;s Main Goroutine Scheduler (2)</a></h1>
+    <div class="post-meta">
+      <span class="post-time"> 2019-11-13 </span>
+      <div class="post-category">
+          <a href="/en/categories/go/"> Go </a>
+          </div>
+        <span class="more-meta"> 5567 words </span>
+        <span class="more-meta"> 27 mins read </span>
+    </div>
+  </header>
+
+  <div class="post-content">
+    <div class="post-summary">
+      9. Enter runtime/proc.go and scheduler initialization 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65  func schedinit() { // raceinit must be the first call to race detector.
+    </div>
+    <div class="read-more">
+      <a href="/en/post/go-main-goroutine-scheduler-2/" class="read-more-link">Read more...</a>
+    </div>
+  </div>
+</article>
+
+    <article class="post">
+  <header class="post-header">
+    <h1 class="post-title"><a class="post-link" href="/en/post/why-quicksort-is-used-more-than-merge-sort/">Why Is Quicksort Used More Often Than Merge Sort?</a></h1>
+    <div class="post-meta">
+      <span class="post-time"> 2019-11-13 </span>
+      <div class="post-category">
+          <a href="/en/categories/algorithms/"> Algorithms </a>
+          </div>
+        <span class="more-meta"> 514 words </span>
+        <span class="more-meta"> 3 mins read </span>
+    </div>
+  </header>
+
+  <div class="post-content">
+    <div class="post-summary">
+      What is honey to you is arsenic to another.   Quick sort: 1 2 3  * Worst-case time complexity: O(n^2) * Best-case time complexity: O(n log n) * Average time complexity: O(n log n)   Merge sort: 1  * Worst-, best-, and average-case time complexity: O(n log n)   Since the time complexity of merge sort is &gt;= the time complexity of quick sort in different situations, why are the sorting algorithms we use in actual programming quick sort instead of merge sort?
+    </div>
+    <div class="read-more">
+      <a href="/en/post/why-quicksort-is-used-more-than-merge-sort/" class="read-more-link">Read more...</a>
+    </div>
+  </div>
+</article>
+
+    <article class="post">
+  <header class="post-header">
     <h1 class="post-title"><a class="post-link" href="/en/post/go-main-goroutine-scheduler-1/">Inside Go&#39;s Main Goroutine Scheduler (1)</a></h1>
     <div class="post-meta">
       <span class="post-time"> 2019-11-10 </span>
