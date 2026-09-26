@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>大模型与 AI Agent Benchmark 全景指南：它们究竟在评估什么 - Blowing in the wind</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="zhengxz" /><meta name="description" content="看模型发布报告时，我们经常会遇到一长串名字：ARC-E、ARC-C、MMLU、GPQA、GSM8K、HumanEval、SWE-bench、GAIA、WebArena、OSWorld……它们的分数不能直接横向比较，因为每个 benchmark 测量的能力、输入形式、可用工具和评分方式都不同。
+本文整理一张从“大模型答题”到“Agent 完成真实任务”的评测地图，并解释每个常见 benchmark 究竟是什么、适合测什么，以及不能从分数中推出什么结论。
+" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.59.1 with theme even" />
+
+
+<link rel="canonical" href="https://zheng-bobo.github.io/post/llm-agent-benchmarks-guide/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.4747d1be8010357c5daf4cd103b0bc1cff65936180045419874ea97f32138102.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/readability.css">
+<link rel="stylesheet" href="/css/about.css">
+
+
+<meta property="og:title" content="大模型与 AI Agent Benchmark 全景指南：它们究竟在评估什么" />
+<meta property="og:description" content="看模型发布报告时，我们经常会遇到一长串名字：ARC-E、ARC-C、MMLU、GPQA、GSM8K、HumanEval、SWE-bench、GAIA、WebArena、OSWorld……它们的分数不能直接横向比较，因为每个 benchmark 测量的能力、输入形式、可用工具和评分方式都不同。
+
+本文整理一张从“大模型答题”到“Agent 完成真实任务”的评测地图，并解释每个常见 benchmark 究竟是什么、适合测什么，以及不能从分数中推出什么结论。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zheng-bobo.github.io/post/llm-agent-benchmarks-guide/" />
+<meta property="article:published_time" content="2026-09-26T23:00:00+02:00" />
+<meta property="article:modified_time" content="2026-09-26T23:00:00+02:00" /><meta property="og:site_name" content="Blowing in the wind" />
+<meta itemprop="name" content="大模型与 AI Agent Benchmark 全景指南：它们究竟在评估什么">
+<meta itemprop="description" content="看模型发布报告时，我们经常会遇到一长串名字：ARC-E、ARC-C、MMLU、GPQA、GSM8K、HumanEval、SWE-bench、GAIA、WebArena、OSWorld……它们的分数不能直接横向比较，因为每个 benchmark 测量的能力、输入形式、可用工具和评分方式都不同。
+
+本文整理一张从“大模型答题”到“Agent 完成真实任务”的评测地图，并解释每个常见 benchmark 究竟是什么、适合测什么，以及不能从分数中推出什么结论。">
+
+
+<meta itemprop="datePublished" content="2026-09-26T23:00:00&#43;02:00" />
+<meta itemprop="dateModified" content="2026-09-26T23:00:00&#43;02:00" />
+<meta itemprop="wordCount" content="5967">
+
+
+
+<meta itemprop="keywords" content="LLM,AI Agent,Benchmark,Evaluation,Reasoning,Coding," />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="大模型与 AI Agent Benchmark 全景指南：它们究竟在评估什么"/>
+<meta name="twitter:description" content="看模型发布报告时，我们经常会遇到一长串名字：ARC-E、ARC-C、MMLU、GPQA、GSM8K、HumanEval、SWE-bench、GAIA、WebArena、OSWorld……它们的分数不能直接横向比较，因为每个 benchmark 测量的能力、输入形式、可用工具和评分方式都不同。
+
+本文整理一张从“大模型答题”到“Agent 完成真实任务”的评测地图，并解释每个常见 benchmark 究竟是什么、适合测什么，以及不能从分数中推出什么结论。"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/about/" class="logo">Bobo</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Blog</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">归档</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">分类</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于我</li>
+      </a>
+  </ul>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item active">
+
+            <a href="/post/llm-agent-benchmarks-guide/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item ">
+
+            <a href="/en/post/llm-agent-benchmarks-guide/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/about/" class="logo">Bobo</a>
+</div>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item active">
+
+            <a href="/post/llm-agent-benchmarks-guide/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item ">
+
+            <a href="/en/post/llm-agent-benchmarks-guide/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Blog</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">归档</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">分类</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于我</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+
+    <header class="post-header">
+      <h1 class="post-title">大模型与 AI Agent Benchmark 全景指南：它们究竟在评估什么</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2026-09-26 </span>
+        <div class="post-category">
+            <a href="/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/"> 人工智能 </a>
+            </div>
+          <span class="more-meta"> 约 5967 字 </span>
+          <span class="more-meta"> 预计阅读 12 分钟 </span>
+
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#1-benchmark-测的到底是模型-还是系统">1. Benchmark 测的到底是模型，还是系统</a></li>
+<li><a href="#2-一张快速索引表">2. 一张快速索引表</a></li>
+<li><a href="#3-知识-常识与文本推理">3. 知识、常识与文本推理</a>
+<ul>
+<li><a href="#3-1-arc-e-与-arc-c-小学科学选择题">3.1 ARC-E 与 ARC-C：小学科学选择题</a></li>
+<li><a href="#3-2-hellaswag-哪个后续事件最合理">3.2 HellaSwag：哪个后续事件最合理</a></li>
+<li><a href="#3-3-winogrande-常识驱动的指代消解">3.3 WinoGrande：常识驱动的指代消解</a></li>
+<li><a href="#3-4-mmlu-与-mmlu-pro-多学科知识地图">3.4 MMLU 与 MMLU-Pro：多学科知识地图</a></li>
+<li><a href="#3-5-gpqa-研究生级-google-proof-科学问题">3.5 GPQA：研究生级“Google-Proof”科学问题</a></li>
+</ul></li>
+<li><a href="#4-数学推理">4. 数学推理</a>
+<ul>
+<li><a href="#4-1-gsm8k-多步小学数学文字题">4.1 GSM8K：多步小学数学文字题</a></li>
+<li><a href="#4-2-math-math-500-竞赛级数学">4.2 MATH / MATH-500：竞赛级数学</a></li>
+<li><a href="#4-3-aime-更高难度-答案易验证">4.3 AIME：更高难度、答案易验证</a></li>
+</ul></li>
+<li><a href="#5-函数级代码生成">5. 函数级代码生成</a>
+<ul>
+<li><a href="#5-1-humaneval">5.1 HumanEval</a></li>
+<li><a href="#5-2-mbpp">5.2 MBPP</a></li>
+<li><a href="#5-3-livecodebench">5.3 LiveCodeBench</a></li>
+</ul></li>
+<li><a href="#6-仓库级软件工程-swe-bench-与-swe-agent">6. 仓库级软件工程：SWE-bench 与 SWE-agent</a>
+<ul>
+<li><a href="#6-1-swe-bench-是什么">6.1 SWE-bench 是什么</a></li>
+<li><a href="#6-2-swe-agent-是什么">6.2 SWE-agent 是什么</a></li>
+</ul></li>
+<li><a href="#7-function-calling-与工具使用">7. Function Calling 与工具使用</a>
+<ul>
+<li><a href="#7-1-bfcl-函数名和参数能否调用正确">7.1 BFCL：函数名和参数能否调用正确</a></li>
+<li><a href="#7-2-toolbench-在大量-api-中选择和组合工具">7.2 ToolBench：在大量 API 中选择和组合工具</a></li>
+<li><a href="#7-3-τ-bench-工具-用户和业务政策同时存在">7.3 τ-bench：工具、用户和业务政策同时存在</a></li>
+</ul></li>
+<li><a href="#8-通用-agent-网页和电脑操作">8. 通用 Agent、网页和电脑操作</a>
+<ul>
+<li><a href="#8-1-gaia-通用-ai-助手">8.1 GAIA：通用 AI 助手</a></li>
+<li><a href="#8-2-agentbench-横跨多种交互环境">8.2 AgentBench：横跨多种交互环境</a></li>
+<li><a href="#8-3-webarena-在可复现网站中完成任务">8.3 WebArena：在可复现网站中完成任务</a></li>
+<li><a href="#8-4-osworld-真实桌面与跨应用操作">8.4 OSWorld：真实桌面与跨应用操作</a></li>
+<li><a href="#8-5-paperbench-复现一篇研究论文">8.5 PaperBench：复现一篇研究论文</a></li>
+</ul></li>
+<li><a href="#9-常见指标应该怎样读">9. 常见指标应该怎样读</a>
+<ul>
+<li><a href="#accuracy-exact-match">Accuracy / Exact Match</a></li>
+<li><a href="#pass-k">pass@k</a></li>
+<li><a href="#resolved-task-success-rate">% Resolved / Task Success Rate</a></li>
+<li><a href="#llm-as-a-judge-rubric-score">LLM-as-a-Judge / Rubric score</a></li>
+<li><a href="#成本-延迟与稳定性">成本、延迟与稳定性</a></li>
+</ul></li>
+<li><a href="#10-如何为自己的模型选择-benchmark">10. 如何为自己的模型选择 benchmark</a></li>
+<li><a href="#11-为什么-benchmark-高分不等于产品可靠">11. 为什么 Benchmark 高分不等于产品可靠</a>
+<ul>
+<li><a href="#数据污染与-benchmark-饱和">数据污染与 benchmark 饱和</a></li>
+<li><a href="#prompt-scaffold-与预算不一致">Prompt、scaffold 与预算不一致</a></li>
+<li><a href="#测试覆盖不足">测试覆盖不足</a></li>
+<li><a href="#平均分隐藏能力结构">平均分隐藏能力结构</a></li>
+<li><a href="#agent-具有随机性">Agent 具有随机性</a></li>
+</ul></li>
+<li><a href="#总结">总结</a></li>
+<li><a href="#主要资料">主要资料</a></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>看模型发布报告时，我们经常会遇到一长串名字：ARC-E、ARC-C、MMLU、GPQA、GSM8K、HumanEval、SWE-bench、GAIA、WebArena、OSWorld……它们的分数不能直接横向比较，因为每个 benchmark 测量的能力、输入形式、可用工具和评分方式都不同。</p>
+
+<p>本文整理一张从“大模型答题”到“Agent 完成真实任务”的评测地图，并解释每个常见 benchmark 究竟是什么、适合测什么，以及不能从分数中推出什么结论。</p>
+
+<blockquote>
+<p><strong>先澄清两个常见误区</strong></p>
+
+<ol>
+<li><strong>SWE-bench 是 benchmark，SWE-agent 不是。</strong>SWE-bench 提供 GitHub issue、代码仓库和测试；SWE-agent 是让语言模型操作仓库、修改代码并解决 issue 的 Agent 系统。</li>
+<li><strong>ARC-E / ARC-C 与 ARC-AGI 不是同一个 ARC。</strong>前者来自 AI2 Reasoning Challenge，是科学选择题；后者使用彩色网格测试抽象规则归纳。</li>
+</ol>
+</blockquote>
+
+<h2 id="1-benchmark-测的到底是模型-还是系统">1. Benchmark 测的到底是模型，还是系统</h2>
+
+<p>评测对象可以分为三层：</p>
+
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>评测对象</th>
+<th>典型输入</th>
+<th>典型 benchmark</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>模型能力</td>
+<td>一次或少量文本生成</td>
+<td>问题、选项、代码签名</td>
+<td>ARC、MMLU、GPQA、GSM8K、HumanEval</td>
+</tr>
+
+<tr>
+<td>工具能力</td>
+<td>模型选择并调用函数/API</td>
+<td>工具描述、用户请求、执行反馈</td>
+<td>BFCL、ToolBench、τ-bench</td>
+</tr>
+
+<tr>
+<td>Agent 系统</td>
+<td>模型、prompt、memory、tools、scaffold 的整体</td>
+<td>仓库、浏览器、桌面或长期任务环境</td>
+<td>SWE-bench、GAIA、WebArena、OSWorld、PaperBench</td>
+</tr>
+</tbody>
+</table>
+
+<p>因此，Agent benchmark 的分数不是“底层模型智商”。同一个模型放入不同的搜索策略、工具接口、上下文压缩和错误恢复框架，结果可能差很多。更准确的表示是：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Agent 结果 = 模型能力
+           + Agent scaffold
+           + 工具与环境
+           + 推理预算
+           + 评测协议</code></pre></td></tr></table>
+</div>
+</div>
+<h2 id="2-一张快速索引表">2. 一张快速索引表</h2>
+
+<table>
+<thead>
+<tr>
+<th>Benchmark</th>
+<th>主要能力</th>
+<th>任务形式</th>
+<th>常见指标</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>ARC-E / ARC-C</td>
+<td>小学科学知识与推理</td>
+<td>四选一选择题</td>
+<td>Accuracy</td>
+</tr>
+
+<tr>
+<td>HellaSwag</td>
+<td>常识与事件续写</td>
+<td>选择最合理的后续</td>
+<td>Accuracy</td>
+</tr>
+
+<tr>
+<td>WinoGrande</td>
+<td>指代消解与常识</td>
+<td>二选一填空</td>
+<td>Accuracy</td>
+</tr>
+
+<tr>
+<td>MMLU</td>
+<td>多学科知识与解题</td>
+<td>57 个学科的选择题</td>
+<td>Macro / Average Accuracy</td>
+</tr>
+
+<tr>
+<td>MMLU-Pro</td>
+<td>更难的知识推理</td>
+<td>10 选 1、多步推理</td>
+<td>Accuracy</td>
+</tr>
+
+<tr>
+<td>GPQA / GPQA Diamond</td>
+<td>高难度科学推理</td>
+<td>生物、化学、物理选择题</td>
+<td>Accuracy</td>
+</tr>
+
+<tr>
+<td>GSM8K</td>
+<td>小学数学文字题</td>
+<td>多步算术，输出答案</td>
+<td>Exact Match</td>
+</tr>
+
+<tr>
+<td>MATH / MATH-500</td>
+<td>竞赛数学</td>
+<td>自由解答</td>
+<td>Exact Match</td>
+</tr>
+
+<tr>
+<td>AIME</td>
+<td>高难竞赛数学</td>
+<td>0–999 整数答案</td>
+<td>Accuracy / pass@k</td>
+</tr>
+
+<tr>
+<td>HumanEval</td>
+<td>函数级代码生成</td>
+<td>docstring + 函数签名</td>
+<td>pass@k</td>
+</tr>
+
+<tr>
+<td>MBPP</td>
+<td>基础 Python 编程</td>
+<td>自然语言题目 + tests</td>
+<td>pass@k</td>
+</tr>
+
+<tr>
+<td>LiveCodeBench</td>
+<td>更新中的代码能力</td>
+<td>竞赛题、自修复、执行预测</td>
+<td>pass@1 等</td>
+</tr>
+
+<tr>
+<td>SWE-bench</td>
+<td>仓库级软件工程</td>
+<td>GitHub issue → patch</td>
+<td>% Resolved</td>
+</tr>
+
+<tr>
+<td>BFCL</td>
+<td>Function Calling</td>
+<td>选择函数并生成参数</td>
+<td>AST / Executable Accuracy</td>
+</tr>
+
+<tr>
+<td>ToolBench</td>
+<td>API 选择与多步工具使用</td>
+<td>指令 + 大量真实 API</td>
+<td>Success / win rate</td>
+</tr>
+
+<tr>
+<td>τ-bench</td>
+<td>工具、用户与政策交互</td>
+<td>多轮对话 + domain APIs</td>
+<td>pass^k / success rate</td>
+</tr>
+
+<tr>
+<td>GAIA</td>
+<td>通用助手</td>
+<td>搜索、文件、多模态、工具组合</td>
+<td>Exact Match / Accuracy</td>
+</tr>
+
+<tr>
+<td>AgentBench</td>
+<td>多环境自主行动</td>
+<td>OS、数据库、网页等环境</td>
+<td>综合 success score</td>
+</tr>
+
+<tr>
+<td>WebArena</td>
+<td>网页操作</td>
+<td>自托管真实网站中的任务</td>
+<td>Task Success Rate</td>
+</tr>
+
+<tr>
+<td>OSWorld</td>
+<td>电脑使用</td>
+<td>真实桌面应用与跨应用流程</td>
+<td>Task Success Rate</td>
+</tr>
+
+<tr>
+<td>PaperBench</td>
+<td>长周期研究 Agent</td>
+<td>复现 AI 论文实验</td>
+<td>Rubric-based score</td>
+</tr>
+</tbody>
+</table>
+
+<p>下面按能力类型展开。</p>
+
+<h2 id="3-知识-常识与文本推理">3. 知识、常识与文本推理</h2>
+
+<h3 id="3-1-arc-e-与-arc-c-小学科学选择题">3.1 ARC-E 与 ARC-C：小学科学选择题</h3>
+
+<p><a href="https://allenai.org/data/arc">AI2 Reasoning Challenge（ARC）</a> 收集三至九年级的科学考试题，并分成两个子集：</p>
+
+<ul>
+<li><strong>ARC-Easy（ARC-E）</strong>：相对容易，很多题可通过基础事实或直接推理回答；</li>
+<li><strong>ARC-Challenge（ARC-C）</strong>：由检索和词共现基线都较难回答的问题组成，更强调知识组合与推理。</li>
+</ul>
+
+<p>示意题：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">哪一种变化属于物理变化？
+A. 木头燃烧  B. 铁生锈  C. 冰融化  D. 牛奶变酸</code></pre></td></tr></table>
+</div>
+</div>
+<p>主要测量：科学知识、阅读理解、选项比较和短链推理。常用指标是 accuracy。</p>
+
+<p>局限：选择题允许排除法和猜测；题目难度较低时容易饱和，也不能证明模型会做开放式科学研究。</p>
+
+<h3 id="3-2-hellaswag-哪个后续事件最合理">3.2 HellaSwag：哪个后续事件最合理</h3>
+
+<p><a href="https://arxiv.org/abs/1905.07830">HellaSwag</a> 给出一个场景或动作描述，要求从四个候选结尾中选择最符合常识的后续。它更关注日常事件的顺序、动作可行性和语境一致性，而不是专业知识。</p>
+
+<p>主要测量：常识推理、事件预测、语言连贯性。指标通常是 normalized accuracy。</p>
+
+<p>局限：仍然是候选排序任务；模型可能利用数据风格或选项统计线索，而不是真的构造世界模型。</p>
+
+<h3 id="3-3-winogrande-常识驱动的指代消解">3.3 WinoGrande：常识驱动的指代消解</h3>
+
+<p><a href="https://arxiv.org/abs/1907.10641">WinoGrande</a> 延续 Winograd Schema 的思路，要求模型判断代词或空缺指向哪个实体。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">奖杯放不进棕色手提箱，因为它太大了。
+“它”更可能指奖杯还是手提箱？</code></pre></td></tr></table>
+</div>
+</div>
+<p>主要测量：语法理解、实体关系和常识。局限在于二选一任务容易受模板与数据偏差影响。</p>
+
+<h3 id="3-4-mmlu-与-mmlu-pro-多学科知识地图">3.4 MMLU 与 MMLU-Pro：多学科知识地图</h3>
+
+<p><a href="https://arxiv.org/abs/2009.03300">MMLU</a> 用来自 57 个学科的选择题评估多任务知识与问题求解，覆盖数学、历史、计算机、法律、医学、哲学等领域。</p>
+
+<p>它回答的是：模型的知识覆盖是否广，以及能否在不同学科格式间切换。它不直接测量检索、工具使用或长周期任务执行。</p>
+
+<p><a href="https://arxiv.org/abs/2406.01574">MMLU-Pro</a> 将选项从 4 个扩展到 10 个，加入更多需要推理的问题，并降低简单猜测和模板记忆带来的收益。比较报告时必须确认写的是 MMLU 还是 MMLU-Pro，两者分数不能直接等价。</p>
+
+<h3 id="3-5-gpqa-研究生级-google-proof-科学问题">3.5 GPQA：研究生级“Google-Proof”科学问题</h3>
+
+<p><a href="https://openreview.net/forum?id=Ti67584b98">GPQA</a> 包含由领域专家编写的生物、物理和化学选择题。原始数据集有 448 题；常见的 <strong>GPQA Diamond</strong> 是其中质量和难度更高的子集。</p>
+
+<p>主要测量：高难科学知识、多步定量或概念推理，以及模型在陌生专业问题上的可靠性。</p>
+
+<p>局限：题量小，置信区间较大；选择题 accuracy 也无法告诉我们推理过程是否可靠。报告分数时应说明是 GPQA 全集还是 Diamond、是否使用工具以及推理预算。</p>
+
+<h2 id="4-数学推理">4. 数学推理</h2>
+
+<h3 id="4-1-gsm8k-多步小学数学文字题">4.1 GSM8K：多步小学数学文字题</h3>
+
+<p><a href="https://openai.com/index/solving-math-word-problems/">GSM8K</a> 包含约 8,500 道高质量小学数学文字题，每题通常需要 2–8 个基本算术步骤。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">一家商店上午卖出 18 个苹果，下午卖出上午的 2 倍，
+还剩 14 个。原来有多少个苹果？</code></pre></td></tr></table>
+</div>
+</div>
+<p>主要测量：从自然语言抽取数量关系、安排计算顺序并得到正确结果。常见指标是最终答案 exact match。</p>
+
+<p>局限：它主要是小学算术，不等于高级数学；只比较最终答案时，正确过程和碰巧猜对可能得到相同分数。数据公开时间较久，也需要考虑训练数据污染。</p>
+
+<h3 id="4-2-math-math-500-竞赛级数学">4.2 MATH / MATH-500：竞赛级数学</h3>
+
+<p><a href="https://arxiv.org/abs/2103.03874">MATH</a> 涵盖代数、几何、数论、概率等竞赛数学题，通常需要更长的符号推理。MATH-500 是常用于快速评估的 500 题子集。</p>
+
+<p>主要测量：复杂数学推理、公式操作和解题策略。评分常提取最终答案做 exact match，但不同 harness 的答案规范化规则可能不同。</p>
+
+<h3 id="4-3-aime-更高难度-答案易验证">4.3 AIME：更高难度、答案易验证</h3>
+
+<p>AIME 题目来自美国数学邀请赛，答案是 <code>000–999</code> 的整数。它难度高，但最终答案容易自动验证，因此经常用于推理模型评测。</p>
+
+<p>需要注意年份、题目集合、采样次数和推理 token budget。<code>pass@1</code> 与允许生成 64 次后取最好结果的分数，代表完全不同的计算预算。</p>
+
+<h2 id="5-函数级代码生成">5. 函数级代码生成</h2>
+
+<h3 id="5-1-humaneval">5.1 HumanEval</h3>
+
+<p><a href="https://github.com/openai/human-eval">HumanEval</a> 包含 164 个手写 Python 函数任务。模型根据函数签名和 docstring 补全实现，隐藏单元测试判断是否正确。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">has_close_elements</span><span class="p">(</span><span class="n">numbers</span><span class="p">,</span> <span class="n">threshold</span><span class="p">):</span>
+    <span class="s2">&#34;&#34;&#34;判断列表中是否存在距离小于 threshold 的两个数。&#34;&#34;&#34;</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>常用指标是 <code>pass@k</code>：生成 k 个候选时，至少一个通过测试的概率。它测的是小型函数合成，而不是阅读大型仓库、调试、Git 操作或需求澄清。</p>
+
+<h3 id="5-2-mbpp">5.2 MBPP</h3>
+
+<p><a href="https://github.com/google-research/google-research/tree/master/mbpp">MBPP</a>（Mostly Basic Python Problems）包含较基础的 Python 编程题、参考实现和测试用例。它与 HumanEval 都适合测基础代码生成，但题目风格、数据规模和拆分方式不同。</p>
+
+<h3 id="5-3-livecodebench">5.3 LiveCodeBench</h3>
+
+<p><a href="https://livecodebench.github.io/">LiveCodeBench</a> 持续从 LeetCode、AtCoder 和 Codeforces 等平台收集新题，并按时间切分，目标是降低污染和过拟合。除了代码生成，还覆盖 self-repair、代码执行和测试输出预测。</p>
+
+<p>它比 HumanEval 更能反映新题上的算法能力，但仍以相对独立的竞赛问题为主，不等于真实仓库维护。</p>
+
+<h2 id="6-仓库级软件工程-swe-bench-与-swe-agent">6. 仓库级软件工程：SWE-bench 与 SWE-agent</h2>
+
+<h3 id="6-1-swe-bench-是什么">6.1 SWE-bench 是什么</h3>
+
+<p><a href="https://github.com/SWE-bench/SWE-bench">SWE-bench</a> 从真实 Python 项目的 GitHub issue 和对应修复中构造任务。系统获得：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">代码仓库 + issue 描述 + 可执行环境
+                     ↓
+             生成代码 patch
+                     ↓
+        fail-to-pass / pass-to-pass tests</code></pre></td></tr></table>
+</div>
+</div>
+<p>只有补丁修复目标问题，同时没有破坏原有测试，任务才算 resolved。常见指标是 <code>% Resolved</code>。</p>
+
+<p>常见版本：</p>
+
+<ul>
+<li><strong>SWE-bench Full</strong>：原始完整集合；</li>
+<li><strong>SWE-bench Lite</strong>：较小、运行成本更低的子集；</li>
+<li><strong>SWE-bench Verified</strong>：500 个经软件工程师确认可解决、描述较清晰的任务；</li>
+<li><strong>SWE-bench Multimodal</strong>：issue 中可能包含截图等视觉信息；</li>
+<li><strong>SWE-bench Multilingual</strong>：扩展到不同编程语言。</li>
+</ul>
+
+<p>比较分数时，必须同时写明数据集版本、Agent scaffold、模型版本、最大步数、是否使用 test-time scaling，以及评测 harness 版本。</p>
+
+<h3 id="6-2-swe-agent-是什么">6.2 SWE-agent 是什么</h3>
+
+<p><a href="https://github.com/SWE-agent/SWE-agent">SWE-agent</a> 是一个 Agent-Computer Interface：让模型查看文件、搜索代码、编辑、执行测试并迭代修复。它可以在 SWE-bench 上运行，但它本身不是 benchmark。</p>
+
+<p>可以这样理解：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">SWE-bench = 试卷 + 仓库环境 + 判分程序
+SWE-agent = 参加考试的解题框架
+LLM       = 解题框架内部使用的模型</code></pre></td></tr></table>
+</div>
+</div>
+<p>因此“某模型 SWE-bench 得分”严格来说通常是“某模型 + 某 Agent 实现 + 某推理预算”的系统成绩。</p>
+
+<h2 id="7-function-calling-与工具使用">7. Function Calling 与工具使用</h2>
+
+<h3 id="7-1-bfcl-函数名和参数能否调用正确">7.1 BFCL：函数名和参数能否调用正确</h3>
+
+<p><a href="https://gorilla.cs.berkeley.edu/leaderboard">Berkeley Function-Calling Leaderboard（BFCL）</a> 评估模型是否能根据用户请求选择正确函数，并生成结构、参数名、类型和值都正确的调用。</p>
+
+<p>它覆盖单函数、多函数候选、并行调用、多轮状态和“没有合适工具时拒绝调用”等情况。常见评分包括：</p>
+
+<ul>
+<li><strong>AST evaluation</strong>：比较函数调用的抽象语法树；</li>
+<li><strong>Executable evaluation</strong>：实际执行调用，检查结果是否正确；</li>
+<li>multi-turn / agentic success：检查多轮工具轨迹是否完成目标。</li>
+</ul>
+
+<p>BFCL 很适合评估 function calling 接口，但单轮高分不代表 Agent 会做长期规划或从工具错误中恢复。</p>
+
+<h3 id="7-2-toolbench-在大量-api-中选择和组合工具">7.2 ToolBench：在大量 API 中选择和组合工具</h3>
+
+<p><a href="https://arxiv.org/abs/2307.16789">ToolBench / ToolLLM</a> 围绕大量真实 API 构建工具学习数据与评测，关注工具检索、参数生成和多步调用。</p>
+
+<p>它比简单 function calling 更强调“面对很多候选 API 时找到正确工具”，但自动生成数据、API 可用性和基于模型的评审都会影响可重复性。</p>
+
+<h3 id="7-3-τ-bench-工具-用户和业务政策同时存在">7.3 τ-bench：工具、用户和业务政策同时存在</h3>
+
+<p><a href="https://github.com/sierra-research/tau-bench">τ-bench</a> 模拟客服等真实场景：Agent 一边与模拟用户多轮对话，一边调用领域 API，还必须遵守业务政策。</p>
+
+<p>它测试的不只是“API 参数有没有写对”，还包括：</p>
+
+<ul>
+<li>是否从用户处收集必要信息；</li>
+<li>是否保持多轮状态；</li>
+<li>是否遵守退款、改签等规则；</li>
+<li>是否真正改变了环境状态并满足用户目标。</li>
+</ul>
+
+<p>这类评测常报告 success rate，以及更严格的 <code>pass^k</code>：连续运行 k 次都成功，才能体现稳定性。</p>
+
+<h2 id="8-通用-agent-网页和电脑操作">8. 通用 Agent、网页和电脑操作</h2>
+
+<h3 id="8-1-gaia-通用-ai-助手">8.1 GAIA：通用 AI 助手</h3>
+
+<p><a href="https://ai.meta.com/research/publications/gaia-a-benchmark-for-general-ai-assistants/">GAIA</a> 包含 466 个现实问题，需要组合推理、网页搜索、多模态文件处理和工具调用，并按三档难度划分。</p>
+
+<p>GAIA 的问题往往对人类并不需要博士知识，但对 Agent 的难点在于找到信息、组合证据、处理文件并输出严格格式的最终答案。它适合测“通用研究助手”，不适合单独归因到底层模型的哪一个能力。</p>
+
+<h3 id="8-2-agentbench-横跨多种交互环境">8.2 AgentBench：横跨多种交互环境</h3>
+
+<p><a href="https://github.com/THUDM/AgentBench">AgentBench</a> 将 Agent 放入操作系统、数据库、知识图谱、数字卡牌、网页购物、网页浏览等多个环境，评估其多轮决策和执行能力。</p>
+
+<p>优点是覆盖面广；缺点是不同环境的动作空间和评分尺度不同，聚合总分会隐藏具体短板。</p>
+
+<h3 id="8-3-webarena-在可复现网站中完成任务">8.3 WebArena：在可复现网站中完成任务</h3>
+
+<p><a href="https://webarena.dev/">WebArena</a> 提供自托管的电商、论坛、代码托管、内容管理等网站。任务要求 Agent 把自然语言目标转成点击、输入、导航和信息检索动作。</p>
+
+<p>主要测量：网页 grounding、长程规划、表单操作、跨页面状态管理。评分通常检查网站最终状态，而不是只判断最后一段文字。</p>
+
+<h3 id="8-4-osworld-真实桌面与跨应用操作">8.4 OSWorld：真实桌面与跨应用操作</h3>
+
+<p><a href="https://os-world.github.io/">OSWorld</a> 在真实操作系统与应用中评估多模态电脑使用 Agent，包含浏览器、文件系统、Office 类软件、媒体工具和跨应用工作流。</p>
+
+<p>它同时要求视觉理解、GUI 定位、键鼠操作、应用知识和错误恢复。分数受到截图分辨率、动作接口、最大步数和环境稳定性的显著影响。</p>
+
+<h3 id="8-5-paperbench-复现一篇研究论文">8.5 PaperBench：复现一篇研究论文</h3>
+
+<p><a href="https://openai.com/index/paperbench/">PaperBench</a> 要求 Agent 理解 AI 论文、编写实验代码、运行训练并复现结果，使用细粒度 rubric 评分。</p>
+
+<p>它测试的是长时间尺度上的研究执行能力：论文理解、代码、实验管理、调试和结果验证。它非常接近真实工作，但成本高，也依赖 rubric 与 judge 的可靠性。</p>
+
+<h2 id="9-常见指标应该怎样读">9. 常见指标应该怎样读</h2>
+
+<h3 id="accuracy-exact-match">Accuracy / Exact Match</h3>
+
+<p>选择题 accuracy 或最终答案 exact match 最直观，但对格式敏感，也忽略了过程质量。选择题随机基线还与选项数有关：四选一是 25%，十选一是 10%。</p>
+
+<h3 id="pass-k">pass@k</h3>
+
+<p>允许模型生成 k 个候选，只要其中一个通过测试就算成功。k 越大，计算预算越高，因此 <code>pass@1</code> 和 <code>pass@100</code> 不能直接比较。</p>
+
+<h3 id="resolved-task-success-rate">% Resolved / Task Success Rate</h3>
+
+<p>用于 SWE-bench、WebArena、OSWorld 等执行型任务。它比文字相似度可靠，但依赖环境、测试覆盖率和成功判定器。</p>
+
+<h3 id="llm-as-a-judge-rubric-score">LLM-as-a-Judge / Rubric score</h3>
+
+<p>适用于开放式成果，例如报告、研究复现和复杂轨迹。优点是能评估没有唯一答案的任务；风险是 judge 存在偏好、位置效应、自我偏好和评分漂移。最好报告 judge 模型、rubric、校准集和人工一致性。</p>
+
+<h3 id="成本-延迟与稳定性">成本、延迟与稳定性</h3>
+
+<p>Agent 实际部署还应同时报告：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">成功率 / 每次成功成本 / 总 token / 工具调用次数
+延迟 / 平均步骤数 / 最大步骤数 / 重复运行方差</code></pre></td></tr></table>
+</div>
+</div>
+<p>一个成功率高但每题调用模型数百次的系统，和一次尝试就完成任务的系统不是同一类能力。</p>
+
+<h2 id="10-如何为自己的模型选择-benchmark">10. 如何为自己的模型选择 benchmark</h2>
+
+<table>
+<thead>
+<tr>
+<th>你想验证的能力</th>
+<th>优先选择</th>
+<th>不要只看</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>基础常识与科学问答</td>
+<td>ARC-C、HellaSwag、WinoGrande</td>
+<td>MMLU 总分</td>
+</tr>
+
+<tr>
+<td>广泛知识覆盖</td>
+<td>MMLU / MMLU-Pro</td>
+<td>单一学科分数</td>
+</tr>
+
+<tr>
+<td>高难科学推理</td>
+<td>GPQA Diamond</td>
+<td>ARC-E</td>
+</tr>
+
+<tr>
+<td>基础数学推理</td>
+<td>GSM8K</td>
+<td>仅看最终答案而不做格式规范化</td>
+</tr>
+
+<tr>
+<td>高难数学推理</td>
+<td>MATH-500、AIME</td>
+<td>不同采样预算的混合榜单</td>
+</tr>
+
+<tr>
+<td>函数级编码</td>
+<td>HumanEval、MBPP、LiveCodeBench</td>
+<td>SWE-bench</td>
+</tr>
+
+<tr>
+<td>真实软件维护</td>
+<td>SWE-bench Verified</td>
+<td>HumanEval</td>
+</tr>
+
+<tr>
+<td>Function Calling</td>
+<td>BFCL</td>
+<td>普通问答榜单</td>
+</tr>
+
+<tr>
+<td>客服与政策 Agent</td>
+<td>τ-bench</td>
+<td>单轮 tool-call accuracy</td>
+</tr>
+
+<tr>
+<td>通用搜索与工具组合</td>
+<td>GAIA</td>
+<td>纯知识选择题</td>
+</tr>
+
+<tr>
+<td>网页操作</td>
+<td>WebArena</td>
+<td>BFCL</td>
+</tr>
+
+<tr>
+<td>桌面电脑使用</td>
+<td>OSWorld</td>
+<td>WebArena 单站点成绩</td>
+</tr>
+
+<tr>
+<td>长周期研究执行</td>
+<td>PaperBench</td>
+<td>只看代码生成分数</td>
+</tr>
+</tbody>
+</table>
+
+<p>一个实用的评测组合通常至少包含：</p>
+
+<ol>
+<li>一个与你业务输入相似的静态能力测试；</li>
+<li>一个端到端任务成功率测试；</li>
+<li>你自己的私有、持续更新回归集；</li>
+<li>成本、延迟和多次运行稳定性。</li>
+</ol>
+
+<h2 id="11-为什么-benchmark-高分不等于产品可靠">11. 为什么 Benchmark 高分不等于产品可靠</h2>
+
+<h3 id="数据污染与-benchmark-饱和">数据污染与 benchmark 饱和</h3>
+
+<p>公开题目可能进入预训练或微调数据。时间切分、私有测试集和持续更新 benchmark 可以降低风险，但无法完全消除污染。</p>
+
+<h3 id="prompt-scaffold-与预算不一致">Prompt、scaffold 与预算不一致</h3>
+
+<p>zero-shot、few-shot、chain-of-thought、工具权限、采样次数、上下文长度和最大步骤都会改变分数。只写模型名、不写配置的数字很难复现。</p>
+
+<h3 id="测试覆盖不足">测试覆盖不足</h3>
+
+<p>SWE-bench 补丁通过 tests，不代表代码风格、性能和隐藏需求都正确；GUI 任务的自动检查器也可能遗漏视觉或语义错误。</p>
+
+<h3 id="平均分隐藏能力结构">平均分隐藏能力结构</h3>
+
+<p>两个平均分相同的系统，可能一个擅长数学、另一个擅长工具使用。产品选型应看分项和失败案例，而不是只看综合排行榜。</p>
+
+<h3 id="agent-具有随机性">Agent 具有随机性</h3>
+
+<p>工具超时、网页状态、采样和长轨迹误差都会造成波动。Agent 评测最好多次运行，并同时报告平均成功率、方差和 <code>pass^k</code>。</p>
+
+<h2 id="总结">总结</h2>
+
+<p>可以把常见 benchmark 放在一条逐渐接近真实工作的轴上：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">选择题
+  ARC / MMLU / GPQA
+      ↓
+结构化解题
+  GSM8K / MATH / HumanEval
+      ↓
+工具调用
+  BFCL / ToolBench / τ-bench
+      ↓
+环境中的端到端任务
+  SWE-bench / GAIA / WebArena / OSWorld
+      ↓
+长期、开放式专业工作
+  PaperBench / 私有业务评测</code></pre></td></tr></table>
+</div>
+</div>
+<p>越往下，评测越接近真实工作，但也越难复现、成本越高，并且越难把成绩归因给单独的底层模型。正确的问题不是“哪个 benchmark 最权威”，而是：<strong>这个评测的任务分布、工具条件和成功标准，是否与我真正想部署的系统一致？</strong></p>
+
+<h2 id="主要资料">主要资料</h2>
+
+<ul>
+<li><a href="https://allenai.org/data/arc">AI2 Reasoning Challenge</a></li>
+<li><a href="https://arxiv.org/abs/2009.03300">MMLU</a> · <a href="https://openreview.net/forum?id=Ti67584b98">GPQA</a></li>
+<li><a href="https://openai.com/index/solving-math-word-problems/">GSM8K</a> · <a href="https://github.com/openai/human-eval">HumanEval</a> · <a href="https://livecodebench.github.io/">LiveCodeBench</a></li>
+<li><a href="https://github.com/SWE-bench/SWE-bench">SWE-bench</a> · <a href="https://github.com/SWE-agent/SWE-agent">SWE-agent</a></li>
+<li><a href="https://gorilla.cs.berkeley.edu/leaderboard">BFCL</a> · <a href="https://github.com/sierra-research/tau-bench">τ-bench</a></li>
+<li><a href="https://ai.meta.com/research/publications/gaia-a-benchmark-for-general-ai-assistants/">GAIA</a> · <a href="https://github.com/THUDM/AgentBench">AgentBench</a></li>
+<li><a href="https://webarena.dev/">WebArena</a> · <a href="https://os-world.github.io/">OSWorld</a> · <a href="https://openai.com/index/paperbench/">PaperBench</a></li>
+</ul>
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">zhengxz</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2026-09-26
+
+    </span>
+  </p>
+
+
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/llm/">LLM</a>
+          <a href="/tags/ai-agent/">AI Agent</a>
+          <a href="/tags/benchmark/">Benchmark</a>
+          <a href="/tags/evaluation/">Evaluation</a>
+          <a href="/tags/reasoning/">Reasoning</a>
+          <a href="/tags/coding/">Coding</a>
+          </div>
+      <nav class="post-nav">
+
+        <a class="next" href="/post/nanochat-gpt-pretraining-from-source/">
+            <span class="next-text nav-default">nanochat 源码解读：从参数配置到单步训练</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+
+
+
+
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+  <a href="https://zheng-bobo.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+
+
+  <span class="copyright-year">
+    &copy;
+    2019 -
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span>zhengxz</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

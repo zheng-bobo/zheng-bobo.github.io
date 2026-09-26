@@ -6,10 +6,64 @@
     <description>Recent content in Tags on Blowing in the wind</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sat, 26 Sep 2026 21:00:00 +0200</lastBuildDate>
+    <lastBuildDate>Sat, 26 Sep 2026 23:00:00 +0200</lastBuildDate>
 
   <atom:link href="https://zheng-bobo.github.io/en/tags/index.xml" rel="self" type="application/rss+xml" />
 
+
+    <item>
+      <title>AI Agent</title>
+      <link>https://zheng-bobo.github.io/en/tags/ai-agent/</link>
+      <pubDate>Sat, 26 Sep 2026 23:00:00 +0200</pubDate>
+
+      <guid>https://zheng-bobo.github.io/en/tags/ai-agent/</guid>
+      <description></description>
+    </item>
+
+    <item>
+      <title>Benchmark</title>
+      <link>https://zheng-bobo.github.io/en/tags/benchmark/</link>
+      <pubDate>Sat, 26 Sep 2026 23:00:00 +0200</pubDate>
+
+      <guid>https://zheng-bobo.github.io/en/tags/benchmark/</guid>
+      <description></description>
+    </item>
+
+    <item>
+      <title>Coding</title>
+      <link>https://zheng-bobo.github.io/en/tags/coding/</link>
+      <pubDate>Sat, 26 Sep 2026 23:00:00 +0200</pubDate>
+
+      <guid>https://zheng-bobo.github.io/en/tags/coding/</guid>
+      <description></description>
+    </item>
+
+    <item>
+      <title>Evaluation</title>
+      <link>https://zheng-bobo.github.io/en/tags/evaluation/</link>
+      <pubDate>Sat, 26 Sep 2026 23:00:00 +0200</pubDate>
+
+      <guid>https://zheng-bobo.github.io/en/tags/evaluation/</guid>
+      <description></description>
+    </item>
+
+    <item>
+      <title>LLM</title>
+      <link>https://zheng-bobo.github.io/en/tags/llm/</link>
+      <pubDate>Sat, 26 Sep 2026 23:00:00 +0200</pubDate>
+
+      <guid>https://zheng-bobo.github.io/en/tags/llm/</guid>
+      <description></description>
+    </item>
+
+    <item>
+      <title>Reasoning</title>
+      <link>https://zheng-bobo.github.io/en/tags/reasoning/</link>
+      <pubDate>Sat, 26 Sep 2026 23:00:00 +0200</pubDate>
+
+      <guid>https://zheng-bobo.github.io/en/tags/reasoning/</guid>
+      <description></description>
+    </item>
 
     <item>
       <title>GPT</title>

@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>A Field Guide to LLM and AI Agent Benchmarks - Blowing in the wind</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="zhengxz" /><meta name="description" content="Model reports often list ARC-E, ARC-C, MMLU, GPQA, GSM8K, HumanEval, SWE-bench, GAIA, WebArena, and OSWorld side by side. Their scores are not interchangeable: each benchmark uses different tasks, tools, environments, inference budgets, and scoring rules.
+This guide maps common evaluations from static question answering to agents completing real tasks, and explains what each benchmark can—and cannot—tell us.
+" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.59.1 with theme even" />
+
+
+<link rel="canonical" href="https://zheng-bobo.github.io/en/post/llm-agent-benchmarks-guide/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.4747d1be8010357c5daf4cd103b0bc1cff65936180045419874ea97f32138102.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/readability.css">
+<link rel="stylesheet" href="/css/about.css">
+
+
+<meta property="og:title" content="A Field Guide to LLM and AI Agent Benchmarks" />
+<meta property="og:description" content="Model reports often list ARC-E, ARC-C, MMLU, GPQA, GSM8K, HumanEval, SWE-bench, GAIA, WebArena, and OSWorld side by side. Their scores are not interchangeable: each benchmark uses different tasks, tools, environments, inference budgets, and scoring rules.
+
+This guide maps common evaluations from static question answering to agents completing real tasks, and explains what each benchmark can—and cannot—tell us." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zheng-bobo.github.io/en/post/llm-agent-benchmarks-guide/" />
+<meta property="article:published_time" content="2026-09-26T23:00:00+02:00" />
+<meta property="article:modified_time" content="2026-09-26T23:00:00+02:00" /><meta property="og:site_name" content="Blowing in the wind" />
+<meta itemprop="name" content="A Field Guide to LLM and AI Agent Benchmarks">
+<meta itemprop="description" content="Model reports often list ARC-E, ARC-C, MMLU, GPQA, GSM8K, HumanEval, SWE-bench, GAIA, WebArena, and OSWorld side by side. Their scores are not interchangeable: each benchmark uses different tasks, tools, environments, inference budgets, and scoring rules.
+
+This guide maps common evaluations from static question answering to agents completing real tasks, and explains what each benchmark can—and cannot—tell us.">
+
+
+<meta itemprop="datePublished" content="2026-09-26T23:00:00&#43;02:00" />
+<meta itemprop="dateModified" content="2026-09-26T23:00:00&#43;02:00" />
+<meta itemprop="wordCount" content="1626">
+
+
+
+<meta itemprop="keywords" content="LLM,AI Agent,Benchmark,Evaluation,Reasoning,Coding," />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="A Field Guide to LLM and AI Agent Benchmarks"/>
+<meta name="twitter:description" content="Model reports often list ARC-E, ARC-C, MMLU, GPQA, GSM8K, HumanEval, SWE-bench, GAIA, WebArena, and OSWorld side by side. Their scores are not interchangeable: each benchmark uses different tasks, tools, environments, inference budgets, and scoring rules.
+
+This guide maps common evaluations from static question answering to agents completing real tasks, and explains what each benchmark can—and cannot—tell us."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/en/about/" class="logo">Bobo</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/en/">
+        <li class="mobile-menu-item">Blog</li>
+      </a><a href="/en/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/en/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/en/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item ">
+
+            <a href="/post/llm-agent-benchmarks-guide/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item active">
+
+            <a href="/en/post/llm-agent-benchmarks-guide/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/en/about/" class="logo">Bobo</a>
+</div>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item ">
+
+            <a href="/post/llm-agent-benchmarks-guide/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item active">
+
+            <a href="/en/post/llm-agent-benchmarks-guide/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/en/">Blog</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+
+    <header class="post-header">
+      <h1 class="post-title">A Field Guide to LLM and AI Agent Benchmarks</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2026-09-26 </span>
+        <div class="post-category">
+            <a href="/en/categories/artificial-intelligence/"> Artificial Intelligence </a>
+            </div>
+          <span class="more-meta"> 1626 words </span>
+          <span class="more-meta"> 8 mins read </span>
+
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#1-are-we-evaluating-a-model-or-a-system">1. Are we evaluating a model or a system?</a></li>
+<li><a href="#2-quick-reference">2. Quick reference</a></li>
+<li><a href="#3-knowledge-commonsense-and-textual-reasoning">3. Knowledge, commonsense, and textual reasoning</a>
+<ul>
+<li><a href="#arc-e-and-arc-c">ARC-E and ARC-C</a></li>
+<li><a href="#hellaswag-and-winogrande">HellaSwag and WinoGrande</a></li>
+<li><a href="#mmlu-and-mmlu-pro">MMLU and MMLU-Pro</a></li>
+<li><a href="#gpqa">GPQA</a></li>
+</ul></li>
+<li><a href="#4-mathematical-reasoning">4. Mathematical reasoning</a>
+<ul>
+<li><a href="#gsm8k">GSM8K</a></li>
+<li><a href="#math-math-500-and-aime">MATH, MATH-500, and AIME</a></li>
+</ul></li>
+<li><a href="#5-function-level-code-generation">5. Function-level code generation</a>
+<ul>
+<li><a href="#humaneval-and-mbpp">HumanEval and MBPP</a></li>
+<li><a href="#livecodebench">LiveCodeBench</a></li>
+</ul></li>
+<li><a href="#6-repository-level-engineering-swe-bench-and-swe-agent">6. Repository-level engineering: SWE-bench and SWE-agent</a>
+<ul>
+<li><a href="#swe-bench">SWE-bench</a></li>
+<li><a href="#swe-agent">SWE-agent</a></li>
+</ul></li>
+<li><a href="#7-function-calling-and-tool-use">7. Function calling and tool use</a>
+<ul>
+<li><a href="#bfcl">BFCL</a></li>
+<li><a href="#toolbench">ToolBench</a></li>
+<li><a href="#τ-bench">τ-bench</a></li>
+</ul></li>
+<li><a href="#8-general-browser-and-computer-use-agents">8. General, browser, and computer-use agents</a>
+<ul>
+<li><a href="#gaia">GAIA</a></li>
+<li><a href="#agentbench">AgentBench</a></li>
+<li><a href="#webarena">WebArena</a></li>
+<li><a href="#osworld">OSWorld</a></li>
+<li><a href="#paperbench">PaperBench</a></li>
+</ul></li>
+<li><a href="#9-reading-the-metrics">9. Reading the metrics</a></li>
+<li><a href="#10-selecting-benchmarks-for-your-use-case">10. Selecting benchmarks for your use case</a></li>
+<li><a href="#11-why-high-benchmark-scores-do-not-guarantee-product-reliability">11. Why high benchmark scores do not guarantee product reliability</a></li>
+<li><a href="#conclusion">Conclusion</a></li>
+<li><a href="#primary-references">Primary references</a></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>Model reports often list ARC-E, ARC-C, MMLU, GPQA, GSM8K, HumanEval, SWE-bench, GAIA, WebArena, and OSWorld side by side. Their scores are not interchangeable: each benchmark uses different tasks, tools, environments, inference budgets, and scoring rules.</p>
+
+<p>This guide maps common evaluations from static question answering to agents completing real tasks, and explains what each benchmark can—and cannot—tell us.</p>
+
+<blockquote>
+<p><strong>Two common naming traps</strong></p>
+
+<ol>
+<li><strong>SWE-bench is a benchmark; SWE-agent is not.</strong> SWE-bench provides repositories, issues, and tests. SWE-agent is an agent system that can attempt those tasks.</li>
+<li><strong>ARC-E / ARC-C are not ARC-AGI.</strong> The former are AI2 multiple-choice science questions; ARC-AGI uses colored grids for abstract rule induction.</li>
+</ol>
+</blockquote>
+
+<h2 id="1-are-we-evaluating-a-model-or-a-system">1. Are we evaluating a model or a system?</h2>
+
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Evaluation target</th>
+<th>Typical input</th>
+<th>Examples</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Model capability</td>
+<td>One or a few text generations</td>
+<td>Questions, options, function signatures</td>
+<td>ARC, MMLU, GPQA, GSM8K, HumanEval</td>
+</tr>
+
+<tr>
+<td>Tool capability</td>
+<td>Selecting and invoking functions/APIs</td>
+<td>Tool schemas, requests, execution feedback</td>
+<td>BFCL, ToolBench, τ-bench</td>
+</tr>
+
+<tr>
+<td>Agent system</td>
+<td>Model + prompt + memory + tools + scaffold</td>
+<td>Repository, browser, desktop, long-running environment</td>
+<td>SWE-bench, GAIA, WebArena, OSWorld, PaperBench</td>
+</tr>
+</tbody>
+</table>
+
+<p>An agent score is therefore a property of a complete setup:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">agent result = model capability
+             + agent scaffold
+             + tools and environment
+             + inference budget
+             + evaluation protocol</code></pre></td></tr></table>
+</div>
+</div>
+<h2 id="2-quick-reference">2. Quick reference</h2>
+
+<table>
+<thead>
+<tr>
+<th>Benchmark</th>
+<th>Main capability</th>
+<th>Task form</th>
+<th>Common metric</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>ARC-E / ARC-C</td>
+<td>Grade-school science</td>
+<td>Multiple choice</td>
+<td>Accuracy</td>
+</tr>
+
+<tr>
+<td>HellaSwag</td>
+<td>Commonsense event completion</td>
+<td>Choose an ending</td>
+<td>Accuracy</td>
+</tr>
+
+<tr>
+<td>WinoGrande</td>
+<td>Coreference and commonsense</td>
+<td>Binary completion</td>
+<td>Accuracy</td>
+</tr>
+
+<tr>
+<td>MMLU</td>
+<td>Broad academic knowledge</td>
+<td>57-subject multiple choice</td>
+<td>Average accuracy</td>
+</tr>
+
+<tr>
+<td>MMLU-Pro</td>
+<td>Harder knowledge reasoning</td>
+<td>Ten-choice questions</td>
+<td>Accuracy</td>
+</tr>
+
+<tr>
+<td>GPQA</td>
+<td>Graduate-level science</td>
+<td>Expert-written multiple choice</td>
+<td>Accuracy</td>
+</tr>
+
+<tr>
+<td>GSM8K</td>
+<td>Grade-school math</td>
+<td>Multi-step word problems</td>
+<td>Exact match</td>
+</tr>
+
+<tr>
+<td>MATH / AIME</td>
+<td>Competition math</td>
+<td>Free response</td>
+<td>Exact match / pass@k</td>
+</tr>
+
+<tr>
+<td>HumanEval / MBPP</td>
+<td>Function-level coding</td>
+<td>Prompt + hidden tests</td>
+<td>pass@k</td>
+</tr>
+
+<tr>
+<td>LiveCodeBench</td>
+<td>Recent coding ability</td>
+<td>Contests, repair, execution</td>
+<td>pass@1 and variants</td>
+</tr>
+
+<tr>
+<td>SWE-bench</td>
+<td>Repository-level engineering</td>
+<td>GitHub issue to patch</td>
+<td>% Resolved</td>
+</tr>
+
+<tr>
+<td>BFCL</td>
+<td>Function calling</td>
+<td>Select tools and arguments</td>
+<td>AST / executable accuracy</td>
+</tr>
+
+<tr>
+<td>ToolBench</td>
+<td>API discovery and use</td>
+<td>Instruction + APIs</td>
+<td>Success / win rate</td>
+</tr>
+
+<tr>
+<td>τ-bench</td>
+<td>Tool-agent-user interaction</td>
+<td>Dialogue + policies + APIs</td>
+<td>success / pass^k</td>
+</tr>
+
+<tr>
+<td>GAIA</td>
+<td>General assistant work</td>
+<td>Search, files, multimodality</td>
+<td>Accuracy</td>
+</tr>
+
+<tr>
+<td>AgentBench</td>
+<td>Multi-environment agency</td>
+<td>OS, DB, web, games</td>
+<td>Aggregate success</td>
+</tr>
+
+<tr>
+<td>WebArena</td>
+<td>Browser operation</td>
+<td>Tasks on reproducible sites</td>
+<td>Task success</td>
+</tr>
+
+<tr>
+<td>OSWorld</td>
+<td>Computer use</td>
+<td>Real desktop applications</td>
+<td>Task success</td>
+</tr>
+
+<tr>
+<td>PaperBench</td>
+<td>Long-horizon research</td>
+<td>Reproduce an AI paper</td>
+<td>Rubric score</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="3-knowledge-commonsense-and-textual-reasoning">3. Knowledge, commonsense, and textual reasoning</h2>
+
+<h3 id="arc-e-and-arc-c">ARC-E and ARC-C</h3>
+
+<p>The <a href="https://allenai.org/data/arc">AI2 Reasoning Challenge</a> contains science exam questions from grades 3–9. <strong>ARC-Easy</strong> contains easier items; <strong>ARC-Challenge</strong> selects questions that retrieval and word-co-occurrence baselines struggle with.</p>
+
+<p>It measures science knowledge, reading comprehension, option comparison, and short reasoning chains. Multiple-choice accuracy does not establish open-ended scientific ability, and easier splits can saturate.</p>
+
+<h3 id="hellaswag-and-winogrande">HellaSwag and WinoGrande</h3>
+
+<p><a href="https://arxiv.org/abs/1905.07830">HellaSwag</a> asks the model to select the most plausible continuation of an everyday event. <a href="https://arxiv.org/abs/1907.10641">WinoGrande</a> tests commonsense-sensitive coreference resolution.</p>
+
+<p>Both are useful for lightweight commonsense testing, but candidates and templates can expose statistical shortcuts.</p>
+
+<h3 id="mmlu-and-mmlu-pro">MMLU and MMLU-Pro</h3>
+
+<p><a href="https://arxiv.org/abs/2009.03300">MMLU</a> spans 57 subjects including mathematics, history, computer science, law, medicine, and philosophy. It measures breadth of knowledge and switching across academic formats—not browsing, tool use, or long-horizon execution.</p>
+
+<p><a href="https://arxiv.org/abs/2406.01574">MMLU-Pro</a> expands questions from four to ten answer options and emphasizes harder reasoning. MMLU and MMLU-Pro scores are not directly interchangeable.</p>
+
+<h3 id="gpqa">GPQA</h3>
+
+<p><a href="https://openreview.net/forum?id=Ti67584b98">GPQA</a> contains 448 expert-written questions in biology, physics, and chemistry. The widely reported <strong>GPQA Diamond</strong> is a smaller, high-quality subset.</p>
+
+<p>It targets difficult scientific reasoning, but its small size creates uncertainty. Reports should identify the split, tool access, and inference budget.</p>
+
+<h2 id="4-mathematical-reasoning">4. Mathematical reasoning</h2>
+
+<h3 id="gsm8k">GSM8K</h3>
+
+<p><a href="https://openai.com/index/solving-math-word-problems/">GSM8K</a> contains roughly 8,500 grade-school word problems requiring two to eight elementary arithmetic steps. It tests extraction of quantitative relationships and multi-step calculation, usually via exact-match final answers.</p>
+
+<p>It is not advanced mathematics, and its age makes contamination a concern.</p>
+
+<h3 id="math-math-500-and-aime">MATH, MATH-500, and AIME</h3>
+
+<p><a href="https://arxiv.org/abs/2103.03874">MATH</a> covers competition-style algebra, geometry, number theory, and probability. MATH-500 is a common 500-problem subset.</p>
+
+<p>AIME problems are harder competition questions with integer answers from 000 to 999. Always report the year range, number of samples, and reasoning budget: pass@1 and best-of-64 measure very different compute regimes.</p>
+
+<h2 id="5-function-level-code-generation">5. Function-level code generation</h2>
+
+<h3 id="humaneval-and-mbpp">HumanEval and MBPP</h3>
+
+<p><a href="https://github.com/openai/human-eval">HumanEval</a> contains 164 handwritten Python function tasks scored with hidden unit tests. <a href="https://github.com/google-research/google-research/tree/master/mbpp">MBPP</a> contains mostly basic Python problems with reference code and tests.</p>
+
+<p>Both commonly report <code>pass@k</code>: the probability that at least one of k generated candidates passes. They test small-program synthesis—not repository exploration, debugging, version control, or requirements discovery.</p>
+
+<h3 id="livecodebench">LiveCodeBench</h3>
+
+<p><a href="https://livecodebench.github.io/">LiveCodeBench</a> continuously collects newer problems from competitive-programming platforms and uses temporal splits to reduce contamination. It also evaluates self-repair, code execution, and test-output prediction.</p>
+
+<p>It better measures novel algorithmic coding than older static sets, but still differs from maintaining a real codebase.</p>
+
+<h2 id="6-repository-level-engineering-swe-bench-and-swe-agent">6. Repository-level engineering: SWE-bench and SWE-agent</h2>
+
+<h3 id="swe-bench">SWE-bench</h3>
+
+<p><a href="https://github.com/SWE-bench/SWE-bench">SWE-bench</a> gives a system a real GitHub repository and issue. The system must generate a patch that makes fail-to-pass tests succeed without breaking pass-to-pass tests. The main metric is <code>% Resolved</code>.</p>
+
+<p>Important variants include Full, Lite, Verified, Multimodal, and Multilingual. <strong>SWE-bench Verified</strong> contains 500 tasks reviewed by software engineers for solvability and clarity.</p>
+
+<p>Every score should name the dataset variant, agent scaffold, model version, step limit, test-time scaling, and harness version.</p>
+
+<h3 id="swe-agent">SWE-agent</h3>
+
+<p><a href="https://github.com/SWE-agent/SWE-agent">SWE-agent</a> is an Agent-Computer Interface that lets a model inspect files, search code, edit, run tests, and iterate. It can be evaluated on SWE-bench, but is not itself the benchmark.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">SWE-bench = exam + repository environment + grader
+SWE-agent = the problem-solving framework
+LLM       = the model inside that framework</code></pre></td></tr></table>
+</div>
+</div>
+<h2 id="7-function-calling-and-tool-use">7. Function calling and tool use</h2>
+
+<h3 id="bfcl">BFCL</h3>
+
+<p>The <a href="https://gorilla.cs.berkeley.edu/leaderboard">Berkeley Function-Calling Leaderboard</a> tests whether a model selects the right function and produces valid names, argument types, and values. It covers single, parallel, multiple, relevance-detection, multi-turn, and agentic scenarios.</p>
+
+<p>AST evaluation checks call structure; executable evaluation runs calls. Strong single-turn function calling does not imply long-horizon planning or recovery.</p>
+
+<h3 id="toolbench">ToolBench</h3>
+
+<p><a href="https://arxiv.org/abs/2307.16789">ToolBench / ToolLLM</a> evaluates API retrieval, argument generation, and multi-step use across a large API collection. It stresses finding the right tool among many candidates, though API availability and model-based judging can affect reproducibility.</p>
+
+<h3 id="τ-bench">τ-bench</h3>
+
+<p><a href="https://github.com/sierra-research/tau-bench">τ-bench</a> simulates realistic conversations where an agent must interact with a user, call domain APIs, and obey policies. It tests information gathering, state tracking, policy compliance, and actual environment changes.</p>
+
+<p>Strict <code>pass^k</code> asks whether the system succeeds repeatedly, making reliability visible rather than rewarding one lucky trajectory.</p>
+
+<h2 id="8-general-browser-and-computer-use-agents">8. General, browser, and computer-use agents</h2>
+
+<h3 id="gaia">GAIA</h3>
+
+<p><a href="https://ai.meta.com/research/publications/gaia-a-benchmark-for-general-ai-assistants/">GAIA</a> contains 466 questions requiring combinations of reasoning, web research, multimodal file handling, and tools across three difficulty levels. It evaluates a general research assistant, not an isolated base-model skill.</p>
+
+<h3 id="agentbench">AgentBench</h3>
+
+<p><a href="https://github.com/THUDM/AgentBench">AgentBench</a> evaluates agents across operating systems, databases, knowledge graphs, games, web shopping, and browsing. Breadth is its strength; aggregate scores can hide environment-specific weaknesses.</p>
+
+<h3 id="webarena">WebArena</h3>
+
+<p><a href="https://webarena.dev/">WebArena</a> provides reproducible self-hosted commerce, forum, code-hosting, and content-management sites. Agents must turn goals into navigation, clicks, typing, and information retrieval. Evaluation usually checks final website state.</p>
+
+<h3 id="osworld">OSWorld</h3>
+
+<p><a href="https://os-world.github.io/">OSWorld</a> evaluates multimodal agents in real operating systems and applications, including browsers, files, office tools, media apps, and cross-application workflows. Performance depends strongly on visual grounding, action interfaces, step limits, and environment stability.</p>
+
+<h3 id="paperbench">PaperBench</h3>
+
+<p><a href="https://openai.com/index/paperbench/">PaperBench</a> asks agents to understand AI papers, implement experiments, run code, and reproduce results. Fine-grained rubrics score long-horizon research execution. It is realistic but expensive and judge-dependent.</p>
+
+<h2 id="9-reading-the-metrics">9. Reading the metrics</h2>
+
+<ul>
+<li><strong>Accuracy / exact match:</strong> simple and reproducible, but format-sensitive and blind to process quality.</li>
+<li><strong>pass@k:</strong> at least one of k candidates succeeds; larger k means more compute.</li>
+<li><strong>% Resolved / task success:</strong> execution-based and useful, but only as reliable as the environment and tests.</li>
+<li><strong>LLM-as-a-judge / rubric score:</strong> handles open-ended outputs, but introduces judge bias and drift.</li>
+<li><strong>Cost and latency:</strong> agent evaluations should also report tokens, calls, steps, latency, cost per attempt, and cost per success.</li>
+<li><strong>Reliability:</strong> repeated-run averages, variance, and <code>pass^k</code> reveal stochastic failures hidden by a single run.</li>
+</ul>
+
+<h2 id="10-selecting-benchmarks-for-your-use-case">10. Selecting benchmarks for your use case</h2>
+
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Prefer</th>
+<th>Do not rely only on</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Science and commonsense</td>
+<td>ARC-C, HellaSwag, WinoGrande</td>
+<td>MMLU aggregate</td>
+</tr>
+
+<tr>
+<td>Broad knowledge</td>
+<td>MMLU / MMLU-Pro</td>
+<td>One subject</td>
+</tr>
+
+<tr>
+<td>Difficult science</td>
+<td>GPQA Diamond</td>
+<td>ARC-E</td>
+</tr>
+
+<tr>
+<td>Basic math</td>
+<td>GSM8K</td>
+<td>Unnormalized free-form strings</td>
+</tr>
+
+<tr>
+<td>Hard math</td>
+<td>MATH-500, AIME</td>
+<td>Mixed inference budgets</td>
+</tr>
+
+<tr>
+<td>Function-level coding</td>
+<td>HumanEval, MBPP, LiveCodeBench</td>
+<td>SWE-bench</td>
+</tr>
+
+<tr>
+<td>Repository maintenance</td>
+<td>SWE-bench Verified</td>
+<td>HumanEval</td>
+</tr>
+
+<tr>
+<td>Function calling</td>
+<td>BFCL</td>
+<td>General QA</td>
+</tr>
+
+<tr>
+<td>Policy-aware service agents</td>
+<td>τ-bench</td>
+<td>Single-turn tool accuracy</td>
+</tr>
+
+<tr>
+<td>General research assistant</td>
+<td>GAIA</td>
+<td>Closed-book MCQ only</td>
+</tr>
+
+<tr>
+<td>Browser operation</td>
+<td>WebArena</td>
+<td>BFCL</td>
+</tr>
+
+<tr>
+<td>Desktop operation</td>
+<td>OSWorld</td>
+<td>Text-only agent tests</td>
+</tr>
+
+<tr>
+<td>Long-horizon research</td>
+<td>PaperBench</td>
+<td>Code-generation scores alone</td>
+</tr>
+</tbody>
+</table>
+
+<p>A practical evaluation suite should combine a relevant static capability set, an end-to-end task benchmark, a private continuously refreshed regression set, and measurements of cost, latency, and repeated-run stability.</p>
+
+<h2 id="11-why-high-benchmark-scores-do-not-guarantee-product-reliability">11. Why high benchmark scores do not guarantee product reliability</h2>
+
+<ul>
+<li><strong>Contamination and saturation:</strong> public questions may appear in training data.</li>
+<li><strong>Protocol mismatch:</strong> prompting, tools, samples, context, and step limits alter scores.</li>
+<li><strong>Incomplete graders:</strong> passing tests does not prove style, performance, or hidden requirements.</li>
+<li><strong>Averages hide profiles:</strong> equal overall scores can mask completely different strengths.</li>
+<li><strong>Agents are stochastic:</strong> tools, web state, sampling, and long trajectories introduce variance.</li>
+</ul>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>Benchmarks form a progression toward real work:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">multiple choice
+  ARC / MMLU / GPQA
+      ↓
+structured problem solving
+  GSM8K / MATH / HumanEval
+      ↓
+tool invocation
+  BFCL / ToolBench / τ-bench
+      ↓
+end-to-end environments
+  SWE-bench / GAIA / WebArena / OSWorld
+      ↓
+long-horizon professional work
+  PaperBench / private product evaluations</code></pre></td></tr></table>
+</div>
+</div>
+<p>The closer an evaluation gets to real work, the more expensive and difficult it becomes to reproduce—and the harder it is to attribute results to the base model alone. The right question is not “Which benchmark is authoritative?” but “Does this task distribution, tool setup, and success criterion match the system I intend to deploy?”</p>
+
+<h2 id="primary-references">Primary references</h2>
+
+<ul>
+<li><a href="https://allenai.org/data/arc">AI2 ARC</a> · <a href="https://arxiv.org/abs/2009.03300">MMLU</a> · <a href="https://openreview.net/forum?id=Ti67584b98">GPQA</a></li>
+<li><a href="https://openai.com/index/solving-math-word-problems/">GSM8K</a> · <a href="https://github.com/openai/human-eval">HumanEval</a> · <a href="https://livecodebench.github.io/">LiveCodeBench</a></li>
+<li><a href="https://github.com/SWE-bench/SWE-bench">SWE-bench</a> · <a href="https://github.com/SWE-agent/SWE-agent">SWE-agent</a></li>
+<li><a href="https://gorilla.cs.berkeley.edu/leaderboard">BFCL</a> · <a href="https://github.com/sierra-research/tau-bench">τ-bench</a></li>
+<li><a href="https://ai.meta.com/research/publications/gaia-a-benchmark-for-general-ai-assistants/">GAIA</a> · <a href="https://github.com/THUDM/AgentBench">AgentBench</a></li>
+<li><a href="https://webarena.dev/">WebArena</a> · <a href="https://os-world.github.io/">OSWorld</a> · <a href="https://openai.com/index/paperbench/">PaperBench</a></li>
+</ul>
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">zhengxz</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2026-09-26
+
+    </span>
+  </p>
+
+
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/en/tags/llm/">LLM</a>
+          <a href="/en/tags/ai-agent/">AI Agent</a>
+          <a href="/en/tags/benchmark/">Benchmark</a>
+          <a href="/en/tags/evaluation/">Evaluation</a>
+          <a href="/en/tags/reasoning/">Reasoning</a>
+          <a href="/en/tags/coding/">Coding</a>
+          </div>
+      <nav class="post-nav">
+
+        <a class="next" href="/en/post/nanochat-gpt-pretraining-from-source/">
+            <span class="next-text nav-default">Reading nanochat Source: From Configuration to a Training Step</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+
+
+
+
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+  <a href="https://zheng-bobo.github.io/en/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+
+
+  <span class="copyright-year">
+    &copy;
+    2019 -
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span>zhengxz</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>
