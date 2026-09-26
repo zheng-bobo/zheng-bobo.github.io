@@ -1,5 +1,5 @@
 ---
-title: "CS230：AI 时代的职业建议"
+title: "Stanford CS230：AI 时代的职业建议"
 date: 2026-03-23 12:22:13 +0100
 categories: [职业发展]
 tags: [AI, 职业发展, 软件工程, Product Management, Small AI]
