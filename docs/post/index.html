@@ -168,7 +168,41 @@
     <main id="main" class="main">
       <div class="content-wrapper">
         <div id="content" class="content">
-          <section class="blog-archive-layout">
+
+<link rel="stylesheet" href="/css/readability.css?v=9ba086572a1350a02bf328ce69c24db5">
+
+<style>
+
+  @media (min-width: 560px) and (max-width: 767px) {
+    .blog-archive-layout {
+      grid-template-columns: 170px minmax(0, 1fr);
+      gap: 24px;
+    }
+
+    .blog-archive-sidebar {
+      position: sticky;
+      top: 16px;
+      max-height: calc(100vh - 32px);
+      padding: 2px 12px 6px 0;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+    }
+
+    .blog-archive-sidebar-header h1 {
+      font-size: 19px;
+    }
+
+    .blog-archive-index-item {
+      grid-template-columns: 38px minmax(0, 1fr);
+      gap: 4px;
+      padding: 5px 0;
+      font-size: 12px;
+    }
+  }
+</style>
+
+<section class="blog-archive-layout">
   <aside class="blog-archive-sidebar" aria-labelledby="blog-archive-title">
     <div class="blog-archive-sidebar-header">
       <h1 id="blog-archive-title">文章归档</h1>

@@ -4,6 +4,43 @@
 {{- $posts := .Data.Pages.ByDate.Reverse -}}
 {{- $recentPosts := first 5 $posts -}}
 {{- $isChinese := eq .Site.Language.Lang "zh-cn" -}}
+{{- $archiveStylesHash := md5 (readFile "static/css/readability.css") -}}
+
+{{/* The global custom stylesheet URL is stable and may still be cached after a deploy.
+     Reload it with a content hash on the archive page so this layout is never paired
+     with stale CSS. */}}
+<link rel="stylesheet" href="{{ "css/readability.css" | relURL }}?v={{ $archiveStylesHash }}">
+
+<style>
+  /* Keep the requested sidebar layout inside narrower in-app browser panels. */
+  @media (min-width: 560px) and (max-width: 767px) {
+    .blog-archive-layout {
+      grid-template-columns: 170px minmax(0, 1fr);
+      gap: 24px;
+    }
+
+    .blog-archive-sidebar {
+      position: sticky;
+      top: 16px;
+      max-height: calc(100vh - 32px);
+      padding: 2px 12px 6px 0;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+    }
+
+    .blog-archive-sidebar-header h1 {
+      font-size: 19px;
+    }
+
+    .blog-archive-index-item {
+      grid-template-columns: 38px minmax(0, 1fr);
+      gap: 4px;
+      padding: 5px 0;
+      font-size: 12px;
+    }
+  }
+</style>
 
 <section class="blog-archive-layout">
   <aside class="blog-archive-sidebar" aria-labelledby="blog-archive-title">
