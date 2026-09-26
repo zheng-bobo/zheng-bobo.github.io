@@ -48,6 +48,11 @@ copyright = ""            # default: author.name ↓        # 默认为下面配
   weight = 40
   identifier = "categories"
   url = "/categories/"
+[[menu.main]]
+  name = "关于我"
+  weight = 50
+  identifier = "about"
+  url = "/about/"
 
 [params]
   version = "4.x"           # Used to give a friendly message when you have an incompatible update
@@ -103,7 +108,7 @@ copyright = ""            # default: author.name ↓        # 默认为下面配
 
   # Link custom CSS and JS assets
   #   (relative to /static/css and /static/js respectively)
-  customCSS = ["readability.css"]
+  customCSS = ["readability.css", "about.css"]
   customJS = []
 
   [params.publicCDN]        # load these files from public cdn                          # 启用公共CDN，需自行定义

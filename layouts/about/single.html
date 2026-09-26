@@ -1,0 +1,13 @@
+{{ define "content" -}}
+<article class="about-page">
+  <header class="about-header">
+    <p class="about-eyebrow">{{ .Params.eyebrow }}</p>
+    <h1>{{ .Params.heading }}</h1>
+    <p class="about-deck">{{ .Params.deck }}</p>
+  </header>
+
+  <div class="about-content">
+    {{ .Content }}
+  </div>
+</article>
+{{- end }}

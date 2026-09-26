@@ -1,0 +1,269 @@
+/* Personal introduction page, inspired by the calm editorial rhythm of huyenchip.com. */
+
+.about-page {
+  --about-ink: #263747;
+  --about-muted: #687480;
+  --about-accent: #a64d42;
+  --about-line: #e5e8e9;
+  --about-soft: #f7f6f2;
+  max-width: 880px;
+  margin: 8px auto 36px;
+  color: var(--about-ink);
+  font-size: 17px;
+  line-height: 1.82;
+}
+
+.about-header {
+  max-width: 720px;
+  margin-bottom: 42px;
+}
+
+.about-eyebrow,
+.about-content .about-work-label {
+  margin: 0 0 12px;
+  color: var(--about-accent);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  line-height: 1.4;
+}
+
+.about-header h1 {
+  margin: 0;
+  color: #203343;
+  font-family: Georgia, "Noto Serif CJK SC", "Songti SC", serif;
+  font-size: clamp(2.15rem, 5vw, 3.4rem);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 1.16;
+  text-wrap: balance;
+}
+
+.about-deck {
+  max-width: 660px;
+  margin: 18px 0 0;
+  color: var(--about-muted);
+  font-size: 1.08em;
+  line-height: 1.7;
+}
+
+.about-content {
+  text-rendering: optimizeLegibility;
+}
+
+.about-content::after {
+  display: block;
+  clear: both;
+  content: "";
+}
+
+.about-content > p {
+  margin: 0 0 1.18em;
+  text-wrap: pretty;
+}
+
+.about-content > p:first-of-type {
+  font-size: 1.04em;
+}
+
+.about-content a {
+  color: var(--about-accent);
+  text-decoration: underline;
+  text-decoration-color: rgba(166, 77, 66, 0.38);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.about-content a:hover {
+  border: 0;
+  text-decoration-color: currentColor;
+}
+
+.about-content a:focus-visible {
+  outline: 2px solid var(--about-accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.about-portrait {
+  float: right;
+  width: 214px;
+  margin: 4px 0 26px 46px;
+  border: 1px solid #e1ded7;
+  border-radius: 50%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  object-position: 50% 28%;
+  filter: saturate(0.88) contrast(1.02);
+}
+
+.about-content h2 {
+  clear: both;
+  margin: 3.2em 0 1.15em;
+  color: #203343;
+  font-family: Georgia, "Noto Serif CJK SC", "Songti SC", serif;
+  font-size: 1.55em;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.about-actions {
+  display: flex;
+  gap: 10px;
+  margin: 28px 0 8px;
+}
+
+.about-content .about-action {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px;
+  color: var(--about-ink);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  border: 1px solid #cfd5d8;
+  border-radius: 999px;
+  transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.about-content .about-action:hover {
+  color: var(--about-accent);
+  border-color: #c29b95;
+}
+
+.about-content .about-action-primary {
+  color: #fff;
+  background: #31495b;
+  border-color: #31495b;
+}
+
+.about-content .about-action-primary:hover {
+  color: #fff;
+  background: #253b4d;
+  border-color: #253b4d;
+}
+
+.about-work-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.about-work-item {
+  padding: 22px 20px;
+  background: var(--about-soft);
+  border: 1px solid #ebe8df;
+  border-radius: 8px;
+}
+
+.about-content .about-work-label {
+  min-height: 2.8em;
+  margin-bottom: 8px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+}
+
+.about-work-item h3,
+.about-timeline-item h3 {
+  margin: 0;
+  color: #2a3e4e;
+  font-family: inherit;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.about-work-item h3 {
+  font-size: 1em;
+}
+
+.about-work-item p:last-child {
+  margin: 12px 0 0;
+  color: #53626e;
+  font-size: 14.5px;
+  line-height: 1.72;
+}
+
+.about-timeline {
+  border-top: 1px solid var(--about-line);
+}
+
+.about-timeline-item {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 28px;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--about-line);
+}
+
+.about-timeline-time {
+  padding-top: 2px;
+  color: var(--about-muted);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.about-timeline-item h3 {
+  font-size: 1.02em;
+}
+
+.about-timeline-item p {
+  margin: 6px 0 0;
+  color: #596873;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+@media (max-width: 767px) {
+  .about-page {
+    margin: 0 auto 24px;
+    font-size: 16.5px;
+    line-height: 1.78;
+  }
+
+  .about-header {
+    margin-bottom: 32px;
+  }
+
+  .about-header h1 {
+    font-size: clamp(2rem, 10vw, 2.6rem);
+  }
+
+  .about-deck {
+    font-size: 1em;
+  }
+
+  .about-portrait {
+    width: 132px;
+    margin: 3px 0 18px 24px;
+  }
+
+  .about-content h2 {
+    margin-top: 2.65em;
+  }
+
+  .about-work-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-content .about-work-label {
+    min-height: 0;
+  }
+
+  .about-timeline-item {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+}
+
+@media (max-width: 420px) {
+  .about-actions {
+    align-items: stretch;
+  }
+
+  .about-content .about-action {
+    flex: 1;
+  }
+}
