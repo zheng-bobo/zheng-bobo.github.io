@@ -33,7 +33,7 @@ deck: "我关心复杂系统如何在真实世界里稳定、高效地工作，�
   <section class="about-work-item">
     <p class="about-work-label">HIGH-PERFORMANCE NETWORKING</p>
     <h3>Go RPC 与海量长连接</h3>
-    <p>设计事件驱动网络库、无锁缓冲区和零拷贝机制。在 30 万长连接场景中，将内存占用降低 84%，平均与 P99 延迟降低 57%。</p>
+    <p>设计事件驱动网络库、无锁缓冲区和零拷贝机制。在 30 万长连接场景中，将内存占用降低 84%，平均延迟与 P99 延迟均降低约 57%。</p>
   </section>
   <section class="about-work-item">
     <p class="about-work-label">DISTRIBUTED DATA</p>
