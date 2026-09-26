@@ -48,7 +48,7 @@
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://zheng-bobo.github.io/post/" />
 
-<meta property="og:updated_time" content="2026-09-14T10:25:02+02:00" /><meta property="og:site_name" content="Blowing in the wind" />
+<meta property="og:updated_time" content="2026-09-26T21:00:00+02:00" /><meta property="og:site_name" content="Blowing in the wind" />
 <meta itemprop="name" content="Posts">
 <meta itemprop="description" content="Hugo theme even example site.">
 
@@ -206,11 +206,15 @@
   <aside class="blog-archive-sidebar" aria-labelledby="blog-archive-title">
     <div class="blog-archive-sidebar-header">
       <h1 id="blog-archive-title">文章归档</h1>
-      <p>按年份浏览全部 21 篇文章</p>
+      <p>按年份浏览全部 22 篇文章</p>
     </div>
 
     <nav class="blog-archive-years" aria-label="按年份排列的文章">
           <h2 class="blog-archive-year" id="year-2026">2026</h2>
+        <a class="blog-archive-index-item" href="/post/nanochat-gpt-pretraining-from-source/">
+          <time datetime="2026-09-26">09-26</time>
+          <span>从 nanochat 源码读懂 GPT 预训练：模型、数据与训练循环</span>
+        </a>
         <a class="blog-archive-index-item" href="/post/transformer-architecture/">
           <time datetime="2026-09-14">09-14</time>
           <span>Transformer Architecture：从 Token Embedding 到训练循环</span>
@@ -302,6 +306,52 @@
   </aside>
 
   <div class="blog-recent-posts" aria-label="最近文章">
+      <article class="blog-summary-card">
+        <header>
+          <h2><a href="/post/nanochat-gpt-pretraining-from-source/">从 nanochat 源码读懂 GPT 预训练：模型、数据与训练循环</a></h2>
+          <div class="blog-summary-meta">
+            <time datetime="2026-09-26">2026年09月26日</time>
+            <span aria-hidden="true">·</span>
+            <span>预计阅读 7 分钟</span>
+          </div>
+        </header>
+
+        <div class="blog-summary-excerpt post">
+          <div class="post-content">
+            <div class="post-summary"><p>一段 GPT 训练代码真正串起的，不只是 Transformer 的前向传播，而是一整条闭环：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">原始文档 → Tokenizer 与序列打包 → input/target
+        → GPT 前向传播 → Cross-Entropy Loss
+        → 反向传播与梯度累积 → Optimizer Step
+        → 评估、采样、保存与恢复</code></pre></td></tr></table>
+</div>
+</div>
+<p>本文以我的 Transformer 笔记为概念起点，再沿着 nanochat 的真实源码追踪张量如何流动、参数如何更新，以及一个可运行的预训练系统还需要补上哪些工程环节。</p></div>
+          </div>
+        </div>
+
+        <footer class="blog-summary-footer">
+            <div class="blog-summary-tags" aria-label="标签">
+              <span class="blog-summary-tags-label">标签</span>
+              <ul>
+                  <li><a href="/tags/nanochat/">nanochat</a></li>
+                  <li><a href="/tags/gpt/">GPT</a></li>
+                  <li><a href="/tags/transformer/">Transformer</a></li>
+                  <li><a href="/tags/llm-training/">LLM Training</a></li>
+                  <li><a href="/tags/pytorch/">PyTorch</a></li>
+              </ul>
+            </div>
+          <a class="blog-summary-read-more" href="/post/nanochat-gpt-pretraining-from-source/">阅读全文<span aria-hidden="true">→</span>
+          </a>
+        </footer>
+      </article>
       <article class="blog-summary-card">
         <header>
           <h2><a href="/post/transformer-architecture/">Transformer Architecture：从 Token Embedding 到训练循环</a></h2>
@@ -463,40 +513,6 @@ Next-token logits → Cross-Entropy Loss</code></pre></td></tr></table>
               </ul>
             </div>
           <a class="blog-summary-read-more" href="/post/anthropic-agent-evolution-3-planner-generator-evaluator/">阅读全文<span aria-hidden="true">→</span>
-          </a>
-        </footer>
-      </article>
-      <article class="blog-summary-card">
-        <header>
-          <h2><a href="/post/anthropic-agent-evolution-4-managed-agent-runtime/">Anthropic Agent 演进（四）：Managed Agent Runtime——Session、Harness 与 Sandbox</a></h2>
-          <div class="blog-summary-meta">
-            <time datetime="2026-09-12">2026年09月12日</time>
-            <span aria-hidden="true">·</span>
-            <span>预计阅读 5 分钟</span>
-          </div>
-        </header>
-
-        <div class="blog-summary-excerpt post">
-          <div class="post-content">
-            <div class="post-summary"><p>前几代 Harness 关注的是模型怎样持续工作、怎样提高质量。走向托管服务后，问题变成了系统工程：Session 如何持久化？Harness 崩溃后怎样恢复？Sandbox 如何替换？怎样连接客户自己的 VPC？凭据如何不暴露给模型生成的代码？</p>
-
-<p>Anthropic Managed Agents 的核心答案是：<strong>把 Brain、Hands 和 Session 解耦为稳定接口。</strong></p></div>
-          </div>
-        </div>
-
-        <footer class="blog-summary-footer">
-            <div class="blog-summary-tags" aria-label="标签">
-              <span class="blog-summary-tags-label">标签</span>
-              <ul>
-                  <li><a href="/tags/anthropic-agent-%E6%BC%94%E8%BF%9B/">Anthropic Agent 演进</a></li>
-                  <li><a href="/tags/managed-agents/">Managed Agents</a></li>
-                  <li><a href="/tags/agent-runtime/">Agent Runtime</a></li>
-                  <li><a href="/tags/sandbox/">Sandbox</a></li>
-                  <li><a href="/tags/session/">Session</a></li>
-                  <li><a href="/tags/codex/">Codex</a></li>
-              </ul>
-            </div>
-          <a class="blog-summary-read-more" href="/post/anthropic-agent-evolution-4-managed-agent-runtime/">阅读全文<span aria-hidden="true">→</span>
           </a>
         </footer>
       </article>

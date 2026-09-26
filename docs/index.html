@@ -48,7 +48,7 @@
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://zheng-bobo.github.io/" />
 
-<meta property="og:updated_time" content="2026-09-26T00:00:00+00:00" /><meta property="og:site_name" content="Blowing in the wind" />
+<meta property="og:updated_time" content="2026-09-26T21:00:00+02:00" /><meta property="og:site_name" content="Blowing in the wind" />
 <meta itemprop="name" content="Blowing in the wind">
 <meta itemprop="description" content="Hugo theme even example site.">
 
@@ -169,6 +169,44 @@
       <div class="content-wrapper">
         <div id="content" class="content">
           <section id="posts" class="posts">
+    <article class="post">
+  <header class="post-header">
+    <h1 class="post-title"><a class="post-link" href="/post/nanochat-gpt-pretraining-from-source/">从 nanochat 源码读懂 GPT 预训练：模型、数据与训练循环</a></h1>
+    <div class="post-meta">
+      <span class="post-time"> 2026-09-26 </span>
+      <div class="post-category">
+          <a href="/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/"> 人工智能 </a>
+          </div>
+        <span class="more-meta"> 约 3317 字 </span>
+        <span class="more-meta"> 预计阅读 7 分钟 </span>
+    </div>
+  </header>
+
+  <div class="post-content">
+    <div class="post-summary">
+      <p>一段 GPT 训练代码真正串起的，不只是 Transformer 的前向传播，而是一整条闭环：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">原始文档 → Tokenizer 与序列打包 → input/target
+        → GPT 前向传播 → Cross-Entropy Loss
+        → 反向传播与梯度累积 → Optimizer Step
+        → 评估、采样、保存与恢复</code></pre></td></tr></table>
+</div>
+</div>
+<p>本文以我的 Transformer 笔记为概念起点，再沿着 nanochat 的真实源码追踪张量如何流动、参数如何更新，以及一个可运行的预训练系统还需要补上哪些工程环节。</p>
+    </div>
+    <div class="read-more">
+      <a href="/post/nanochat-gpt-pretraining-from-source/" class="read-more-link">阅读更多</a>
+    </div>
+  </div>
+</article>
+
     <article class="post">
   <header class="post-header">
     <h1 class="post-title"><a class="post-link" href="/post/transformer-architecture/">Transformer Architecture：从 Token Embedding 到训练循环</a></h1>
@@ -369,30 +407,6 @@ Next-token logits → Cross-Entropy Loss</code></pre></td></tr></table>
     </div>
     <div class="read-more">
       <a href="/post/cs230-career-advice-in-ai/" class="read-more-link">阅读更多</a>
-    </div>
-  </div>
-</article>
-
-    <article class="post">
-  <header class="post-header">
-    <h1 class="post-title"><a class="post-link" href="/post/%E8%AF%91liunx-io-multiplexing-select-vs-poll-vs-epoll/">（译）Liunx – IO Multiplexing – Select VS Poll VS Epoll</a></h1>
-    <div class="post-meta">
-      <span class="post-time"> 2021-02-11 </span>
-      <div class="post-category">
-          <a href="/categories/network/"> network </a>
-          <a href="/categories/%E7%BF%BB%E8%AF%91/"> 翻译 </a>
-          </div>
-        <span class="more-meta"> 约 3712 字 </span>
-        <span class="more-meta"> 预计阅读 8 分钟 </span>
-    </div>
-  </header>
-
-  <div class="post-content">
-    <div class="post-summary">
-      导读 &emsp;&emsp;读这篇文章前可以先了解下Liunx5种I/O模型 &emsp;&emsp;参考文献: I/O Models &ndash;Richard Stevens的《UNI
-    </div>
-    <div class="read-more">
-      <a href="/post/%E8%AF%91liunx-io-multiplexing-select-vs-poll-vs-epoll/" class="read-more-link">阅读更多</a>
     </div>
   </div>
 </article>

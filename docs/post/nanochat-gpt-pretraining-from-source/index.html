@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>从 nanochat 源码读懂 GPT 预训练：模型、数据与训练循环 - Blowing in the wind</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="zhengxz" /><meta name="description" content="一段 GPT 训练代码真正串起的，不只是 Transformer 的前向传播，而是一整条闭环：
+1 2 3 4  原始文档 → Tokenizer 与序列打包 → input/target → GPT 前向传播 → Cross-Entropy Loss → 反向传播与梯度累积 → Optimizer Step → 评估、采样、保存与恢复   本文以我的 Transformer 笔记为概念起点，再沿着 nanochat 的真实源码追踪张量如何流动、参数如何更新，以及一个可运行的预训练系统还需要补上哪些工程环节。
+" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.59.1 with theme even" />
+
+
+<link rel="canonical" href="https://zheng-bobo.github.io/post/nanochat-gpt-pretraining-from-source/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.4747d1be8010357c5daf4cd103b0bc1cff65936180045419874ea97f32138102.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/readability.css">
+<link rel="stylesheet" href="/css/about.css">
+
+
+<meta property="og:title" content="从 nanochat 源码读懂 GPT 预训练：模型、数据与训练循环" />
+<meta property="og:description" content="一段 GPT 训练代码真正串起的，不只是 Transformer 的前向传播，而是一整条闭环：
+
+
+1
+2
+3
+4
+
+
+原始文档 → Tokenizer 与序列打包 → input/target
+        → GPT 前向传播 → Cross-Entropy Loss
+        → 反向传播与梯度累积 → Optimizer Step
+        → 评估、采样、保存与恢复
+
+
+本文以我的 Transformer 笔记为概念起点，再沿着 nanochat 的真实源码追踪张量如何流动、参数如何更新，以及一个可运行的预训练系统还需要补上哪些工程环节。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zheng-bobo.github.io/post/nanochat-gpt-pretraining-from-source/" />
+<meta property="article:published_time" content="2026-09-26T21:00:00+02:00" />
+<meta property="article:modified_time" content="2026-09-26T21:00:00+02:00" /><meta property="og:site_name" content="Blowing in the wind" />
+<meta itemprop="name" content="从 nanochat 源码读懂 GPT 预训练：模型、数据与训练循环">
+<meta itemprop="description" content="一段 GPT 训练代码真正串起的，不只是 Transformer 的前向传播，而是一整条闭环：
+
+
+1
+2
+3
+4
+
+
+原始文档 → Tokenizer 与序列打包 → input/target
+        → GPT 前向传播 → Cross-Entropy Loss
+        → 反向传播与梯度累积 → Optimizer Step
+        → 评估、采样、保存与恢复
+
+
+本文以我的 Transformer 笔记为概念起点，再沿着 nanochat 的真实源码追踪张量如何流动、参数如何更新，以及一个可运行的预训练系统还需要补上哪些工程环节。">
+
+
+<meta itemprop="datePublished" content="2026-09-26T21:00:00&#43;02:00" />
+<meta itemprop="dateModified" content="2026-09-26T21:00:00&#43;02:00" />
+<meta itemprop="wordCount" content="3317">
+
+
+
+<meta itemprop="keywords" content="nanochat,GPT,Transformer,LLM Training,PyTorch," />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="从 nanochat 源码读懂 GPT 预训练：模型、数据与训练循环"/>
+<meta name="twitter:description" content="一段 GPT 训练代码真正串起的，不只是 Transformer 的前向传播，而是一整条闭环：
+
+
+1
+2
+3
+4
+
+
+原始文档 → Tokenizer 与序列打包 → input/target
+        → GPT 前向传播 → Cross-Entropy Loss
+        → 反向传播与梯度累积 → Optimizer Step
+        → 评估、采样、保存与恢复
+
+
+本文以我的 Transformer 笔记为概念起点，再沿着 nanochat 的真实源码追踪张量如何流动、参数如何更新，以及一个可运行的预训练系统还需要补上哪些工程环节。"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/about/" class="logo">Bobo</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Blog</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">归档</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">分类</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于我</li>
+      </a>
+  </ul>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item active">
+
+            <a href="/post/nanochat-gpt-pretraining-from-source/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item ">
+
+            <a href="/en/post/nanochat-gpt-pretraining-from-source/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/about/" class="logo">Bobo</a>
+</div>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item active">
+
+            <a href="/post/nanochat-gpt-pretraining-from-source/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item ">
+
+            <a href="/en/post/nanochat-gpt-pretraining-from-source/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Blog</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">归档</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">分类</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于我</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+
+    <header class="post-header">
+      <h1 class="post-title">从 nanochat 源码读懂 GPT 预训练：模型、数据与训练循环</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2026-09-26 </span>
+        <div class="post-category">
+            <a href="/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/"> 人工智能 </a>
+            </div>
+          <span class="more-meta"> 约 3317 字 </span>
+          <span class="more-meta"> 预计阅读 7 分钟 </span>
+
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#1-先建立全局视图-三个核心文件">1. 先建立全局视图：三个核心文件</a></li>
+<li><a href="#2-数据如何变成训练目标">2. 数据如何变成训练目标</a>
+<ul>
+<li><a href="#2-1-语言模型的监督信号来自-右移一位">2.1 语言模型的监督信号来自“右移一位”</a></li>
+<li><a href="#2-2-bos-aligned-best-fit-packing">2.2 BOS-aligned Best-Fit Packing</a></li>
+</ul></li>
+<li><a href="#3-一个参数-depth-如何决定模型尺寸">3. 一个参数 <code>depth</code> 如何决定模型尺寸</a></li>
+<li><a href="#4-nanochat-不是-最朴素-的-transformer">4. nanochat 不是“最朴素”的 Transformer</a></li>
+<li><a href="#5-前向传播-沿张量形状走一遍">5. 前向传播：沿张量形状走一遍</a>
+<ul>
+<li><a href="#5-1-token-embedding-与-smear">5.1 Token Embedding 与 Smear</a></li>
+<li><a href="#5-2-attention">5.2 Attention</a></li>
+<li><a href="#5-3-block-与-mlp">5.3 Block 与 MLP</a></li>
+<li><a href="#5-4-lm-head-logit-soft-cap-与-loss">5.4 LM Head、logit soft-cap 与 loss</a></li>
+</ul></li>
+<li><a href="#6-一次-optimizer-step-为什么可能包含多个-forward-backward">6. 一次 optimizer step 为什么可能包含多个 forward/backward</a></li>
+<li><a href="#7-为什么同时使用-muon-与-adamw">7. 为什么同时使用 Muon 与 AdamW</a></li>
+<li><a href="#8-scaling-laws-如何进入训练脚本">8. Scaling Laws 如何进入训练脚本</a></li>
+<li><a href="#9-评估-采样与-checkpoint-不是附属功能">9. 评估、采样与 checkpoint 不是附属功能</a></li>
+<li><a href="#10-把概念笔记映射回真实源码">10. 把概念笔记映射回真实源码</a></li>
+<li><a href="#参考源码">参考源码</a></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>一段 GPT 训练代码真正串起的，不只是 Transformer 的前向传播，而是一整条闭环：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">原始文档 → Tokenizer 与序列打包 → input/target
+        → GPT 前向传播 → Cross-Entropy Loss
+        → 反向传播与梯度累积 → Optimizer Step
+        → 评估、采样、保存与恢复</code></pre></td></tr></table>
+</div>
+</div>
+<p>本文以我的 Transformer 笔记为概念起点，再沿着 nanochat 的真实源码追踪张量如何流动、参数如何更新，以及一个可运行的预训练系统还需要补上哪些工程环节。</p>
+
+<blockquote>
+<p><strong>源码版本说明</strong></p>
+
+<p>本文基于 <a href="https://github.com/karpathy/nanochat">karpathy/nanochat</a> commit <a href="https://github.com/karpathy/nanochat/tree/92d63d4e8bb4df75c3b71618f31ddde2378b2bcd"><code>92d63d4e8bb4df75c3b71618f31ddde2378b2bcd</code></a>（提交时间：2026-07-03，提交信息：<code>clean up fragile code</code>）。重点参考固定版本的 <a href="https://github.com/karpathy/nanochat/blob/92d63d4e8bb4df75c3b71618f31ddde2378b2bcd/scripts/base_train.py"><code>scripts/base_train.py</code></a>、<a href="https://github.com/karpathy/nanochat/blob/92d63d4e8bb4df75c3b71618f31ddde2378b2bcd/nanochat/gpt.py"><code>nanochat/gpt.py</code></a> 和 <a href="https://github.com/karpathy/nanochat/blob/92d63d4e8bb4df75c3b71618f31ddde2378b2bcd/nanochat/dataloader.py"><code>nanochat/dataloader.py</code></a>。nanochat 更新很快，阅读其他版本时应以对应 commit 为准。</p>
+</blockquote>
+
+<h2 id="1-先建立全局视图-三个核心文件">1. 先建立全局视图：三个核心文件</h2>
+
+<p>阅读 <code>base_train.py</code> 时最容易犯的错误，是把所有逻辑都归到“训练循环”。实际上它更像一个编排器：</p>
+
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>主要职责</th>
+<th>核心输出</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><code>dataloader.py</code></td>
+<td>读取文档、分词、打包并构造 next-token 监督信号</td>
+<td><code>x, y: (B, T)</code></td>
+</tr>
+
+<tr>
+<td><code>gpt.py</code></td>
+<td>Embedding、Attention、MLP、LM Head 与 loss</td>
+<td>标量 loss 或 <code>(B,T,V)</code> logits</td>
+</tr>
+
+<tr>
+<td><code>base_train.py</code></td>
+<td>初始化、分布式训练、调度、评估和 checkpoint</td>
+<td>更新后的模型状态</td>
+</tr>
+</tbody>
+</table>
+
+<p>把它们连起来，最小训练过程可以抽象为：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">train_loader</span><span class="p">)</span>       <span class="c1"># (B, T), (B, T)</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>              <span class="c1"># scalar</span>
+<span class="p">(</span><span class="n">loss</span> <span class="o">/</span> <span class="n">grad_accum</span><span class="p">)</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+<span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+<span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">(</span><span class="n">set_to_none</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>真正的源码在这四行周围加入了多 GPU、混合精度、预取、动态超参数、评估、采样以及断点恢复。</p>
+
+<h2 id="2-数据如何变成训练目标">2. 数据如何变成训练目标</h2>
+
+<h3 id="2-1-语言模型的监督信号来自-右移一位">2.1 语言模型的监督信号来自“右移一位”</h3>
+
+<p>数据加载器为每一行准备 $T+1$ 个 token，再构造：</p>
+
+<p>$$
+x = tokens[:, :-1], \qquad y = tokens[:, 1:]
+$$</p>
+
+<p>例如：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">完整序列: &lt;BOS&gt;  I  like  AI  .
+x:       &lt;BOS&gt;  I  like  AI
+y:          I  like  AI   .</code></pre></td></tr></table>
+</div>
+</div>
+<p>因此 <code>x</code> 和 <code>y</code> 的形状都是 $(B,T)$。位置 $t$ 的输入负责预测位置 $t+1$ 的 token，这就是 next-token prediction。</p>
+
+<h3 id="2-2-bos-aligned-best-fit-packing">2.2 BOS-aligned Best-Fit Packing</h3>
+
+<p>nanochat 没有简单地把所有文档首尾相接。它维护一个文档缓冲区，在每一行中反复挑选“能完整放入剩余空间的最长文档”；实在放不下时，再裁剪一个文档填满空间。这样做有三个结果：</p>
+
+<ul>
+<li>每行都从 BOS token 开始；</li>
+<li>batch 没有 padding，计算利用率为 100%；</li>
+<li>为了严格填满窗口，会牺牲一部分被裁剪的 token。</li>
+</ul>
+
+<p>数据状态还记录 <code>parquet index / row group index / epoch</code>。checkpoint 不只保存模型和优化器，也保存数据读取位置，否则恢复训练后可能重复或跳过大量数据。</p>
+
+<h2 id="3-一个参数-depth-如何决定模型尺寸">3. 一个参数 <code>depth</code> 如何决定模型尺寸</h2>
+
+<p><code>base_train.py</code> 的设计目标之一，是让模型深度成为主要的复杂度旋钮。模型宽度首先由</p>
+
+<p>$$
+C_{base}=depth \times aspect_ratio
+$$</p>
+
+<p>得到，再向上取整到 <code>head_dim</code> 的整数倍：</p>
+
+<p>$$
+C=\left\lceil\frac{C_{base}}{head_dim}\right\rceil head_dim,
+\qquad H=\frac{C}{head_dim}
+$$</p>
+
+<p>默认 <code>aspect_ratio=64</code>、<code>head_dim=128</code>。这样 Attention 的每个 head 都能得到整齐的维度，也更符合 Flash Attention 的硬件要求。</p>
+
+<p>模型采用三阶段初始化：</p>
+
+<ol>
+<li>在 <code>meta</code> device 上创建只有形状、没有真实存储的模型；</li>
+<li>使用 <code>to_empty(device=...)</code> 在目标设备分配存储；</li>
+<li>统一调用 <code>init_weights()</code> 初始化参数。</li>
+</ol>
+
+<p>这避免了先在 CPU 创建完整参数、再复制到 GPU 的额外峰值内存。若从 checkpoint 恢复，初始化后的参数会被已保存权重覆盖。</p>
+
+<h2 id="4-nanochat-不是-最朴素-的-transformer">4. nanochat 不是“最朴素”的 Transformer</h2>
+
+<p>我的原始笔记使用了经典教学结构：Token Embedding + learned Position Embedding、LayerNorm、GELU FFN。nanochat 保留 GPT 的主干，但采用了更现代、也更实验性的组合。</p>
+
+<table>
+<thead>
+<tr>
+<th>教学版 GPT</th>
+<th>此版本 nanochat</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Learned Position Embedding</td>
+<td>RoPE，只作用于 Q、K</td>
+</tr>
+
+<tr>
+<td>LayerNorm</td>
+<td>无可学习参数的 RMSNorm</td>
+</tr>
+
+<tr>
+<td>GELU</td>
+<td>ReLU²</td>
+</tr>
+
+<tr>
+<td>所有层全局 Attention</td>
+<td><code>SSSL</code> 滑动窗口模式，最后一层强制全局</td>
+</tr>
+
+<tr>
+<td>Token Embedding 与 LM Head 可共享</td>
+<td>两者不共享权重</td>
+</tr>
+
+<tr>
+<td>标准 residual</td>
+<td>额外包含 x0 blending、residual scaling 与 backout</td>
+</tr>
+</tbody>
+</table>
+
+<p>所以，理解基础原理时可以沿用原笔记；逐行对照源码时，则必须尊重当前实现，而不能把 <code>Position Embedding</code> 或 <code>LayerNorm</code> 强行映射到不存在的模块上。</p>
+
+<h2 id="5-前向传播-沿张量形状走一遍">5. 前向传播：沿张量形状走一遍</h2>
+
+<p>设：</p>
+
+<ul>
+<li>$B$：batch size；</li>
+<li>$T$：序列长度；</li>
+<li>$C$：模型维度 <code>n_embd</code>；</li>
+<li>$H$：query head 数；</li>
+<li>$H_{kv}$：key/value head 数；</li>
+<li>$D=C/H$：每个 head 的维度；</li>
+<li>$V$：词表大小。</li>
+</ul>
+
+<h3 id="5-1-token-embedding-与-smear">5.1 Token Embedding 与 Smear</h3>
+
+<p>输入 token ID 的形状为 $(B,T)$。Embedding lookup 后：</p>
+
+<p>$$
+(B,T) \rightarrow (B,T,C)
+$$</p>
+
+<p>nanochat 随后先做 RMSNorm，再使用 <code>Smear</code> 将前一个 token 的 embedding 经过门控后混入当前位置。这可以被理解为一种很便宜的 bigram 通道：Attention 尚未开始，当前位置已经得到一点前序信息。</p>
+
+<h3 id="5-2-attention">5.2 Attention</h3>
+
+<p>每层先将 residual stream 投影成：</p>
+
+<p>$$
+Q:(B,T,H,D),\qquad K,V:(B,T,H_{kv},D)
+$$</p>
+
+<p><code>gpt.py</code> 支持 Grouped-Query Attention，因此 $H_{kv}$ 可以小于 $H$；但当前 <code>base_train.py</code> 建模时令 <code>n_kv_head = n_head</code>，实际训练配置仍是普通 Multi-Head Attention。</p>
+
+<p>接下来依次发生：</p>
+
+<ol>
+<li>可选的 Value Embedding 通过输入相关 gate 混入 $V$；</li>
+<li>RoPE 旋转 $Q$ 和 $K$，编码相对位置；</li>
+<li>对 $Q$、$K$ 做 QK Norm；</li>
+<li>使用 Flash Attention 3，不能使用时退回 PyTorch SDPA；</li>
+<li>合并 heads 并通过输出投影回到 $(B,T,C)$。</li>
+</ol>
+
+<p>Attention 仍然是 causal 的：位置 $t$ 只能读取不晚于自己的 token。<code>window_pattern=&quot;SSSL&quot;</code> 则进一步限制部分层只关注最近窗口，以降低长序列开销；最后一层始终使用完整上下文。</p>
+
+<h3 id="5-3-block-与-mlp">5.3 Block 与 MLP</h3>
+
+<p>一个 block 的主结构仍然是 pre-norm residual：</p>
+
+<p>$$
+x \leftarrow x + Attention(RMSNorm(x))
+$$</p>
+
+<p>$$
+x \leftarrow x + MLP(RMSNorm(x))
+$$</p>
+
+<p>MLP 的宽度变化为：</p>
+
+<p>$$
+C \rightarrow 4C \rightarrow C
+$$</p>
+
+<p>激活函数不是 GELU，而是：</p>
+
+<p>$$
+ReLU^2(z)=\max(0,z)^2
+$$</p>
+
+<p>在进入每层前，nanochat 还会缩放当前 residual，并重新混入初始 embedding $x_0$。这些标量是可学习参数，应把它们看成 nanochat 的实验设计，而不是所有 GPT 都必须具备的组件。</p>
+
+<h3 id="5-4-lm-head-logit-soft-cap-与-loss">5.4 LM Head、logit soft-cap 与 loss</h3>
+
+<p>最后一次 RMSNorm 后，LM Head 产生：</p>
+
+<p>$$
+(B,T,C) \rightarrow (B,T,V_{padded})
+$$</p>
+
+<p>词表会为硬件效率补齐到 64 的倍数，随后 logits 再裁剪回真实词表 $V$。计算 loss 前转成 FP32，并使用平滑 soft-cap：</p>
+
+<p>$$
+logits \leftarrow 15\tanh(logits/15)
+$$</p>
+
+<p>最后将 logits 展平为 $(BT,V)$、targets 展平为 $(BT)$，计算 cross entropy。训练模式返回一个标量 loss；没有 targets 时则直接返回 logits 用于推理。</p>
+
+<h2 id="6-一次-optimizer-step-为什么可能包含多个-forward-backward">6. 一次 optimizer step 为什么可能包含多个 forward/backward</h2>
+
+<p><code>total_batch_size</code> 在这里以 token 数表示，而不是“样本条数”。每个 rank 一次前后向处理的 token 数为：</p>
+
+<p>$$
+B_{device}\times T
+$$</p>
+
+<p>如果有 $W$ 个 DDP rank，那么：</p>
+
+<p>$$
+tokens<em>{micro}=B</em>{device}\times T\times W
+$$</p>
+
+<p>梯度累积次数为：</p>
+
+<p>$$
+N<em>{accum}=\frac{total_batch_size}{tokens</em>{micro}}
+$$</p>
+
+<p>每个 micro-step 的 loss 都要除以 $N_{accum}$，因为 <code>.backward()</code> 默认累加梯度。如果漏掉这一步，梯度会随累积次数成比例放大。</p>
+
+<p>训练循环还有一个容易忽略的性能细节：完成当前 batch 的 backward 后立即请求下一个 batch，使 CPU 分词和 Host-to-Device copy 尽量与 GPU 工作重叠。</p>
+
+<h2 id="7-为什么同时使用-muon-与-adamw">7. 为什么同时使用 Muon 与 AdamW</h2>
+
+<p>nanochat 将参数按性质分组：</p>
+
+<ul>
+<li>Transformer 的二维矩阵参数使用 Muon；</li>
+<li>token/value embeddings、LM Head 和各种标量使用 AdamW；</li>
+<li>不同参数组拥有不同 learning rate、betas 和 weight decay。</li>
+</ul>
+
+<p>因此 <code>optimizer.step()</code> 表面上只有一行，背后却不是“所有参数使用同一种更新规则”。此外，learning rate、Muon momentum 和 Muon weight decay 都会随 step 更新：</p>
+
+<ul>
+<li>learning rate：线性 warmup → 恒定 → 线性 warmdown；</li>
+<li>Muon momentum：先升高，训练末期再下降；</li>
+<li>Muon weight decay：余弦衰减到 0。</li>
+</ul>
+
+<h2 id="8-scaling-laws-如何进入训练脚本">8. Scaling Laws 如何进入训练脚本</h2>
+
+<p>如果用户没有直接指定训练步数，nanochat 会根据 scaling parameters 和目标 data/parameter ratio 估算目标 token 数：</p>
+
+<p>$$
+D=ratio\times N_{scaling}
+$$</p>
+
+<p>随后用经验关系估计总 batch size，并据此修正 learning rate 与 weight decay。这里要区分两类结论：</p>
+
+<ul>
+<li>“训练 token 数应随模型规模变化”是 scaling law 的整体思想；</li>
+<li>具体指数、参考 batch 以及把 AdamW 的推导迁移到 Muon，是该版本实现里的经验选择，源码注释也明确承认其中存在假设。</li>
+</ul>
+
+<p>阅读研究型代码时，这种区分非常重要：<strong>代码能运行，不等于每个超参数公式都是普适定律。</strong></p>
+
+<h2 id="9-评估-采样与-checkpoint-不是附属功能">9. 评估、采样与 checkpoint 不是附属功能</h2>
+
+<p>完整训练系统必须回答三个问题：模型是否在变好、是否还能生成、训练中断后能否继续。</p>
+
+<p>nanochat 因此周期性执行：</p>
+
+<ul>
+<li>validation bits-per-byte（比依赖词表大小的 token loss 更适合跨 tokenizer 比较）；</li>
+<li>CORE benchmark；</li>
+<li>固定 prompt 的 greedy sampling；</li>
+<li>checkpoint 保存。</li>
+</ul>
+
+<p>checkpoint 包括模型、优化器、模型配置、命令行配置、数据加载位置、step、最佳验证指标、平滑 loss 和累计训练时间。恢复训练的本质不是“加载一份权重”，而是恢复一个完整状态机。</p>
+
+<h2 id="10-把概念笔记映射回真实源码">10. 把概念笔记映射回真实源码</h2>
+
+<p>最终可以把整条数据流压缩为：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">documents
+  ↓ tokenize + BOS-aligned best-fit packing
+x, y: (B, T)
+  ↓ token embedding + RMSNorm + Smear
+hidden: (B, T, C)
+  ↓ repeated [RoPE/QK-Norm Attention + ReLU² MLP]
+hidden: (B, T, C)
+  ↓ RMSNorm + LM Head + soft-cap
+logits: (B, T, V)
+  ↓ cross entropy
+loss: scalar
+  ↓ gradient accumulation
+MuonAdamW step
+  ↓
+evaluation / sampling / checkpoint</code></pre></td></tr></table>
+</div>
+</div>
+<p>我的原始 Transformer 笔记回答的是“一个 GPT block 为什么成立”；nanochat 则进一步展示了“怎样把它变成一个可训练、可扩展、可恢复、可评估的系统”。二者结合起来，才是从架构理解走向训练工程的完整路径。</p>
+
+<h2 id="参考源码">参考源码</h2>
+
+<ul>
+<li><a href="https://github.com/karpathy/nanochat/tree/92d63d4e8bb4df75c3b71618f31ddde2378b2bcd">nanochat repository（固定 commit）</a></li>
+<li><a href="https://github.com/karpathy/nanochat/blob/92d63d4e8bb4df75c3b71618f31ddde2378b2bcd/scripts/base_train.py"><code>scripts/base_train.py</code></a></li>
+<li><a href="https://github.com/karpathy/nanochat/blob/92d63d4e8bb4df75c3b71618f31ddde2378b2bcd/nanochat/gpt.py"><code>nanochat/gpt.py</code></a></li>
+<li><a href="https://github.com/karpathy/nanochat/blob/92d63d4e8bb4df75c3b71618f31ddde2378b2bcd/nanochat/dataloader.py"><code>nanochat/dataloader.py</code></a></li>
+<li><a href="https://app.notion.com/p/Transformer-Architecture-3dbf1cbefb538081b41ce7d64f6b4871">原始 Notion 笔记：Transformer Architecture</a></li>
+</ul>
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">zhengxz</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2026-09-26
+
+    </span>
+  </p>
+
+
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/nanochat/">nanochat</a>
+          <a href="/tags/gpt/">GPT</a>
+          <a href="/tags/transformer/">Transformer</a>
+          <a href="/tags/llm-training/">LLM Training</a>
+          <a href="/tags/pytorch/">PyTorch</a>
+          </div>
+      <nav class="post-nav">
+
+        <a class="next" href="/post/transformer-architecture/">
+            <span class="next-text nav-default">Transformer Architecture：从 Token Embedding 到训练循环</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+
+
+
+
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+  <a href="https://zheng-bobo.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+
+
+  <span class="copyright-year">
+    &copy;
+    2019 -
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span>zhengxz</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.5/es5/tex-mml-chtml.js" integrity="sha256-HGLuEfFcsUJGhvB8cQ8nr0gai9EucOOaIxFw7qxmd+w=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Understanding GPT Pretraining Through nanochat: Model, Data, and Training Loop - Blowing in the wind</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="zhengxz" /><meta name="description" content="A GPT training program connects much more than a Transformer forward pass. It closes an entire loop:
+1 2 3 4  documents → tokenizer and sequence packing → inputs/targets → GPT forward → cross-entropy loss → backward and gradient accumulation → optimizer step → evaluation, sampling, checkpointing, and resume   This article starts from my conceptual Transformer notes and follows nanochat&amp;rsquo;s actual code to show how tensors move, how parameters are updated, and what engineering layers are needed around the model.
+" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.59.1 with theme even" />
+
+
+<link rel="canonical" href="https://zheng-bobo.github.io/en/post/nanochat-gpt-pretraining-from-source/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.4747d1be8010357c5daf4cd103b0bc1cff65936180045419874ea97f32138102.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/readability.css">
+<link rel="stylesheet" href="/css/about.css">
+
+
+<meta property="og:title" content="Understanding GPT Pretraining Through nanochat: Model, Data, and Training Loop" />
+<meta property="og:description" content="A GPT training program connects much more than a Transformer forward pass. It closes an entire loop:
+
+
+1
+2
+3
+4
+
+
+documents → tokenizer and sequence packing → inputs/targets
+          → GPT forward → cross-entropy loss
+          → backward and gradient accumulation → optimizer step
+          → evaluation, sampling, checkpointing, and resume
+
+
+This article starts from my conceptual Transformer notes and follows nanochat&rsquo;s actual code to show how tensors move, how parameters are updated, and what engineering layers are needed around the model." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zheng-bobo.github.io/en/post/nanochat-gpt-pretraining-from-source/" />
+<meta property="article:published_time" content="2026-09-26T21:00:00+02:00" />
+<meta property="article:modified_time" content="2026-09-26T21:00:00+02:00" /><meta property="og:site_name" content="Blowing in the wind" />
+<meta itemprop="name" content="Understanding GPT Pretraining Through nanochat: Model, Data, and Training Loop">
+<meta itemprop="description" content="A GPT training program connects much more than a Transformer forward pass. It closes an entire loop:
+
+
+1
+2
+3
+4
+
+
+documents → tokenizer and sequence packing → inputs/targets
+          → GPT forward → cross-entropy loss
+          → backward and gradient accumulation → optimizer step
+          → evaluation, sampling, checkpointing, and resume
+
+
+This article starts from my conceptual Transformer notes and follows nanochat&rsquo;s actual code to show how tensors move, how parameters are updated, and what engineering layers are needed around the model.">
+
+
+<meta itemprop="datePublished" content="2026-09-26T21:00:00&#43;02:00" />
+<meta itemprop="dateModified" content="2026-09-26T21:00:00&#43;02:00" />
+<meta itemprop="wordCount" content="1278">
+
+
+
+<meta itemprop="keywords" content="nanochat,GPT,Transformer,LLM Training,PyTorch," />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Understanding GPT Pretraining Through nanochat: Model, Data, and Training Loop"/>
+<meta name="twitter:description" content="A GPT training program connects much more than a Transformer forward pass. It closes an entire loop:
+
+
+1
+2
+3
+4
+
+
+documents → tokenizer and sequence packing → inputs/targets
+          → GPT forward → cross-entropy loss
+          → backward and gradient accumulation → optimizer step
+          → evaluation, sampling, checkpointing, and resume
+
+
+This article starts from my conceptual Transformer notes and follows nanochat&rsquo;s actual code to show how tensors move, how parameters are updated, and what engineering layers are needed around the model."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/en/about/" class="logo">Bobo</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/en/">
+        <li class="mobile-menu-item">Blog</li>
+      </a><a href="/en/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/en/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/en/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item ">
+
+            <a href="/post/nanochat-gpt-pretraining-from-source/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item active">
+
+            <a href="/en/post/nanochat-gpt-pretraining-from-source/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/en/about/" class="logo">Bobo</a>
+</div>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item ">
+
+            <a href="/post/nanochat-gpt-pretraining-from-source/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item active">
+
+            <a href="/en/post/nanochat-gpt-pretraining-from-source/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/en/">Blog</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+
+    <header class="post-header">
+      <h1 class="post-title">Understanding GPT Pretraining Through nanochat: Model, Data, and Training Loop</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2026-09-26 </span>
+        <div class="post-category">
+            <a href="/en/categories/artificial-intelligence/"> Artificial Intelligence </a>
+            </div>
+          <span class="more-meta"> 1278 words </span>
+          <span class="more-meta"> 6 mins read </span>
+
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#1-the-three-files-that-form-the-system">1. The three files that form the system</a></li>
+<li><a href="#2-from-documents-to-next-token-targets">2. From documents to next-token targets</a></li>
+<li><a href="#3-how-depth-determines-model-size">3. How <code>depth</code> determines model size</a></li>
+<li><a href="#4-nanochat-is-not-the-textbook-transformer">4. nanochat is not the textbook Transformer</a></li>
+<li><a href="#5-forward-pass-shape-by-shape">5. Forward pass, shape by shape</a>
+<ul>
+<li><a href="#5-1-embedding-and-smear">5.1 Embedding and Smear</a></li>
+<li><a href="#5-2-attention">5.2 Attention</a></li>
+<li><a href="#5-3-block-and-mlp">5.3 Block and MLP</a></li>
+<li><a href="#5-4-lm-head-and-loss">5.4 LM head and loss</a></li>
+</ul></li>
+<li><a href="#6-one-optimizer-step-can-contain-many-forward-backward-passes">6. One optimizer step can contain many forward/backward passes</a></li>
+<li><a href="#7-muon-and-adamw-serve-different-parameter-groups">7. Muon and AdamW serve different parameter groups</a></li>
+<li><a href="#8-scaling-laws-inside-the-script">8. Scaling laws inside the script</a></li>
+<li><a href="#9-evaluation-and-checkpointing-are-part-of-the-algorithm">9. Evaluation and checkpointing are part of the algorithm</a></li>
+<li><a href="#10-the-complete-data-flow">10. The complete data flow</a></li>
+<li><a href="#source-references">Source references</a></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>A GPT training program connects much more than a Transformer forward pass. It closes an entire loop:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">documents → tokenizer and sequence packing → inputs/targets
+          → GPT forward → cross-entropy loss
+          → backward and gradient accumulation → optimizer step
+          → evaluation, sampling, checkpointing, and resume</code></pre></td></tr></table>
+</div>
+</div>
+<p>This article starts from my conceptual Transformer notes and follows nanochat&rsquo;s actual code to show how tensors move, how parameters are updated, and what engineering layers are needed around the model.</p>
+
+<blockquote>
+<p><strong>Source version</strong></p>
+
+<p>This article is based on <a href="https://github.com/karpathy/nanochat">karpathy/nanochat</a> commit <a href="https://github.com/karpathy/nanochat/tree/92d63d4e8bb4df75c3b71618f31ddde2378b2bcd"><code>92d63d4e8bb4df75c3b71618f31ddde2378b2bcd</code></a>, committed on 2026-07-03 with the message <code>clean up fragile code</code>. The primary references are the pinned versions of <a href="https://github.com/karpathy/nanochat/blob/92d63d4e8bb4df75c3b71618f31ddde2378b2bcd/scripts/base_train.py"><code>scripts/base_train.py</code></a>, <a href="https://github.com/karpathy/nanochat/blob/92d63d4e8bb4df75c3b71618f31ddde2378b2bcd/nanochat/gpt.py"><code>nanochat/gpt.py</code></a>, and <a href="https://github.com/karpathy/nanochat/blob/92d63d4e8bb4df75c3b71618f31ddde2378b2bcd/nanochat/dataloader.py"><code>nanochat/dataloader.py</code></a>. nanochat evolves quickly, so conclusions should always be read against the pinned commit.</p>
+</blockquote>
+
+<h2 id="1-the-three-files-that-form-the-system">1. The three files that form the system</h2>
+
+<p><code>base_train.py</code> is primarily an orchestrator rather than the model itself:</p>
+
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Responsibility</th>
+<th>Main output</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><code>dataloader.py</code></td>
+<td>Read, tokenize, pack, and create next-token supervision</td>
+<td><code>x, y: (B, T)</code></td>
+</tr>
+
+<tr>
+<td><code>gpt.py</code></td>
+<td>Embeddings, attention, MLP, LM head, and loss</td>
+<td>scalar loss or <code>(B,T,V)</code> logits</td>
+</tr>
+
+<tr>
+<td><code>base_train.py</code></td>
+<td>Initialization, distributed execution, schedules, evaluation, and checkpoints</td>
+<td>updated training state</td>
+</tr>
+</tbody>
+</table>
+
+<p>The irreducible training loop is:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">train_loader</span><span class="p">)</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="p">(</span><span class="n">loss</span> <span class="o">/</span> <span class="n">grad_accum</span><span class="p">)</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+<span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+<span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">(</span><span class="n">set_to_none</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>The production script surrounds these lines with distributed training, precision management, prefetching, dynamic hyperparameters, evaluation, sampling, and recovery.</p>
+
+<h2 id="2-from-documents-to-next-token-targets">2. From documents to next-token targets</h2>
+
+<p>For every row, the loader prepares $T+1$ tokens and creates shifted views:</p>
+
+<p>$$
+x=tokens[:, :-1],\qquad y=tokens[:, 1:]
+$$</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">full: &lt;BOS&gt;  I  like  AI  .
+x:    &lt;BOS&gt;  I  like  AI
+y:       I  like  AI   .</code></pre></td></tr></table>
+</div>
+</div>
+<p>Both tensors have shape $(B,T)$. The token at position $t$ is trained to predict the token at $t+1$.</p>
+
+<p>The BOS-aligned best-fit loader searches a document buffer for the longest document that fits in each remaining row segment. If none fits, it crops a document to fill the row exactly. This guarantees BOS alignment and no padding, at the cost of discarding some cropped tokens. Its state tracks the parquet file, row group, and epoch, which is essential for meaningful checkpoint resume.</p>
+
+<h2 id="3-how-depth-determines-model-size">3. How <code>depth</code> determines model size</h2>
+
+<p>nanochat treats depth as its main complexity dial. It starts with</p>
+
+<p>$$
+C_{base}=depth\times aspect_ratio
+$$</p>
+
+<p>and rounds upward to a multiple of <code>head_dim</code>:</p>
+
+<p>$$
+C=\left\lceil\frac{C_{base}}{head_dim}\right\rceil head_dim,
+\qquad H=C/head_dim
+$$</p>
+
+<p>The model is created on the <code>meta</code> device, storage is allocated on the target device with <code>to_empty</code>, and <code>init_weights()</code> initializes all parameters. This avoids constructing a complete CPU model before copying it to the accelerator.</p>
+
+<h2 id="4-nanochat-is-not-the-textbook-transformer">4. nanochat is not the textbook Transformer</h2>
+
+<p>My original notes use a pedagogical GPT: learned position embeddings, LayerNorm, and GELU. This nanochat commit uses a more modern and experimental stack:</p>
+
+<table>
+<thead>
+<tr>
+<th>Textbook GPT</th>
+<th>nanochat at this commit</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Learned position embeddings</td>
+<td>RoPE applied to Q and K</td>
+</tr>
+
+<tr>
+<td>LayerNorm</td>
+<td>parameter-free RMSNorm</td>
+</tr>
+
+<tr>
+<td>GELU</td>
+<td>ReLU²</td>
+</tr>
+
+<tr>
+<td>Full attention in every layer</td>
+<td>tiled <code>SSSL</code> sliding-window pattern; final layer is full</td>
+</tr>
+
+<tr>
+<td>Possibly tied input/output embeddings</td>
+<td>untied token embedding and LM head</td>
+</tr>
+
+<tr>
+<td>Standard residual stream</td>
+<td>x0 blending, residual scaling, and backout</td>
+</tr>
+</tbody>
+</table>
+
+<p>The conceptual notes still explain why a GPT block works. The source code shows that the concrete modules and engineering choices can differ substantially.</p>
+
+<h2 id="5-forward-pass-shape-by-shape">5. Forward pass, shape by shape</h2>
+
+<p>Let $B$ be batch size, $T$ sequence length, $C$ model width, $H$ query heads, $H_{kv}$ key/value heads, $D=C/H$ head dimension, and $V$ vocabulary size.</p>
+
+<h3 id="5-1-embedding-and-smear">5.1 Embedding and Smear</h3>
+
+<p>Token lookup maps $(B,T)$ IDs to $(B,T,C)$ activations. nanochat then applies RMSNorm and a gated <code>Smear</code> operation that mixes the preceding token&rsquo;s embedding into the current position—a cheap bigram-like information path before attention begins.</p>
+
+<h3 id="5-2-attention">5.2 Attention</h3>
+
+<p>Each layer projects the residual stream to:</p>
+
+<p>$$
+Q:(B,T,H,D),\qquad K,V:(B,T,H_{kv},D)
+$$</p>
+
+<p>The model supports Grouped-Query Attention, although <code>base_train.py</code> currently sets <code>n_kv_head = n_head</code>, so the default training configuration behaves as ordinary multi-head attention.</p>
+
+<p>The layer then:</p>
+
+<ol>
+<li>optionally mixes a gated Value Embedding into $V$;</li>
+<li>applies RoPE to $Q$ and $K$;</li>
+<li>normalizes $Q$ and $K$;</li>
+<li>runs causal Flash Attention 3 or falls back to PyTorch SDPA;</li>
+<li>merges heads and projects back to $(B,T,C)$.</li>
+</ol>
+
+<p>The <code>SSSL</code> window pattern gives several layers local context followed by a full-context layer. The final layer is always full-context.</p>
+
+<h3 id="5-3-block-and-mlp">5.3 Block and MLP</h3>
+
+<p>The block remains pre-norm residual at its core:</p>
+
+<p>$$
+x\leftarrow x+Attention(RMSNorm(x))
+$$</p>
+
+<p>$$
+x\leftarrow x+MLP(RMSNorm(x))
+$$</p>
+
+<p>The MLP expands $C\rightarrow4C\rightarrow C$ and uses</p>
+
+<p>$$
+ReLU^2(z)=\max(0,z)^2
+$$</p>
+
+<p>rather than GELU. Before each block, learnable scalars also rescale the residual stream and blend the initial embedding $x_0$ back in. These are nanochat-specific experiments, not universal GPT requirements.</p>
+
+<h3 id="5-4-lm-head-and-loss">5.4 LM head and loss</h3>
+
+<p>After the final RMSNorm, the LM head maps $(B,T,C)$ to $(B,T,V_{padded})$. The vocabulary is padded to a multiple of 64 for hardware efficiency and then sliced back to the real $V$.</p>
+
+<p>Logits are converted to FP32 and smoothly capped:</p>
+
+<p>$$
+logits\leftarrow15\tanh(logits/15)
+$$</p>
+
+<p>Training flattens logits to $(BT,V)$ and targets to $(BT)$ for cross entropy. With no targets, the model returns logits for inference.</p>
+
+<h2 id="6-one-optimizer-step-can-contain-many-forward-backward-passes">6. One optimizer step can contain many forward/backward passes</h2>
+
+<p><code>total_batch_size</code> is measured in tokens. One micro-step across $W$ distributed ranks processes</p>
+
+<p>$$
+tokens<em>{micro}=B</em>{device}\times T\times W
+$$</p>
+
+<p>so the number of accumulated micro-steps is</p>
+
+<p>$$
+N<em>{accum}=\frac{total_batch_size}{tokens</em>{micro}}
+$$</p>
+
+<p>Each micro-loss is divided by $N_{accum}$ because <code>.backward()</code> sums gradients. The loader also starts fetching the next batch immediately after backward, overlapping CPU tokenization and data transfer with accelerator work where possible.</p>
+
+<h2 id="7-muon-and-adamw-serve-different-parameter-groups">7. Muon and AdamW serve different parameter groups</h2>
+
+<p>nanochat uses Muon for Transformer matrix parameters and AdamW for embeddings, the LM head, and learned scalars. These groups have different learning rates, betas, and weight decay. The single <code>optimizer.step()</code> therefore hides multiple update rules.</p>
+
+<p>Three schedules are updated during training:</p>
+
+<ul>
+<li>learning rate: linear warmup, constant phase, linear warmdown;</li>
+<li>Muon momentum: warmup followed by a late warmdown;</li>
+<li>Muon weight decay: cosine decay to zero.</li>
+</ul>
+
+<p>FP16 activates a GradScaler. BF16 and FP32 do not require one. In distributed FP16 training, ranks synchronize their overflow flags so they either all perform or all skip an optimizer step.</p>
+
+<h2 id="8-scaling-laws-inside-the-script">8. Scaling laws inside the script</h2>
+
+<p>When the number of iterations is not explicitly provided, nanochat estimates a training-token horizon from a target data-to-parameter ratio:</p>
+
+<p>$$
+D=ratio\times N_{scaling}
+$$</p>
+
+<p>It then estimates total batch size and adjusts learning rate and weight decay. The general idea—training horizon should scale with model size—comes from scaling-law research. The exact exponent, reference batch, and transfer of AdamW reasoning to Muon are implementation assumptions; the source comments explicitly acknowledge that distinction.</p>
+
+<p>Working research code should therefore be read at two levels: what the system does, and how strongly each heuristic is supported.</p>
+
+<h2 id="9-evaluation-and-checkpointing-are-part-of-the-algorithm">9. Evaluation and checkpointing are part of the algorithm</h2>
+
+<p>The loop periodically runs validation bits-per-byte, the CORE benchmark, fixed-prompt generation, and checkpointing. Bits-per-byte is especially useful because it is less dependent on tokenizer vocabulary than token-level loss.</p>
+
+<p>A checkpoint contains more than model weights: optimizer state, model and CLI configuration, loader position, step, validation metrics, smoothed loss, and elapsed training time. Resuming training means restoring this whole state machine.</p>
+
+<h2 id="10-the-complete-data-flow">10. The complete data flow</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">documents
+  ↓ tokenize + BOS-aligned best-fit packing
+x, y: (B, T)
+  ↓ token embedding + RMSNorm + Smear
+hidden: (B, T, C)
+  ↓ repeated [RoPE/QK-Norm Attention + ReLU² MLP]
+hidden: (B, T, C)
+  ↓ RMSNorm + LM Head + soft-cap
+logits: (B, T, V)
+  ↓ cross entropy
+loss: scalar
+  ↓ gradient accumulation
+MuonAdamW step
+  ↓
+evaluation / sampling / checkpoint</code></pre></td></tr></table>
+</div>
+</div>
+<p>The original Transformer notes answer why the model architecture works. nanochat shows how that architecture becomes a trainable, scalable, recoverable, and measurable system. Reading both views together bridges architecture and training engineering.</p>
+
+<h2 id="source-references">Source references</h2>
+
+<ul>
+<li><a href="https://github.com/karpathy/nanochat/tree/92d63d4e8bb4df75c3b71618f31ddde2378b2bcd">nanochat repository at the pinned commit</a></li>
+<li><a href="https://github.com/karpathy/nanochat/blob/92d63d4e8bb4df75c3b71618f31ddde2378b2bcd/scripts/base_train.py"><code>scripts/base_train.py</code></a></li>
+<li><a href="https://github.com/karpathy/nanochat/blob/92d63d4e8bb4df75c3b71618f31ddde2378b2bcd/nanochat/gpt.py"><code>nanochat/gpt.py</code></a></li>
+<li><a href="https://github.com/karpathy/nanochat/blob/92d63d4e8bb4df75c3b71618f31ddde2378b2bcd/nanochat/dataloader.py"><code>nanochat/dataloader.py</code></a></li>
+<li><a href="https://app.notion.com/p/Transformer-Architecture-3dbf1cbefb538081b41ce7d64f6b4871">Original Notion note: Transformer Architecture</a></li>
+</ul>
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">zhengxz</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2026-09-26
+
+    </span>
+  </p>
+
+
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/en/tags/nanochat/">nanochat</a>
+          <a href="/en/tags/gpt/">GPT</a>
+          <a href="/en/tags/transformer/">Transformer</a>
+          <a href="/en/tags/llm-training/">LLM Training</a>
+          <a href="/en/tags/pytorch/">PyTorch</a>
+          </div>
+      <nav class="post-nav">
+
+        <a class="next" href="/en/post/transformer-architecture/">
+            <span class="next-text nav-default">Transformer Architecture: From Token Embeddings to the Training Loop</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+
+
+
+
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+  <a href="https://zheng-bobo.github.io/en/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+
+
+  <span class="copyright-year">
+    &copy;
+    2019 -
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span>zhengxz</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.5/es5/tex-mml-chtml.js" integrity="sha256-HGLuEfFcsUJGhvB8cQ8nr0gai9EucOOaIxFw7qxmd+w=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

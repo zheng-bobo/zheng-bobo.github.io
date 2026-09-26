@@ -6,10 +6,34 @@
     <description>Recent content in PyTorch on Blowing in the wind</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Mon, 14 Sep 2026 10:25:02 +0200</lastBuildDate>
+    <lastBuildDate>Sat, 26 Sep 2026 21:00:00 +0200</lastBuildDate>
 
   <atom:link href="https://zheng-bobo.github.io/en/tags/pytorch/index.xml" rel="self" type="application/rss+xml" />
 
+
+    <item>
+      <title>Understanding GPT Pretraining Through nanochat: Model, Data, and Training Loop</title>
+      <link>https://zheng-bobo.github.io/en/post/nanochat-gpt-pretraining-from-source/</link>
+      <pubDate>Sat, 26 Sep 2026 21:00:00 +0200</pubDate>
+
+      <guid>https://zheng-bobo.github.io/en/post/nanochat-gpt-pretraining-from-source/</guid>
+      <description>&lt;p&gt;A GPT training program connects much more than a Transformer forward pass. It closes an entire loop:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;documents → tokenizer and sequence packing → inputs/targets
+          → GPT forward → cross-entropy loss
+          → backward and gradient accumulation → optimizer step
+          → evaluation, sampling, checkpointing, and resume&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;This article starts from my conceptual Transformer notes and follows nanochat&amp;rsquo;s actual code to show how tensors move, how parameters are updated, and what engineering layers are needed around the model.&lt;/p&gt;</description>
+    </item>
 
     <item>
       <title>Transformer Architecture: From Token Embeddings to the Training Loop</title>

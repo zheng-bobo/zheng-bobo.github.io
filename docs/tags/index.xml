@@ -6,33 +6,42 @@
     <description>Recent content in Tags on Blowing in the wind</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Mon, 14 Sep 2026 10:25:02 +0200</lastBuildDate>
+    <lastBuildDate>Sat, 26 Sep 2026 21:00:00 +0200</lastBuildDate>
 
   <atom:link href="https://zheng-bobo.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
 
 
     <item>
-      <title>Attention</title>
-      <link>https://zheng-bobo.github.io/tags/attention/</link>
-      <pubDate>Mon, 14 Sep 2026 10:25:02 +0200</pubDate>
-
-      <guid>https://zheng-bobo.github.io/tags/attention/</guid>
-      <description></description>
-    </item>
-
-    <item>
       <title>GPT</title>
       <link>https://zheng-bobo.github.io/tags/gpt/</link>
-      <pubDate>Mon, 14 Sep 2026 10:25:02 +0200</pubDate>
+      <pubDate>Sat, 26 Sep 2026 21:00:00 +0200</pubDate>
 
       <guid>https://zheng-bobo.github.io/tags/gpt/</guid>
       <description></description>
     </item>
 
     <item>
+      <title>LLM Training</title>
+      <link>https://zheng-bobo.github.io/tags/llm-training/</link>
+      <pubDate>Sat, 26 Sep 2026 21:00:00 +0200</pubDate>
+
+      <guid>https://zheng-bobo.github.io/tags/llm-training/</guid>
+      <description></description>
+    </item>
+
+    <item>
+      <title>nanochat</title>
+      <link>https://zheng-bobo.github.io/tags/nanochat/</link>
+      <pubDate>Sat, 26 Sep 2026 21:00:00 +0200</pubDate>
+
+      <guid>https://zheng-bobo.github.io/tags/nanochat/</guid>
+      <description></description>
+    </item>
+
+    <item>
       <title>PyTorch</title>
       <link>https://zheng-bobo.github.io/tags/pytorch/</link>
-      <pubDate>Mon, 14 Sep 2026 10:25:02 +0200</pubDate>
+      <pubDate>Sat, 26 Sep 2026 21:00:00 +0200</pubDate>
 
       <guid>https://zheng-bobo.github.io/tags/pytorch/</guid>
       <description></description>
@@ -41,9 +50,18 @@
     <item>
       <title>Transformer</title>
       <link>https://zheng-bobo.github.io/tags/transformer/</link>
-      <pubDate>Mon, 14 Sep 2026 10:25:02 +0200</pubDate>
+      <pubDate>Sat, 26 Sep 2026 21:00:00 +0200</pubDate>
 
       <guid>https://zheng-bobo.github.io/tags/transformer/</guid>
+      <description></description>
+    </item>
+
+    <item>
+      <title>Attention</title>
+      <link>https://zheng-bobo.github.io/tags/attention/</link>
+      <pubDate>Mon, 14 Sep 2026 10:25:02 +0200</pubDate>
+
+      <guid>https://zheng-bobo.github.io/tags/attention/</guid>
       <description></description>
     </item>
 

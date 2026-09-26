@@ -48,7 +48,7 @@
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://zheng-bobo.github.io/en/" />
 
-<meta property="og:updated_time" content="2026-09-26T00:00:00+00:00" /><meta property="og:site_name" content="Blowing in the wind" />
+<meta property="og:updated_time" content="2026-09-26T21:00:00+02:00" /><meta property="og:site_name" content="Blowing in the wind" />
 <meta itemprop="name" content="Blowing in the wind">
 <meta itemprop="description" content="Hugo theme even example site.">
 
@@ -169,6 +169,44 @@
       <div class="content-wrapper">
         <div id="content" class="content">
           <section id="posts" class="posts">
+    <article class="post">
+  <header class="post-header">
+    <h1 class="post-title"><a class="post-link" href="/en/post/nanochat-gpt-pretraining-from-source/">Understanding GPT Pretraining Through nanochat: Model, Data, and Training Loop</a></h1>
+    <div class="post-meta">
+      <span class="post-time"> 2026-09-26 </span>
+      <div class="post-category">
+          <a href="/en/categories/artificial-intelligence/"> Artificial Intelligence </a>
+          </div>
+        <span class="more-meta"> 1278 words </span>
+        <span class="more-meta"> 6 mins read </span>
+    </div>
+  </header>
+
+  <div class="post-content">
+    <div class="post-summary">
+      <p>A GPT training program connects much more than a Transformer forward pass. It closes an entire loop:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">documents → tokenizer and sequence packing → inputs/targets
+          → GPT forward → cross-entropy loss
+          → backward and gradient accumulation → optimizer step
+          → evaluation, sampling, checkpointing, and resume</code></pre></td></tr></table>
+</div>
+</div>
+<p>This article starts from my conceptual Transformer notes and follows nanochat&rsquo;s actual code to show how tensors move, how parameters are updated, and what engineering layers are needed around the model.</p>
+    </div>
+    <div class="read-more">
+      <a href="/en/post/nanochat-gpt-pretraining-from-source/" class="read-more-link">Read more...</a>
+    </div>
+  </div>
+</article>
+
     <article class="post">
   <header class="post-header">
     <h1 class="post-title"><a class="post-link" href="/en/post/transformer-architecture/">Transformer Architecture: From Token Embeddings to the Training Loop</a></h1>
@@ -369,32 +407,6 @@ Next-token logits → Cross-Entropy Loss</code></pre></td></tr></table>
     </div>
     <div class="read-more">
       <a href="/en/post/stanford-cs230-career-advice-in-ai/" class="read-more-link">Read more...</a>
-    </div>
-  </div>
-</article>
-
-    <article class="post">
-  <header class="post-header">
-    <h1 class="post-title"><a class="post-link" href="/en/post/linux-io-multiplexing-select-poll-epoll/">Translation: Linux I/O Multiplexing - select vs. poll vs. epoll</a></h1>
-    <div class="post-meta">
-      <span class="post-time"> 2021-02-11 </span>
-      <div class="post-category">
-          <a href="/en/categories/network/"> Network </a>
-          <a href="/en/categories/translation/"> Translation </a>
-          </div>
-        <span class="more-meta"> 1813 words </span>
-        <span class="more-meta"> 9 mins read </span>
-    </div>
-  </header>
-
-  <div class="post-content">
-    <div class="post-summary">
-      Introduction  Before reading this article, you can first understand the five I/O models of Liunx
- References: I/O Models &ndash;Section 6.2 of &ldquo;UNIX® Network Programming Volume 1, Third Edition: The Sockets Networking&rdquo; by Richard Stevens
-The following is the text of the article    One of the basic concepts of Linux (actually Unix) is that everything in Unix/Linux is a file. Each process has a file descriptor table that points to files, sockets, devices, and other operating system objects related to the process.
-    </div>
-    <div class="read-more">
-      <a href="/en/post/linux-io-multiplexing-select-poll-epoll/" class="read-more-link">Read more...</a>
     </div>
   </div>
 </article>
