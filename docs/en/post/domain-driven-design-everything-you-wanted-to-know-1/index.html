@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Translation: Domain-Driven Design - Everything You Always Wanted to Know (1) - Blowing in the wind</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="zhengxz" /><meta name="description" content="Domain-Driven Design original address
+ As a personal code base grows, its complexity inevitably increases. As this happens, it becomes very difficult to maintain the organization and structure of the code as originally intended, which is known as &amp;ldquo;software entropy&amp;rdquo;. After a series of iterations, maintaining good focus points and correctly decoupling classes and modules becomes more challenging if strict architectural guidelines are not enforced.
+﻿In a traditional Model-View-Controller (MVC) structure, the “M” layer would retain all business logic but provide no clear guidelines on how to properly delineate responsibilities." /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.59.1 with theme even" />
+
+
+<link rel="canonical" href="https://zheng-bobo.github.io/en/post/domain-driven-design-everything-you-wanted-to-know-1/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.4747d1be8010357c5daf4cd103b0bc1cff65936180045419874ea97f32138102.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/readability.css">
+<link rel="stylesheet" href="/css/about.css">
+
+
+<meta property="og:title" content="Translation: Domain-Driven Design - Everything You Always Wanted to Know (1)" />
+<meta property="og:description" content="Domain-Driven Design original address
+ As a personal code base grows, its complexity inevitably increases. As this happens, it becomes very difficult to maintain the organization and structure of the code as originally intended, which is known as &ldquo;software entropy&rdquo;. After a series of iterations, maintaining good focus points and correctly decoupling classes and modules becomes more challenging if strict architectural guidelines are not enforced.
+﻿In a traditional Model-View-Controller (MVC) structure, the “M” layer would retain all business logic but provide no clear guidelines on how to properly delineate responsibilities." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zheng-bobo.github.io/en/post/domain-driven-design-everything-you-wanted-to-know-1/" />
+<meta property="article:published_time" content="2021-02-02T12:06:47+08:00" />
+<meta property="article:modified_time" content="2021-02-02T12:06:47+08:00" /><meta property="og:site_name" content="Blowing in the wind" />
+<meta itemprop="name" content="Translation: Domain-Driven Design - Everything You Always Wanted to Know (1)">
+<meta itemprop="description" content="Domain-Driven Design original address
+ As a personal code base grows, its complexity inevitably increases. As this happens, it becomes very difficult to maintain the organization and structure of the code as originally intended, which is known as &ldquo;software entropy&rdquo;. After a series of iterations, maintaining good focus points and correctly decoupling classes and modules becomes more challenging if strict architectural guidelines are not enforced.
+﻿In a traditional Model-View-Controller (MVC) structure, the “M” layer would retain all business logic but provide no clear guidelines on how to properly delineate responsibilities.">
+
+
+<meta itemprop="datePublished" content="2021-02-02T12:06:47&#43;08:00" />
+<meta itemprop="dateModified" content="2021-02-02T12:06:47&#43;08:00" />
+<meta itemprop="wordCount" content="2984">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Translation: Domain-Driven Design - Everything You Always Wanted to Know (1)"/>
+<meta name="twitter:description" content="Domain-Driven Design original address
+ As a personal code base grows, its complexity inevitably increases. As this happens, it becomes very difficult to maintain the organization and structure of the code as originally intended, which is known as &ldquo;software entropy&rdquo;. After a series of iterations, maintaining good focus points and correctly decoupling classes and modules becomes more challenging if strict architectural guidelines are not enforced.
+﻿In a traditional Model-View-Controller (MVC) structure, the “M” layer would retain all business logic but provide no clear guidelines on how to properly delineate responsibilities."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/en/about/" class="logo">Bobo</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/en/">
+        <li class="mobile-menu-item">Blog</li>
+      </a><a href="/en/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/en/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/en/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/en/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item ">
+
+            <a href="/post/domain-driven-design/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item active">
+
+            <a href="/en/post/domain-driven-design-everything-you-wanted-to-know-1/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/en/about/" class="logo">Bobo</a>
+</div>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item ">
+
+            <a href="/post/domain-driven-design/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item active">
+
+            <a href="/en/post/domain-driven-design-everything-you-wanted-to-know-1/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/en/">Blog</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+
+    <header class="post-header">
+      <h1 class="post-title">Translation: Domain-Driven Design - Everything You Always Wanted to Know (1)</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2021-02-02 </span>
+        <div class="post-category">
+            <a href="/en/categories/architecture/"> Architecture </a>
+            </div>
+          <span class="more-meta"> 2984 words </span>
+          <span class="more-meta"> 15 mins read </span>
+
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#what-is-domain-driven-design">What is domain-driven design?</a></li>
+<li><a href="#strategic-design-break-up-your-design-so-you-don-t-have-a-clue">Strategic Design: Break up your design so you don’t have a clue</a>
+<ul>
+<li><a href="#bounded-context">Bounded Context</a></li>
+<li><a href="#context-mapping">Context Mapping</a></li>
+<li><a href="#anti-corruption-layer">Anti-corruption Layer</a></li>
+<li><a href="#conformist">Conformist</a></li>
+<li><a href="#customer-supplier">Customer/Supplier</a></li>
+<li><a href="#shared-kernel">Shared Kernel</a></li>
+</ul></li>
+<li><a href="#collaboration-modeling-rich-communication-and-effective-collaboration">Collaboration Modeling: Rich Communication and Effective Collaboration</a></li>
+<li><a href="#tactical-design-basic-elements-of-ddd">Tactical Design: Basic Elements of DDD</a>
+<ul>
+<li><a href="#entities">Entities</a></li>
+<li><a href="#value-objects">Value Objects</a></li>
+<li><a href="#services">Services</a></li>
+</ul></li>
+<li><a href="#domain-objects-and-their-life-cycles">Domain objects and their life cycles</a></li>
+<li><a href="#gather">Gather</a></li>
+<li><a href="#factory">Factory</a></li>
+<li><a href="#warehouse">Warehouse</a></li>
+<li><a href="#isolate-domains-from-other-concerns">Isolate domains from other concerns</a></li>
+<li><a href="#conclusion">Conclusion</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+
+
+<p><strong><em><a href="https://medium.com/ssense-tech/domain-driven-design-everything-you-always-wanted-to-know-about-it-but-were-afraid-to-ask-a85e7b74497a">Domain-Driven Design original address</a></em></strong></p>
+
+<p><img src="https://i.loli.net/2021/02/02/tPqS1KpzvsarDMd.jpg" alt="bookmarks_2020_1_17.jpeg" /></p>
+
+<p><br/>
+ As a personal code base grows, its complexity inevitably increases. As this happens, it becomes very difficult to maintain the organization and structure of the code as originally intended, which is known as <a href="https://zh.wikipedia.org/wiki/%E8%BB%9F%E9%AB%94%E7%86%B5">&ldquo;software entropy&rdquo;</a>. After a series of iterations, maintaining good focus points and correctly decoupling classes and modules becomes more challenging if strict architectural guidelines are not enforced.</p>
+
+<p>﻿In a traditional Model-View-Controller (MVC) structure, the “M” layer would retain all business logic but provide no clear guidelines on how to properly delineate responsibilities. In order to alleviate this problem, several models have emerged. But there&rsquo;s always the risk of tangled logic and responsibilities between components, and as the model evolves, maintainability and stability become trickier.</p>
+
+<p>On the other hand, communicating with business experts, gathering requirements, reaching consensus between technical and non-technical teams, and correctly designing and implementing the system that solves the business problem is a continuous iterative process during which things can easily be misunderstood and ultimately deviate from the original goal.</p>
+
+<p> For example, naming has always been one of the most difficult challenges faced by software developers. We need to be clear enough for other developers to understand the intent of the code, while using appropriate naming to facilitate conversation with business callers.</p>
+
+<p>Domain-driven design (DDD) attempts to address these challenges by mediating the conflict between technical and non-technical forces in software projects and proposing a set of practices and patterns that help build successful systems.</p>
+
+<h3 id="what-is-domain-driven-design">What is domain-driven design?</h3>
+
+<p>Let’s start by defining what the word “field” means in this article. I like to define it as:</p>
+
+<!-- where class="blockquote-center" is required -->
+
+<blockquote class="blockquote-center">
+"A specific activity or knowledge area that defines a set of common requirements, terminology, and functions that are applied logically to a program to solve a problem."
+<!--                 Zheng Xie -->
+<!-- Right aligned -->
+</blockquote>
+
+<p>Domain-driven design is a software design method that combines the implementation of a system with an evolving model, thereby ignoring irrelevant details such as programming languages ​​and infrastructure technologies.</p>
+
+<p>﻿It mainly focuses on business problems and how to strictly organize the logic of solving problems. This approach was first described by Eric Evans in his book <a href="https://www.goodreads.com/book/show/179133.Domain_Driven_Design">Domain-Driven Design Tackling Complexity in the Heart of Software.</a></p>
+
+<p>﻿Now that we know what DDD is and what its goals are, let’s delve into the three main pillars of the approach.</p>
+
+<h3 id="strategic-design-break-up-your-design-so-you-don-t-have-a-clue">Strategic Design: Break up your design so you don’t have a clue</h3>
+
+<p>As the implementation process iterates and the complexity of the system increases, maintaining control over it can be daunting. Therefore, it is crucial to master and control strict strategies for large systems. Decomposing your model into interrelated Bounded Contexts (which themselves have their own unified model both conceptually and code-wise) is an effective way to avoid complexity pitfalls.</p>
+
+<h4 id="bounded-context">Bounded Context</h4>
+
+<p> A Bounded Context is the conceptual boundaries surrounding various parts of an application and/or project in terms of business domain, team and code. It groups related components and concepts and avoids ambiguity, as some of them may have similar meanings without clear context.
+For example, outside of a Bounded Context, &ldquo;letter&rdquo; might mean two very different things: a character or a message written on paper. By defining boundaries and context, its meaning can be determined
+In many projects, teams are divided by Bounded Context, with each team focusing on its own domain expertise and logic.</p>
+
+<h4 id="context-mapping">Context Mapping</h4>
+
+<p>  Identifying and graphically recording each Bounded Context in the project is called Context Mapping. Context Mapping helps to better understand the relationship and communication between Bounded Context and the team. They give a clear idea of ​​the actual boundaries and help the team visually describe the conceptual breakdown of the system design.
+<img src="https://i.loli.net/2021/02/02/pbmM21U83kQWzJy.png" alt="Context Mapping.png" /></p>
+
+<p>The relationships between Bounded Context may vary depending on design requirements and other project-specific constraints. Some relationships will be omitted in this article except the following four:</p>
+
+<h4 id="anti-corruption-layer">Anti-corruption Layer</h4>
+
+<p> The downstream Bounded Context implements a layer that transforms data or objects from the upstream context, thereby ensuring that it supports the internal model. (Interface inheritance)</p>
+
+<h4 id="conformist">Conformist</h4>
+
+<p> The downstream Bounded Context conforms to and adapts to the upstream context and must be changed if necessary. In this case, the upstream environment has no interest in meeting downstream demand. (The upstream does not provide private customization for the downstream)</p>
+
+<h4 id="customer-supplier">Customer/Supplier</h4>
+
+<p>  Upstream supplies services to downstream, and the downstream environment acts as a customer, identifying needs and requiring upstream to make changes to meet their needs. (The upstream and downstream are CS mode)</p>
+
+<h4 id="shared-kernel">Shared Kernel</h4>
+
+<p>  Sometimes, it is inevitable that two (or more) contexts overlap and end up sharing resources or components. This relationship requires that the two contexts remain continuously in sync when changes are required, and should therefore be avoided if possible. (Multiple contexts are in the same logical chain)</p>
+
+<h3 id="collaboration-modeling-rich-communication-and-effective-collaboration">Collaboration Modeling: Rich Communication and Effective Collaboration</h3>
+
+<p>DDD recommends modeling the domain effectively by taking a collaborative approach, involving parties with not only technical but also business knowledge. As Evans describes it, a &ldquo;domain model&rdquo; is not just knowledge in the heads of domain experts; it is a rigorous organization and selective abstraction of that knowledge. &ldquo;</p>
+
+<p> Developers work with domain experts to continuously refine the domain model, forcing them to learn the important details and principles of the business problems they want to solve rather than just mechanically writing code.</p>
+
+<p>To achieve this kind of collaboration between business teams and technical teams, the domain model should use a language that combines technical terms with business and find a middle ground that all team members can understand and reach consensus on, which is called a common language. Using a well-defined, ubiquitous language will improve every interaction between technical and business teams, reducing ambiguity and making them more efficient.</p>
+
+<p> Eventually, this ubiquitous language will be embedded in code.
+<br/></p>
+
+<h3 id="tactical-design-basic-elements-of-ddd">Tactical Design: Basic Elements of DDD</h3>
+
+<p>At first glance, it is easy to realize the association between domain objects and describe their functions, but their meaning and reason for existence should be correctly distinguished in a clear and intuitive way. DDD proposes a set of constructs and patterns to implement it.</p>
+
+<h4 id="entities">Entities</h4>
+
+<p>﻿Objects with a unique identity and a thread of continuity are called entities, they are defined not only by their properties but also by their identity. Their properties may change, their life cycles may change dramatically, but their identity remains. Maintain identity through a unique key or a combination of attributes that are guaranteed to be unique.
+For example, in the e-commerce world, an order has a unique identifier and it goes through several different stages: opening, confirmation, shipping, etc., so it is considered a domain entity.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">export class Customer {
+
+    private id: number;
+    private name: string;
+
+    protected constructor(name: string) {
+        // A uuid guarantees a unique identity for the Customer Entity
+        this.id = uuidv4();
+        this.name = this.setName(name);
+    }
+
+    private setName(name: string): string {
+        // Business invariant: Customer name should not be empty
+        if (name === undefined || name === &#39;&#39;) {
+            throw new Error(&#39;Name cannot be empty&#39;);
+        }
+        return name;
+    }
+
+    public static create(name: string): Customer {
+        return new Customer(name);
+    }
+}</pre></td></tr></table>
+</div>
+</div>
+<h4 id="value-objects">Value Objects</h4>
+
+<p> Objects that describe characteristics and do not have any unique identifier are called &ldquo;value objects&rdquo;. They only care about what they are, not who they are.
+﻿ Value objects are attributes that can be shared by multiple entities, for example: two customers can have the same shipping address. Despite the risks, if one of their properties needs to be changed, all entities sharing them will be affected. To avoid this, value objects must be immutable and the system must replace them with new new instances when they need to be updated.
+ Similarly, the creation of value objects should always depend on the validity of the data used to create them and how it respects business immutability. Therefore, if the data is invalid, the object instance will not be created. For example, in North America, postal codes with non-alphanumeric characters will violate business invariance and trigger an exception when creating the address.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">export class Address {
+
+    private readonly streetAddress: string;
+    private readonly postalCode: string
+
+    protected constructor(streetAddress: string, postalCode: string) {
+        this.streetAddress = this.getValidStreetAddress(streetAddress);
+        this.postalCode = this.getValidPostalCode(postalCode);
+    }
+
+    private getValidStreetAddress(streetAddress: string): string {
+        // Business invariant: street address should not be longer than 128 characters
+        if (streetAddress.length &gt; 128) {
+            throw new Error(&#39;Address should not be longer than 128 characters&#39;);
+        }
+        return streetAddress;
+    }
+
+    private getValidPostalCode(postalCode: string): string {
+        // Business invariant: Should be a valid canadian postal code
+        const pattern = /[a-z]\d[a-z][ \-]?\d[a-z]\d/g;
+        if (!postalCode.match(pattern)) {
+            throw new Error(&#39;Postal code should only contain alphanumeric caracters and spaces&#39;);
+        }
+        return postalCode;
+    }
+
+    public getStreetAddress(): string {
+        return this.streetAddress;
+    }
+
+    public getPostalCode(): string {
+        return this.postalCode;
+    }
+
+    public static create(streetAddress: string, postalCode: string): Address {
+        return new Address(streetAddress, postalCode);
+    }
+
+    public equals(otherAddress: Address): boolean {
+        // Value Objects equality is based on their propertie&#39;s values
+        return objectHelper.isEqual(this, otherAddress);
+    }
+}</pre></td></tr></table>
+</div>
+</div>
+<h4 id="services">Services</h4>
+
+<p>In many cases, a domain model requires certain actions or operations that are not directly related to entities or value objects, and forcing them into its implementation would cause distortion of its definition. Services are classes that provide stateless operations. As opposed to entities and value objects being nouns, they are often called verbs and are named after the universal language.</p>
+
+<p> Services should be carefully designed to always ensure that services do not deprive entities and value objects of their direct responsibilities and actions. They should also be stateless so that clients can use any given instance of the service without regard to the history of that instance during the lifetime of the application. Having entity and value objects with no domain logic is considered an anti-pattern called <a href="https://martinfowler.com/bliki/AnemicDomainModel.html">&ldquo;anemic domain model&rdquo;</a>.</p>
+
+<h3 id="domain-objects-and-their-life-cycles">Domain objects and their life cycles</h3>
+
+<p> Domain objects often have complex life cycles. They are instantiated, undergo several changes, interact with other objects, perform operations, are persisted, reconstructed, deleted, etc. Maintaining integrity while ensuring that the system does not miss out on its complex lifecycle is one of the major challenges represented by implementing an appropriate domain model.</p>
+
+<p> Minimizing the relationships and interactions between domain objects to maintain manageable levels of complexity within the domain model is very difficult, especially in complex business domains, or as Eric Evans puts it:</p>
+
+<blockquote class="blockquote-center">
+"It is difficult to guarantee consistency of changes to objects in a model with complex associations. Invariants need to be maintained that apply to groups of closely related objects, not just discrete objects. However, careful locking schemes can cause multiple users to interfere with each other and render the system unusable."
+</blockquote>
+
+<h3 id="gather">Gather</h3>
+
+<p>To mitigate the above challenges, entities and value objects need to be aggregated to limit violations of business invariance.</p>
+
+<p> Aggregation is a collection of related entities and value objects, which are gathered together to represent transaction boundaries. Every aggregate object has an outward-facing entity that controls all access to objects within its boundaries. This entity is called the &ldquo;aggregate root&rdquo; and is the only object with which other objects can interact. No object in the aggregate can be called directly from outside, thus maintaining internal consistency.</p>
+
+<p> Business invariants are business rules that guarantee the integrity of an aggregate and its content. In other words, it is a mechanism that ensures that its state is always consistent with the business rules. For example, when a product has zero inventory, an order can never be placed.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">export class Order {
+
+    private id: number;
+    private isConfirmed: boolean;
+    private total: number;
+    private shippingAddress: Address;
+    private customer: Customer;
+    private items: Product[];
+    private payments: Payment[];
+
+    constructor(
+        customer: Customer,
+        shippingAddress: Address,
+        items: Item[],
+        payments: Payment[]
+    ) {
+        // Generate a unique identifier (UUID) for the Order Entity
+        this.id = uuidv4();
+        this.isConfirmed = false;
+        this.total = 0;
+        this.customer = customer;
+        this.shippingAddress = shippingAddress;
+        this.items = items.length ? items : [];
+        this.payments = payments.length ? payments : [];
+    }
+
+    private getPaymentsTotal(): number {
+        return this.payments.reduce((accumulator, payment) =&gt; accumulator + payment.total);
+    }
+
+    public addPayments(payment: Payment): void {
+        this.payments.push(payment);
+        this.total += payment.total;
+    }
+
+    public addItems(product: Product): void {
+        // Business invariant: an order should not have items which are not in stock
+        if (!product.getStockQuanity()) {
+            throw new Error(`No stock for product id: ${product.id}`);
+        }
+        this.items.push(product);
+    }
+
+    public confirm(): void {
+        // Business invariant: only fully paid orders can be confirmed
+        if (this.total === this.getPaymentsTotal()) {
+            throw new Error(&#39;Total amount paid does not equal order total&#39;);
+        }
+        this.isConfirmed = true;
+    }
+}</pre></td></tr></table>
+</div>
+</div>
+<h3 id="factory">Factory</h3>
+
+<p> Creating complex object and aggregate instances can be a difficult task and can also reveal too much internal details of the objects. Using factories we can solve this problem and provide the necessary encapsulation.</p>
+
+<p> Factories should be able to construct domain objects or aggregates in one atomic operation, requiring all data provided by the client when called, and enforcing all invariants on the created object. The activity is not part of the domain model, but still belongs to the domain layer because it is part of the business rules that apply to the system</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">export class OrderFactory implements Factory {
+
+    private customerEntity: Customer;
+    private addressValue: Address;
+    private productsRepository: Repository;
+    private paymentsRepository: Repository;
+
+    constructor(customerEntity: Customer, addressValue: Address, productsRepository: Repository, paymentsRepository: Repository) {
+        this.customerEntity = customerEntity;
+        this.addressValue = addressValue;
+        this.productsRepository = productsRepository;
+        this.paymentsRepository = paymentsRepository;
+    }
+
+    public async createOrder(customerName: string, addressDto: AddressDto, itemDtos: ItemDto[], paymentDtos: PaymentDto[]): Order {
+        try {
+            const customer = this.customerEntity.create(customerName);
+            const shippingAddress = this.addressValue.create(addressDto.streetAddress, addressDto.postalCode);
+            const items = await this.productsRepository.getProductCollection(itemDtos);
+            const payments = await this.paymentsRepository.getPaymentCollection(paymentDtos);
+
+            return new Order(customer, shippingAddress, items, payments);
+        } catch(err) {
+            // Error handling logic should go here
+            throw new Error(`Order creation failed: ${err.message}`);
+        }
+    }
+}</pre></td></tr></table>
+</div>
+</div>
+<h3 id="warehouse">Warehouse</h3>
+
+<p>To be able to retrieve objects from persistence, whether in memory, in the file system, or in a database, we need to provide an interface that hides the implementation details from the client, so that it does not depend on the concrete details of the infrastructure, but only on the abstraction.</p>
+
+<p>  The repository provides an interface layer that the domain layer can use to retrieve stored objects, thus avoiding tight coupling with the storage logic and giving clients the illusion of retrieving objects directly from memory.</p>
+
+<p>﻿ It is worth mentioning that all repository interface definitions should be in the domain layer, but their concrete implementation should be in the infrastructure layer.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">export class OrderRepository implements Repository {
+    private model: OrderModel;
+    private mapper: OrderMapper;
+    private productsRepository: Repository;
+    private paymentsRepository: Repository;
+
+    constructor(orderModel: OrderModel, orderMapper: Mapper, productsRepository: Repository, paymentsRepository: Repository) {
+        this.model = orderModel;
+        this.mapper = orderMapper;
+        this.productsRepository = productsRepository;
+        this.paymentsRepository = paymentsRepository;
+    }
+
+    public async getById(orderId: number): Promise&lt;Order&gt; {
+        const order = await this.model.findOne(orderId);
+
+        if (!order) {
+            throw new Error(`No order found with order id: ${orderId}`);
+        }
+        return this.mapper.toDomain(order);
+    }
+
+    public async save(order: Order): Promise&lt;Boolean&gt; {
+        const orderRecord: OrderRecord = this.mapper.toPersistence(order);
+
+        try {
+            await this.productsRepository.insert(order.items);
+            await this.paymentsRepository.insert(order.payments);
+
+            if (!!await this.getById(order.id)) {
+                await this.model.update(orderRecord);
+            } else {
+                await this.model.insert(orderRecord);
+            }
+        } catch (err) {
+            // call to rollback mechanism should go here
+            return false;
+        }
+        return true;
+    }
+}</pre></td></tr></table>
+</div>
+</div>
+<h3 id="isolate-domains-from-other-concerns">Isolate domains from other concerns</h3>
+
+<p> The portion of code written specifically to solve domain problems only accounts for a small portion of the entire code base. If this part is intertwined with code that solves other problems, it will be difficult to understand and improve. Clear separation of domain logic from all other functionality will reduce leaks and avoid confusion in large, complex systems.</p>
+
+<p>﻿ DDD proposes a layered architecture that separates concerns and avoids confusion of responsibilities by dividing the code base into four main layers (user interface, application, domain, and infrastructure).</p>
+
+<p>﻿﻿The main rule here is that components in each layer should only depend on components of the same layer or any layer below it. The upper layer can use the components of the lower layer only by calling its public interface, while the lower layer can only communicate upward through Inversion of Control (IoC).</p>
+
+<ul>
+<li><strong>User Interface Layer:</strong> Responsible for displaying data and capturing user commands.</li>
+<li><strong>Application Layer:</strong> As the coordinator of domain work, it does not understand domain rules, but organizes and delegates domain objects to complete its work. It is also the only layer accessible to other bounded contexts.</li>
+<li><strong>Domain Layer:</strong> Saves business logic and rules as well as business status. This is where the domain model lives.</li>
+<li><strong>Infrastructure Layer:</strong> Implements all technical functions required by the application to support higher layers, persistence, messaging, communication between layers, etc.</li>
+</ul>
+
+<p>﻿ Even though not every system requires all layers, the presence of domain layers is a prerequisite in DDD.</p>
+
+<p><img src="https://i.loli.net/2021/02/03/MD5gTBwA647Cq8S.png" alt="Deependency Flow.png" /></p>
+
+<h3 id="conclusion">Conclusion</h3>
+
+<p>In summary, DDD is a holistic approach to solving business problems through extensive collaboration with domain experts and rigorous design patterns. It is not a universal solution for all software projects, but it can bring huge benefits when applied correctly.</p>
+
+<p>There are several books on this topic, various concepts have been intentionally omitted from this article, but if I have sparked your interest in domain-driven design, I ask you to read the blue and red books first, starting in that order is the starting point for this huge topic.</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">zhengxz</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2021-02-02
+
+    </span>
+  </p>
+
+
+</div>
+<footer class="post-footer">
+
+      <nav class="post-nav">
+        <a class="prev" href="/en/post/linux-io-multiplexing-select-poll-epoll/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Translation: Linux I/O Multiplexing - select vs. poll vs. epoll</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/en/post/introduction-to-go-assembly-2/">
+            <span class="next-text nav-default">A Practical Introduction to Go Assembly (2)</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+
+
+
+
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+  <a href="https://zheng-bobo.github.io/en/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+
+
+  <span class="copyright-year">
+    &copy;
+    2019 -
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span>zhengxz</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>PyTorch on Blowing in the wind</title>
+    <link>https://zheng-bobo.github.io/en/tags/pytorch/</link>
+    <description>Recent content in PyTorch on Blowing in the wind</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 14 Sep 2026 10:25:02 +0200</lastBuildDate>
+
+  <atom:link href="https://zheng-bobo.github.io/en/tags/pytorch/index.xml" rel="self" type="application/rss+xml" />
+
+
+    <item>
+      <title>Transformer Architecture: From Token Embeddings to the Training Loop</title>
+      <link>https://zheng-bobo.github.io/en/post/transformer-architecture/</link>
+      <pubDate>Mon, 14 Sep 2026 10:25:02 +0200</pubDate>
+
+      <guid>https://zheng-bobo.github.io/en/post/transformer-architecture/</guid>
+      <description>&lt;p&gt;Transformer appears to be made up of many components, but a GPT-style forward path can be summarized as:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;Token IDs
+   ↓
+Token Embedding + Position Embedding
+   ↓
+[LayerNorm → Self-Attention → Residual]
+   ↓
+[LayerNorm → FFN → Residual]
+   ↓
+Repeat for multiple Transformer blocks
+   ↓
+Final LayerNorm → LM Head
+   ↓
+Next-token logits → Cross-Entropy Loss&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;p&gt;This article starts from a simple GPT implementation and explains the role and tensor shape of each step along the data flow. The complete source code is placed at the end of the article. After reading the previous principles, you can compare and understand it with the code.&lt;/p&gt;</description>
+    </item>
+
+  </channel>
+</rss>

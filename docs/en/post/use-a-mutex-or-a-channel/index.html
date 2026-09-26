@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Use a Mutex or a Channel? - Blowing in the wind</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="zhengxz" /><meta name="description" content="Use a sync.Mutex or a channel?
+ Gives us 3 channel usage scenarios respectively:
+ 1. Transfer ownership of data 2. Assign work units 3. Convey asynchronous results  Usage scenarios of 2 mutex:
+ 1. Cache 2. Status  Chapter 2 &amp;ldquo;Go&amp;rsquo;s Philosophy on Concurrency&amp;rdquo; in the book &amp;ldquo;Concurrency In Go&amp;rdquo; also has a decision tree and detailed discussion
+Summary
+﻿Go implements the CSP communication model through channels, which are mainly used for message passing and event notification between goroutines." /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.59.1 with theme even" />
+
+
+<link rel="canonical" href="https://zheng-bobo.github.io/en/post/use-a-mutex-or-a-channel/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.4747d1be8010357c5daf4cd103b0bc1cff65936180045419874ea97f32138102.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/readability.css">
+<link rel="stylesheet" href="/css/about.css">
+
+
+<meta property="og:title" content="Use a Mutex or a Channel?" />
+<meta property="og:description" content="Use a sync.Mutex or a channel?
+ Gives us 3 channel usage scenarios respectively:
+ 1. Transfer ownership of data 2. Assign work units 3. Convey asynchronous results  Usage scenarios of 2 mutex:
+ 1. Cache 2. Status  Chapter 2 &ldquo;Go&rsquo;s Philosophy on Concurrency&rdquo; in the book &ldquo;Concurrency In Go&rdquo; also has a decision tree and detailed discussion
+Summary
+﻿Go implements the CSP communication model through channels, which are mainly used for message passing and event notification between goroutines." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zheng-bobo.github.io/en/post/use-a-mutex-or-a-channel/" />
+<meta property="article:published_time" content="2020-01-16T11:27:00+08:00" />
+<meta property="article:modified_time" content="2020-01-16T11:27:00+08:00" /><meta property="og:site_name" content="Blowing in the wind" />
+<meta itemprop="name" content="Use a Mutex or a Channel?">
+<meta itemprop="description" content="Use a sync.Mutex or a channel?
+ Gives us 3 channel usage scenarios respectively:
+ 1. Transfer ownership of data 2. Assign work units 3. Convey asynchronous results  Usage scenarios of 2 mutex:
+ 1. Cache 2. Status  Chapter 2 &ldquo;Go&rsquo;s Philosophy on Concurrency&rdquo; in the book &ldquo;Concurrency In Go&rdquo; also has a decision tree and detailed discussion
+Summary
+﻿Go implements the CSP communication model through channels, which are mainly used for message passing and event notification between goroutines.">
+
+
+<meta itemprop="datePublished" content="2020-01-16T11:27:00&#43;08:00" />
+<meta itemprop="dateModified" content="2020-01-16T11:27:00&#43;08:00" />
+<meta itemprop="wordCount" content="151">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Use a Mutex or a Channel?"/>
+<meta name="twitter:description" content="Use a sync.Mutex or a channel?
+ Gives us 3 channel usage scenarios respectively:
+ 1. Transfer ownership of data 2. Assign work units 3. Convey asynchronous results  Usage scenarios of 2 mutex:
+ 1. Cache 2. Status  Chapter 2 &ldquo;Go&rsquo;s Philosophy on Concurrency&rdquo; in the book &ldquo;Concurrency In Go&rdquo; also has a decision tree and detailed discussion
+Summary
+﻿Go implements the CSP communication model through channels, which are mainly used for message passing and event notification between goroutines."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/en/about/" class="logo">Bobo</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/en/">
+        <li class="mobile-menu-item">Blog</li>
+      </a><a href="/en/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/en/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/en/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/en/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item ">
+
+            <a href="/post/use-a-mutex-or-a-channel/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item active">
+
+            <a href="/en/post/use-a-mutex-or-a-channel/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/en/about/" class="logo">Bobo</a>
+</div>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item ">
+
+            <a href="/post/use-a-mutex-or-a-channel/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item active">
+
+            <a href="/en/post/use-a-mutex-or-a-channel/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/en/">Blog</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+
+    <header class="post-header">
+      <h1 class="post-title">Use a Mutex or a Channel?</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2020-01-16 </span>
+        <div class="post-category">
+            <a href="/en/categories/go/"> Go </a>
+            </div>
+          <span class="more-meta"> 151 words </span>
+          <span class="more-meta"> 1 min read </span>
+
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content always-active">
+
+  </div>
+</div>
+    <div class="post-content">
+      <p><a href="https://github.com/golang/go/wiki/MutexOrChannel">Use a sync.Mutex or a channel?</a></p>
+
+<p>  Gives us 3 channel usage scenarios respectively:</p>
+
+<p><img src="https://i.loli.net/2020/01/16/DX19RyqIOSBCg7j.png" alt="scene.png" /></p>
+
+<ul>
+<li>1. Transfer ownership of data</li>
+<li>2. Assign work units</li>
+<li>3. Convey asynchronous results</li>
+</ul>
+
+<p><strong>Usage scenarios of 2 mutex:</strong></p>
+
+<ul>
+<li>1. Cache</li>
+<li>2. Status</li>
+</ul>
+
+<p><strong>Chapter 2 &ldquo;Go&rsquo;s Philosophy on Concurrency&rdquo; in the book &ldquo;Concurrency In Go&rdquo; also has a decision tree and detailed discussion</strong></p>
+
+<p><img src="https://i.loli.net/2020/01/16/YzUad5ct4byTLiN.png" alt="Decision.png" /></p>
+
+<p><strong>Summary</strong></p>
+
+<p>﻿Go implements the CSP communication model through channels, which are mainly used for message passing and event notification between goroutines. For some scenarios with high performance requirements, or to prevent concurrent modification of internal states, it would be more appropriate to implement it through mutex.</p>
+
+<ul>
+<li>1. Pay attention to the flow of data, and you can use channels to solve concurrency problems.</li>
+<li>2. For non-flowing data, if there are concurrent accesses, try to use sync.Mutex to protect the data.</li>
+<li>3. If the sync.Mutex implementation process is complicated, you can use channel implementation instead</li>
+</ul>
+
+<p><strong>References</strong></p>
+
+<p><a href="https://github.com/golang/go/wiki/MutexOrChannel">https://github.com/golang/go/wiki/MutexOrChannel</a></p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">zhengxz</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2020-01-16
+
+    </span>
+  </p>
+
+
+</div>
+<footer class="post-footer">
+
+      <nav class="post-nav">
+        <a class="prev" href="/en/post/understanding-random-and-sequential-io/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Understanding I/O: Random and Sequential Access</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/en/post/http-1-1-vs-http-2/">
+            <span class="next-text nav-default">HTTP/1.1 vs. HTTP/2</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+
+
+
+
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+  <a href="https://zheng-bobo.github.io/en/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+
+
+  <span class="copyright-year">
+    &copy;
+    2019 -
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span>zhengxz</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

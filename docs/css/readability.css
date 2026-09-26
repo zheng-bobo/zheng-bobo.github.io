@@ -8,6 +8,40 @@
   --reading-surface: #f7f6f2;
 }
 
+.language-selector .languages-list {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.language-selector .language-item a {
+  color: var(--reading-muted);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+
+.language-selector .language-item + .language-item::before {
+  margin-right: 8px;
+  color: #c9cfd3;
+  content: "/";
+}
+
+.language-selector .language-item.active a {
+  color: var(--reading-accent);
+  font-weight: 650;
+}
+
+@media (max-width: 800px) {
+  .mobile-menu .language-selector {
+    margin: 24px 20px 0;
+    padding-top: 18px;
+    border-top: 1px solid var(--reading-rule);
+  }
+}
+
 body {
   color: var(--reading-text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans CJK SC",

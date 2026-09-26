@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Stanford CS329A: A Complete Framework for Self-Improving AI Agents - Blowing in the wind</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="zhengxz" /><meta name="description" content="Self-Improving AI Agent is not a mysterious system that recursively modifies itself indefinitely. A more practical understanding is: Agent forms a closed loop between generation, action, observation and verification, and uses the feedback obtained during reasoning to improve current answers, subsequent decisions, and even the next round of training.
+This article follows the main line of the Stanford CS329A course and strings together test-time calculations, verifiers, tool feedback, planning search, reinforcement learning, in-depth research and long-term evaluation into a complete framework.
+" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.59.1 with theme even" />
+
+
+<link rel="canonical" href="https://zheng-bobo.github.io/en/post/stanford-cs329a-self-improving-ai-agents/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.4747d1be8010357c5daf4cd103b0bc1cff65936180045419874ea97f32138102.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/readability.css">
+<link rel="stylesheet" href="/css/about.css">
+
+
+<meta property="og:title" content="Stanford CS329A: A Complete Framework for Self-Improving AI Agents" />
+<meta property="og:description" content="Self-Improving AI Agent is not a mysterious system that recursively modifies itself indefinitely. A more practical understanding is: Agent forms a closed loop between generation, action, observation and verification, and uses the feedback obtained during reasoning to improve current answers, subsequent decisions, and even the next round of training.
+
+This article follows the main line of the Stanford CS329A course and strings together test-time calculations, verifiers, tool feedback, planning search, reinforcement learning, in-depth research and long-term evaluation into a complete framework." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zheng-bobo.github.io/en/post/stanford-cs329a-self-improving-ai-agents/" />
+<meta property="article:published_time" content="2026-08-11T06:27:01+02:00" />
+<meta property="article:modified_time" content="2026-08-11T06:27:01+02:00" /><meta property="og:site_name" content="Blowing in the wind" />
+<meta itemprop="name" content="Stanford CS329A: A Complete Framework for Self-Improving AI Agents">
+<meta itemprop="description" content="Self-Improving AI Agent is not a mysterious system that recursively modifies itself indefinitely. A more practical understanding is: Agent forms a closed loop between generation, action, observation and verification, and uses the feedback obtained during reasoning to improve current answers, subsequent decisions, and even the next round of training.
+
+This article follows the main line of the Stanford CS329A course and strings together test-time calculations, verifiers, tool feedback, planning search, reinforcement learning, in-depth research and long-term evaluation into a complete framework.">
+
+
+<meta itemprop="datePublished" content="2026-08-11T06:27:01&#43;02:00" />
+<meta itemprop="dateModified" content="2026-08-11T06:27:01&#43;02:00" />
+<meta itemprop="wordCount" content="2573">
+
+
+
+<meta itemprop="keywords" content="AI Agents,Test-Time Compute,Verifier,ReAct,LATS,Reinforcement Learning," />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Stanford CS329A: A Complete Framework for Self-Improving AI Agents"/>
+<meta name="twitter:description" content="Self-Improving AI Agent is not a mysterious system that recursively modifies itself indefinitely. A more practical understanding is: Agent forms a closed loop between generation, action, observation and verification, and uses the feedback obtained during reasoning to improve current answers, subsequent decisions, and even the next round of training.
+
+This article follows the main line of the Stanford CS329A course and strings together test-time calculations, verifiers, tool feedback, planning search, reinforcement learning, in-depth research and long-term evaluation into a complete framework."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/en/about/" class="logo">Bobo</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/en/">
+        <li class="mobile-menu-item">Blog</li>
+      </a><a href="/en/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/en/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/en/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/en/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item ">
+
+            <a href="/post/stanford-cs329a-self-improving-ai-agents/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item active">
+
+            <a href="/en/post/stanford-cs329a-self-improving-ai-agents/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/en/about/" class="logo">Bobo</a>
+</div>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item ">
+
+            <a href="/post/stanford-cs329a-self-improving-ai-agents/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item active">
+
+            <a href="/en/post/stanford-cs329a-self-improving-ai-agents/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/en/">Blog</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+
+    <header class="post-header">
+      <h1 class="post-title">Stanford CS329A: A Complete Framework for Self-Improving AI Agents</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2026-08-11 </span>
+        <div class="post-category">
+            <a href="/en/categories/ai-agents/"> AI Agents </a>
+            </div>
+          <span class="more-meta"> 2573 words </span>
+          <span class="more-meta"> 13 mins read </span>
+
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#1-what-is-self-improving-agent">1. What is Self-Improving Agent?</a></li>
+<li><a href="#2-calculate-expansion-when-testing-don-t-just-generate-it-once">2. Calculate expansion when testing: don’t just generate it once</a>
+<ul>
+<li><a href="#three-common-strategies">Three common strategies</a>
+<ul>
+<li><a href="#2-1-parallel-sampling-best-of-n">2.1 Parallel Sampling: Best-of-N</a></li>
+<li><a href="#2-2-sequential-revisions-sequential-revisions">2.2 Sequential Revisions: Sequential Revisions</a></li>
+<li><a href="#2-3-search-beam-search-tree-search">2.3 Search: Beam Search / Tree Search</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#3-validator-the-bottleneck-of-self-improving-systems">3. Validator: The bottleneck of self-improving systems</a>
+<ul>
+<li><a href="#why-does-the-validator-fail">Why does the validator fail?</a></li>
+</ul></li>
+<li><a href="#4-tools-and-environment-feedback-bringing-reasoning-into-contact-with-reality">4. Tools and environment feedback: bringing reasoning into contact with reality</a></li>
+<li><a href="#5-planning-and-multi-step-reasoning-searching-an-action-tree">5. Planning and multi-step reasoning: searching an action tree</a></li>
+<li><a href="#6-from-test-time-expansion-to-training-time-expansion">6. From test-time expansion to training-time expansion</a></li>
+<li><a href="#7-deep-research-from-static-rag-to-dynamic-search">7. Deep Research: From static RAG to dynamic search</a></li>
+<li><a href="#8-how-to-evaluate-long-range-agent">8. How to evaluate long-range Agent?</a></li>
+<li><a href="#9-a-unified-engineering-architecture">9. A unified engineering architecture</a></li>
+<li><a href="#10-conclusion-feedback-quality-determines-the-upper-limit-of-improvement">10. Conclusion: Feedback quality determines the upper limit of improvement</a></li>
+<li><a href="#references">References</a></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>Self-Improving AI Agent is not a mysterious system that recursively modifies itself indefinitely. A more practical understanding is: Agent forms a closed loop between generation, action, observation and verification, and uses the feedback obtained during reasoning to improve current answers, subsequent decisions, and even the next round of training.</p>
+
+<p>This article follows the main line of the Stanford CS329A course and strings together test-time calculations, verifiers, tool feedback, planning search, reinforcement learning, in-depth research and long-term evaluation into a complete framework.</p>
+
+<blockquote>
+<p><strong>Course</strong>: <a href="https://cs329a.stanford.edu/">Stanford CS329A · Self-Improving AI Agents</a></p>
+
+<p><strong>Core question</strong>: How to let the Agent learn from its own attempts and environmental feedback, instead of just relying on more manual annotations?</p>
+</blockquote>
+
+<h2 id="1-what-is-self-improving-agent">1. What is Self-Improving Agent?</h2>
+
+<p>An Agent that can improve itself must at least complete the following closed loop:</p>
+
+<ol>
+<li><strong>Generate/Act</strong>: Generate candidate answers, or perform actions in the environment;</li>
+<li><strong>Observe/Verify</strong>: Read tool results, execution feedback or validator scores;</li>
+<li><strong>Select/Reflect</strong>: Select a better trajectory, analyze the reasons for failure and correct them;</li>
+<li><strong>Update</strong>: Update context, memory, search strategy, or model parameters;</li>
+<li><strong>Evaluate</strong>: Confirm whether the improvement is real on an independent task.</li>
+</ol>
+
+<p><img src="/img/posts/cs329a-self-improving-agents/self-improvement-loop.png" alt="Self-improvement closed loop from pre-training, fine-tuning to feedback during testing" /></p>
+
+<p>There are two different &ldquo;extensions&rdquo; in this framework:</p>
+
+<ul>
+<li><strong>Test-time scaling</strong>: The model parameters remain unchanged, and more sampling, search and verification calculations are invested in answering a question;</li>
+<li><strong>Train-time scaling</strong>: Turn success and failure trajectories into training signals, and update the model through supervised learning or reinforcement learning.</li>
+</ul>
+
+<p>The former solves the problem of &ldquo;how to answer better this time&rdquo;, and the latter solves the problem of &ldquo;how to answer better next time&rdquo;. True self-improvement systems often connect the two.</p>
+
+<h2 id="2-calculate-expansion-when-testing-don-t-just-generate-it-once">2. Calculate expansion when testing: don’t just generate it once</h2>
+
+<p>The simplest test-time extension is <strong>Repeated Sampling</strong>: independently generate multiple candidate answers to the same question, and then select one from them.</p>
+
+<p>If the probability of generating a correct answer once is $p$, and each sampling is approximately independent, then after generating $k$ times, the probability of at least one correct answer is:</p>
+
+<p>$$
+\mathrm{pass@}k = 1-(1-p)^k
+$$</p>
+
+<p>This shows that even if the model parameters remain unchanged, as long as the number of sampling is increased, the <strong>Coverage</strong> of the candidate set may be improved. In the experiments of Large Language Monkeys, the single success rate of DeepSeek-Coder-V2-Instruct on the SWE-bench Lite at that time was 15.9%, and the problem coverage rate after sampling 250 times reached 56%.</p>
+
+<p>But high coverage does not mean good final results. The system must also identify the correct answer among multiple candidates, i.e. improve <strong>Precision</strong>. If the selector only votes by majority, and the wrong answers happen to be highly similar, then no amount of sampling may be useful.</p>
+
+<p><img src="/img/posts/cs329a-self-improving-agents/verification-gap.png" alt="The gap between candidate coverage and majority voting and reward model selection effects" /></p>
+
+<p>Therefore, there are really two issues involved in computing extensions when testing:</p>
+
+<ul>
+<li><strong>Generating Question</strong>: Can the correct solution be found?</li>
+<li><strong>Choice question</strong>: After seeing the correct solution, can you choose it?</li>
+</ul>
+
+<h3 id="three-common-strategies">Three common strategies</h3>
+
+<h4 id="2-1-parallel-sampling-best-of-n">2.1 Parallel Sampling: Best-of-N</h4>
+
+<p>Simultaneously generate $N$ independent candidates, score them using rules, test cases or reward models, and return the highest-scoring result. It is simple, highly parallel, and suitable for tasks with reliable validators.</p>
+
+<h4 id="2-2-sequential-revisions-sequential-revisions">2.2 Sequential Revisions: Sequential Revisions</h4>
+
+<p>Each step continues to be revised based on the answers and feedback from the previous version. It&rsquo;s more like debugging: generate first, then locate the problem, and then modify. The advantage is that existing work can be reused; the disadvantage is that early errors may lock subsequent reasoning on the wrong path.</p>
+
+<h4 id="2-3-search-beam-search-tree-search">2.3 Search: Beam Search / Tree Search</h4>
+
+<p>Multiple intermediate reasoning trajectories are retained, expanded and pruned at each step. Instead of just evaluating the final answer, the search requires the validator to judge &ldquo;whether this step is worth continuing.&rdquo;</p>
+
+<p><img src="/img/posts/cs329a-self-improving-agents/parallel-sequential-combined.png" alt="Parallel sampling, sequential correction, and search methods combining the two" /></p>
+
+<p>The best strategy is not necessarily to generate the same number of samples consistently. <strong>Compute-optimal scaling</strong> allocates budget based on question difficulty: easy questions stop quickly, medium-difficulty questions invest more search; if the correct answer almost never appears among the candidates for the hardest question, then the marginal benefit of continuing to increase sampling decreases rapidly.</p>
+
+<p><img src="/img/posts/cs329a-self-improving-agents/compute-optimal-search.png" alt="Allocate test calculation budget according to question difficulty" /></p>
+
+<p>This also explains a seemingly contradictory phenomenon: on some problems, the calculation of a small model plus testing can exceed that of a much larger model; but outside the boundaries of the model&rsquo;s capabilities, adding calculations cannot create non-existent problem-solving capabilities out of thin air.</p>
+
+<h2 id="3-validator-the-bottleneck-of-self-improving-systems">3. Validator: The bottleneck of self-improving systems</h2>
+
+<p>The verifier receives a question, candidate answers, and sometimes a complete reasoning trace, and estimates the probability that the answer is correct.</p>
+
+<p><img src="/img/posts/cs329a-self-improving-agents/verifier-architecture.png" alt="Basic architecture for the validator to score candidate solutions" /></p>
+
+<p>The two most common types of learning validators are:</p>
+
+<ul>
+<li><strong>Outcome Reward Model (ORM)</strong>: Only the final answer is evaluated;</li>
+<li><strong>Process Reward Model (PRM)</strong>: Evaluates intermediate reasoning steps and provides signals for each step.</li>
+</ul>
+
+<p>ORM is relatively simple to annotate and use, but it cannot distinguish between &ldquo;correct reasoning&rdquo; and &ldquo;happening to get it right&rdquo;. PRM can locate errors to a certain step, improve credit assignment in long inference chains, and make it easier to explain why a trajectory is retained or pruned. In the mathematical reasoning experiment of <em>Let&rsquo;s Verify Step by Step</em>, process supervision is better than outcome supervision; this is a specific experimental conclusion and does not mean that PRM is naturally superior in all tasks.</p>
+
+<h3 id="why-does-the-validator-fail">Why does the validator fail?</h3>
+
+<ol>
+<li><strong>Training data is too small</strong>: The verifier remembers surface patterns but does not learn to judge correctness;</li>
+<li><strong>Generation-Verification Gap</strong>: The generator can produce the correct answer, but the verifier cannot recognize it;</li>
+<li><strong>Reward hacking</strong>: Agent learns to cater to scoring rules instead of completing real goals;</li>
+<li><strong>Homology bias</strong>: The generator and the verifier share similar blind spots, and errors will be steadily amplified;</li>
+<li><strong>Distribution Shift</strong>: A validator trained on short questions may not necessarily be able to judge long-term tasks.</li>
+</ol>
+
+<p>Engineering should prioritize the use of more reliable external signals: code unit tests, compilers, formal proofs, database constraints, or environment status. Learned verifiers are better suited to supplementing these signals rather than replacing them when deterministic checks are present. The aggregation of multiple weaker validators can also close the generation-validation gap, but only if their errors are not perfectly correlated.</p>
+
+<h2 id="4-tools-and-environment-feedback-bringing-reasoning-into-contact-with-reality">4. Tools and environment feedback: bringing reasoning into contact with reality</h2>
+
+<p>By only “thinking” inside the model, it’s easy to let false premises get passed along. Tool calls connect reasoning to the outside world: browsers can retrieve facts, code interpreters can run programs, databases can return real records, and the environment can tell the agent whether an action is valid.</p>
+
+<p>WebGPT demonstrates how language models can search and reference information through a browser. ReAct further interleaves <strong>Reasoning</strong> and <strong>Acting</strong> in the same trajectory:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Thought What information is currently missing?
+Action calls search, code, or business tools
+Observation reads the results returned by the environment
+Thought Revise plan based on new evidence</code></pre></td></tr></table>
+</div>
+</div>
+<p><img src="/img/posts/cs329a-self-improving-agents/react.png" alt="ReAct puts reasoning, action and environmental observation in the same loop" /></p>
+
+<p>The key to this model is not to &ldquo;call the tool&rdquo;, but to allow observation to actually change subsequent decisions. If the agent sticks to the original plan no matter what the tool returns, then the tool is just a decoration.</p>
+
+<p>Coding tasks are particularly well-suited to learning from feedback from the environment: compilation errors, test results, and runtime exceptions can all provide more concrete signals than “is the answer good or bad?” Work such as RLEF further uses execution feedback to train the model to learn multi-step corrections. However, the execution environment also introduces new risks: untrusted code must be run in isolation, tool output may contain noise or hint injection, and the test cases themselves may be incomplete.</p>
+
+<h2 id="5-planning-and-multi-step-reasoning-searching-an-action-tree">5. Planning and multi-step reasoning: searching an action tree</h2>
+
+<p>A long-range Agent task is not a question and answer, but a series of interdependent decisions. The previous step will change the environment, and the next step can only continue based on the new state. If you only follow a single path forward, it is easy for a local error to cause the entire task to fail.</p>
+
+<p>LATS (Language Agent Tree Search) organizes Agent&rsquo;s action trajectories into trees and draws on Monte Carlo Tree Search:</p>
+
+<ol>
+<li><strong>Selection</strong>: Select nodes based on value and exploration rewards;</li>
+<li><strong>Expansion</strong>: Generate multiple possible next actions;</li>
+<li><strong>Evaluation</strong>: combines model value judgment and environmental feedback scoring;</li>
+<li><strong>Backpropagation</strong>: Pass the result back along the path;</li>
+<li><strong>Reflection</strong>: Summarize the reasons for failure and affect subsequent searches.</li>
+</ol>
+
+<p><img src="/img/posts/cs329a-self-improving-agents/lats-uct.png" alt="LATS updates action tree using value function, UCT selection and postback" /></p>
+
+<p>Common UCT forms are:</p>
+
+<p>$$
+\mathrm{UCT}(i)=\bar{X}_i+c\sqrt{\frac{\ln N}{n_i}}
+$$</p>
+
+<p>Among them, $\bar{X}_i$ represents the average value of the node, $N$ is the number of visits to the parent node, $n_i$ is the number of visits to the current node, and $c$ controls the balance between exploitation and exploration.</p>
+
+<p>Tree search is not a free lunch. It is only worth investing in if the evaluator can reliably distinguish path quality; a weak discriminator will cause the search to spend more computing power in the wrong direction. For problems that can be split into independent subtasks, you can also use the planner to first decompose the plan, then let multiple executors execute it in parallel, and finally summarize the results.</p>
+
+<p><img src="/img/posts/cs329a-self-improving-agents/sprint-framework.png" alt="Planner breaks down tasks and executes them in parallel by multiple Executors" /></p>
+
+<h2 id="6-from-test-time-expansion-to-training-time-expansion">6. From test-time expansion to training-time expansion</h2>
+
+<p>Test-time searches generate a wealth of data: candidate solutions, tool calls, validation scores, success trajectories, and failure reflections. The goal of train-time scaling is to precipitate these one-time calculations into model parameters.</p>
+
+<p>A typical training closed loop is:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Current strategy generation candidates
+      ↓
+Validator or environment gives feedback
+      ↓
+Filter Tracks/Assign Step Credits
+      ↓
+Supervised learning or reinforcement learning update strategy
+      ↓
+Evaluate on independent tasks before moving on to the next round</code></pre></td></tr></table>
+</div>
+</div>
+<p>STaR is a representative idea: the model generates a reasoning process, and only continues training with reasoning that can lead to the correct answer; for failed samples, the explanation is regenerated under the condition of known answers. This iteration allows the model to learn more effective reasoning methods round by round.</p>
+
+<p>Reinforcement learning further directly optimizes environmental rewards, but reasoning RL is prone to training instability, length speculation, reward hacking, or capability degradation. Work such as DAPO shows that seemingly small implementation choices such as sampling, cropping, length control, dynamic filtering, and batch construction can significantly affect the final effect. What is truly scalable here is not “run more RL”, but a reliable data-feedback-update pipeline.</p>
+
+<h2 id="7-deep-research-from-static-rag-to-dynamic-search">7. Deep Research: From static RAG to dynamic search</h2>
+
+<p>Traditional RAGs are typically retrieved once before generation, jamming several documents into context. It has three typical limitations:</p>
+
+<ul>
+<li>The query comes from the original question and has not yet exposed real knowledge gaps in the reasoning;</li>
+<li>The search results may be too long, conflict with each other, or irrelevant to the current step;</li>
+<li>When new problems are discovered during subsequent reasoning, the system cannot actively search again.</li>
+</ul>
+
+<p>Agentic search turns retrieval into an action in the reasoning process. The core idea of ​​Search-o1 is: the model pauses generation when it encounters a knowledge gap, puts forward a query, reads the document, then refines information related to the current reasoning through Reason-in-Documents, and finally continues to answer.</p>
+
+<p><img src="/img/posts/cs329a-self-improving-agents/search-o1-framework.png" alt="Search-o1 dynamically retrieves and integrates external knowledge during reasoning" /></p>
+
+<p>This makes Deep Research Agent no longer a &ldquo;one search + one summary&rdquo;, but an iterative process: raising sub-questions, searching for evidence, comparing sources, discovering conflicts, supplementing searches, and forming supported conclusions. At the same time, it must also record sources, control retrieval costs, and avoid instructions in web content that hijack the Agent&rsquo;s goals.</p>
+
+<h2 id="8-how-to-evaluate-long-range-agent">8. How to evaluate long-range Agent?</h2>
+
+<p>The single-question accuracy rate cannot describe whether the Agent can stably complete real work. Long-term evaluation should at least observe simultaneously:</p>
+
+<ul>
+<li><strong>Success Rate</strong>: Whether the final task is completed;</li>
+<li><strong>Task time span</strong>: How long is the equivalent of human work;</li>
+<li><strong>Cost and Latency</strong>: How many tokens are used, tool calls and actual time;</li>
+<li><strong>Resilience</strong>: Can you roll back after a tool fails or the plan goes astray;</li>
+<li><strong>Validator Calibration</strong>: Does high score really mean high success rate;</li>
+<li><strong>Security</strong>: Whether it exceeds authority, leaks data, or performs irreversible operations.</li>
+</ul>
+
+<p>If a task contains $n$ key steps, the independent success rate of each step is $p$, and the success rate of the entire link is approximately $p^n$. For example, each step has a 95% success rate, and the probability of success for all 20 consecutive steps is only about 36%. Although the steps are not independent in reality, this simplified model still illustrates that long-range tasks can amplify small unreliabilities.</p>
+
+<p><em>Measuring AI Ability to Complete Long Tasks</em> proposes an intuitive metric: how long it would typically take a human expert to complete a task that the model can complete with a 50% success rate. This time horizon is suitable for observing changes in capabilities over time, but it relies on specific task distributions and cannot be understood as a universal time commitment of the model on all real jobs.</p>
+
+<h2 id="9-a-unified-engineering-architecture">9. A unified engineering architecture</h2>
+
+<p>Putting the previous content together, a groundable Self-Improving Agent usually contains the following components:</p>
+
+<table>
+<thead>
+<tr>
+<th>Components</th>
+<th>Responsibilities</th>
+<th>Key Issues</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Generator / Policy</td>
+<td>Generate answers or actions</td>
+<td>Are the candidates diverse enough?</td>
+</tr>
+
+<tr>
+<td>Environment / Tools</td>
+<td>Returning true status and execution feedback</td>
+<td>Is the feedback trustworthy and can be isolated?</td>
+</tr>
+
+<tr>
+<td>Verifier / Reward</td>
+<td>Judgment of results and process quality</td>
+<td>Will it be overfitted or exploited?</td>
+</tr>
+
+<tr>
+<td>Search / Controller</td>
+<td>Allocating budget, scaling and pruning</td>
+<td>What difficulty level is worth continuing to search for?</td>
+</tr>
+
+<tr>
+<td>Memory / Buffer</td>
+<td>Save traces, evidence and experience</td>
+<td>How to avoid the accumulation of false memories?</td>
+</tr>
+
+<tr>
+<td>Learner</td>
+<td>Update strategy with feedback</td>
+<td>Do improvements generalize across tasks?</td>
+</tr>
+
+<tr>
+<td>Evaluator</td>
+<td>Measure changes on independent tasks</td>
+<td>Are quality, cost and safety measured simultaneously?</td>
+</tr>
+</tbody>
+</table>
+
+<p>The overall loop can be written as the following pseudocode:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">while</span> <span class="n">budget_remaining</span><span class="p">:</span>
+    <span class="n">candidates</span> <span class="o">=</span> <span class="n">policy</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+    <span class="n">observations</span> <span class="o">=</span> <span class="n">environment</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="n">verifier</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">candidates</span><span class="p">,</span> <span class="n">observations</span><span class="p">)</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="n">select_or_revise</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">candidates</span><span class="p">,</span> <span class="n">scores</span><span class="p">)</span>
+    <span class="n">replay_buffer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">candidates</span><span class="p">,</span> <span class="n">observations</span><span class="p">,</span> <span class="n">scores</span><span class="p">)</span>
+
+<span class="n">policy</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">replay_buffer</span><span class="o">.</span><span class="n">filtered_trajectories</span><span class="p">())</span>
+<span class="n">evaluate_on_held_out_tasks</span><span class="p">(</span><span class="n">policy</span><span class="p">)</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>The most important line here is not <code>policy.update</code>, but the verification and filtering before feedback enters the buffer. Once error feedback is repeatedly learned by the model, it will change from a failure to stable behavior.</p>
+
+<h2 id="10-conclusion-feedback-quality-determines-the-upper-limit-of-improvement">10. Conclusion: Feedback quality determines the upper limit of improvement</h2>
+
+<p>The core of Self-Improving AI Agents is not to let the model &ldquo;think for longer&rdquo;, but to establish a verifiable closed loop:</p>
+
+<ol>
+<li>Calculate and improve candidate coverage during testing;</li>
+<li>The validator and environment feedback are responsible for identifying good trajectories;</li>
+<li>Search and plan more promising ways to invest the budget;</li>
+<li>Tools allow models to obtain external evidence and actionable feedback;</li>
+<li>Training to accumulate successful experience into the next round of capabilities;</li>
+<li>Long-range evaluation confirms whether this improvement is reliable, economical and safe.</li>
+</ol>
+
+<p>The upper limit of its capabilities is ultimately limited by the quality of the feedback. Without reliable verifiers, more sampling will only produce more unselectable answers; without independent evaluation, self-training may just amplify the deviation; without safety boundaries, the stronger the ability to act, the higher the cost of errors.</p>
+
+<p>What is truly worth pursuing is not the slogan of “infinite self-improvement”, but an engineering system that can be measured, tracked, and corrected in every round of changes.</p>
+
+<h2 id="references">References</h2>
+
+<ul>
+<li><a href="https://cs329a.stanford.edu/">Stanford CS329A: Self-Improving AI Agents</a></li>
+<li><a href="https://arxiv.org/abs/2408.03314">Scaling LLM Test-Time Compute Optimally can be More Effective than Scaling Model Parameters</a></li>
+<li><a href="https://arxiv.org/abs/2407.21787">Large Language Monkeys: Scaling Inference Compute with Repeated Sampling</a></li>
+<li><a href="https://arxiv.org/abs/2305.20050">Let&rsquo;s Verify Step by Step</a></li>
+<li><a href="https://arxiv.org/abs/2506.18203">Shrinking the Generation-Verification Gap with Weak Verifiers</a></li>
+<li><a href="https://arxiv.org/abs/2210.03629">ReAct: Synergizing Reasoning and Acting in Language Models</a></li>
+<li><a href="https://arxiv.org/abs/2112.09332">WebGPT: Browser-assisted Question-answering with Human Feedback</a></li>
+<li><a href="https://arxiv.org/abs/2410.02089">RLEF: Grounding Code LLMs in Execution Feedback with Reinforcement Learning</a></li>
+<li><a href="https://arxiv.org/abs/2310.04406">Language Agent Tree Search Unifies Reasoning, Acting, and Planning in Language Models</a></li>
+<li><a href="https://arxiv.org/abs/2402.10890">When is Tree Search Useful for LLM Planning?</a></li>
+<li><a href="https://arxiv.org/abs/2203.14465">Self-Taught Reasoner: Bootstrapping Reasoning With Reasoning</a></li>
+<li><a href="https://arxiv.org/abs/2503.14476">DAPO: An Open-Source LLM Reinforcement Learning System at Scale</a></li>
+<li><a href="https://arxiv.org/abs/2501.05366">Search-o1: Agentic Search-Enhanced Large Reasoning Models</a></li>
+<li><a href="https://arxiv.org/abs/2503.14499">Measuring AI Ability to Complete Long Tasks</a></li>
+</ul>
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">zhengxz</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2026-08-11
+
+    </span>
+  </p>
+
+
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/en/tags/ai-agents/">AI Agents</a>
+          <a href="/en/tags/test-time-compute/">Test-Time Compute</a>
+          <a href="/en/tags/verifier/">Verifier</a>
+          <a href="/en/tags/react/">ReAct</a>
+          <a href="/en/tags/lats/">LATS</a>
+          <a href="/en/tags/reinforcement-learning/">Reinforcement Learning</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/en/post/transformer-architecture/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Transformer Architecture: From Token Embeddings to the Training Loop</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/en/post/stanford-cs230-career-advice-in-ai/">
+            <span class="next-text nav-default">Stanford CS230: Career Advice for the AI Era</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+
+
+
+
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+  <a href="https://zheng-bobo.github.io/en/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+
+
+  <span class="copyright-year">
+    &copy;
+    2019 -
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span>zhengxz</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.5/es5/tex-mml-chtml.js" integrity="sha256-HGLuEfFcsUJGhvB8cQ8nr0gai9EucOOaIxFw7qxmd+w=" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

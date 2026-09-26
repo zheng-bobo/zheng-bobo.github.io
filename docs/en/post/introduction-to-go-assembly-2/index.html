@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>A Practical Introduction to Go Assembly (2) - Blowing in the wind</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="zhengxz" /><meta name="description" content="Function call from assembly perspective ﻿ Let’s start with a simple example:
+1 2 3 4 5 6 7 8 9 10  package main func main() { add(1, 1) } func add(a, b int64) (c int64) { c = a &#43; b return }    After executing the go tool compile -S compliation_add.go command, the assembly code is as follows
+1 2 3 4 5 6 7  ." /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.59.1 with theme even" />
+
+
+<link rel="canonical" href="https://zheng-bobo.github.io/en/post/introduction-to-go-assembly-2/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.4747d1be8010357c5daf4cd103b0bc1cff65936180045419874ea97f32138102.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/readability.css">
+<link rel="stylesheet" href="/css/about.css">
+
+
+<meta property="og:title" content="A Practical Introduction to Go Assembly (2)" />
+<meta property="og:description" content="Function call from assembly perspective ﻿ Let’s start with a simple example:
+1 2 3 4 5 6 7 8 9 10  package main func main() { add(1, 1) } func add(a, b int64) (c int64) { c = a &#43; b return }    After executing the go tool compile -S compliation_add.go command, the assembly code is as follows
+1 2 3 4 5 6 7  ." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zheng-bobo.github.io/en/post/introduction-to-go-assembly-2/" />
+<meta property="article:published_time" content="2021-01-01T12:34:14+08:00" />
+<meta property="article:modified_time" content="2021-01-01T12:34:14+08:00" /><meta property="og:site_name" content="Blowing in the wind" />
+<meta itemprop="name" content="A Practical Introduction to Go Assembly (2)">
+<meta itemprop="description" content="Function call from assembly perspective ﻿ Let’s start with a simple example:
+1 2 3 4 5 6 7 8 9 10  package main func main() { add(1, 1) } func add(a, b int64) (c int64) { c = a &#43; b return }    After executing the go tool compile -S compliation_add.go command, the assembly code is as follows
+1 2 3 4 5 6 7  .">
+
+
+<meta itemprop="datePublished" content="2021-01-01T12:34:14&#43;08:00" />
+<meta itemprop="dateModified" content="2021-01-01T12:34:14&#43;08:00" />
+<meta itemprop="wordCount" content="1664">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="A Practical Introduction to Go Assembly (2)"/>
+<meta name="twitter:description" content="Function call from assembly perspective ﻿ Let’s start with a simple example:
+1 2 3 4 5 6 7 8 9 10  package main func main() { add(1, 1) } func add(a, b int64) (c int64) { c = a &#43; b return }    After executing the go tool compile -S compliation_add.go command, the assembly code is as follows
+1 2 3 4 5 6 7  ."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/en/about/" class="logo">Bobo</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/en/">
+        <li class="mobile-menu-item">Blog</li>
+      </a><a href="/en/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/en/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/en/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/en/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item ">
+
+            <a href="/post/go%E6%B1%87%E7%BC%96%E7%AE%80%E6%98%93%E5%85%A5%E9%97%A82/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item active">
+
+            <a href="/en/post/introduction-to-go-assembly-2/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/en/about/" class="logo">Bobo</a>
+</div>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item ">
+
+            <a href="/post/go%E6%B1%87%E7%BC%96%E7%AE%80%E6%98%93%E5%85%A5%E9%97%A82/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item active">
+
+            <a href="/en/post/introduction-to-go-assembly-2/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/en/">Blog</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+
+    <header class="post-header">
+      <h1 class="post-title">A Practical Introduction to Go Assembly (2)</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2021-01-01 </span>
+        <div class="post-category">
+            <a href="/en/categories/go/"> Go </a>
+            </div>
+          <span class="more-meta"> 1664 words </span>
+          <span class="more-meta"> 8 mins read </span>
+
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+<ul>
+<li><a href="#function-call-from-assembly-perspective">Function call from assembly perspective</a></li>
+<li><a href="#function-call-stack">Function call stack</a></li>
+<li><a href="#function-definition">Function definition</a></li>
+</ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+
+
+<h1 id="function-call-from-assembly-perspective">Function call from assembly perspective</h1>
+
+<p>﻿ Let’s start with a simple example:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nf">add</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">add</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="nx">b</span> <span class="kt">int64</span><span class="p">)</span> <span class="p">(</span><span class="nx">c</span> <span class="kt">int64</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">c</span> <span class="p">=</span> <span class="nx">a</span> <span class="o">+</span> <span class="nx">b</span>
+    <span class="k">return</span>
+<span class="p">}</span></pre></td></tr></table>
+</div>
+</div>
+<p> After executing the go tool compile -S compliation_add.go command, the assembly code is as follows</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma"> ......
+ 0x0000 00000 (compliation_add.go:8) MOVQ &#34;&#34;.b+16(SP), AX #Read the value of variable b into register ax
+ 0x0005 00005 (compliation_add.go:8) MOVQ &#34;&#34;.a+8(SP), CX #Read the value of variable a into register cx
+ 0x000a 00010 (compliation_add.go:8) ADDQ CX, AX #Add the values ​​in registers cx and ax, and put the result back into the ax register
+ 0x000d 00013 (compliation_add.go:9) MOVQ AX, &#34;&#34;.c+24(SP) #Write the value in register ax back to the memory where variable c is located
+ 0x0012 00018 (compliation_add.go:9) RET #Function return
+ ......</pre></td></tr></table>
+</div>
+</div>
+<p>﻿ We have mentioned above that the <code>sp</code> register points to the top address of the function call stack <br/></p>
+
+<p>﻿ Now assuming that the memory address is</p>
+
+<p>The suffix <code>Q</code> of <code>MOVQ</code> means reading 8 consecutive bytes. The address in the instruction is just the starting address, which represents the address of the variable <code>b</code> in memory;
+<br/></p>
+
+<p> The second instruction is similar, except that the starting address is <code>X + 8</code> (the address of variable a in memory); <br/></p>
+
+<p>﻿﻿The last instruction means to write the value in the <code>AX</code> register into the 8 memory units starting from the address <code>X + 24</code>.</p>
+
+<p><br/>
+ Why is the starting address of variable <code>a</code> not <code>X</code>, but <code>X + 8</code> memory units? This is related to the layout of the function call stack in memory.</p>
+
+<h1 id="function-call-stack">Function call stack</h1>
+
+<p> The layout of the process in memory is as shown in the figure</p>
+
+<p><img src="https://i.loli.net/2021/01/01/eZdTbjO9fgYHInP.png" alt="layout of process.png" /></p>
+
+<p>  The function call stack is referred to as the stack. During the running of the program, whether it is the execution of a function or a function call, the stack plays a very important role. It is mainly used for:</p>
+
+<ol>
+<li><p>Save the local variables of the function;</p></li>
+
+<li><p>Pass parameters to the called function;</p></li>
+
+<li><p>Return the return value of the function;</p></li>
+
+<li><p>Save the return address of the function. The return address refers to the address of the instruction that the caller should continue to execute after returning from the called function<!--. We will explain the return address in more detail when introducing the call instruction in the assembly instructions section. --></p></li>
+</ol>
+
+<p>﻿Each function uses stack memory to save these values during execution. This region is the function&rsquo;s <code>stack frame</code>. On AMD64 Linux, the stack grows from high addresses toward low addresses.</p>
+
+<p><br/>
+**AMD64 CPU provides 2 stack-related registers: **</p>
+
+<ul>
+<li><p>rsp register (SP), always points to the top of the function call stack</p></li>
+
+<li><p>rbp register (BP), generally used to point to the starting position of the function stack frame</p></li>
+</ul>
+
+<p><br/>
+Two illustrations are used below to illustrate the function call stack and the relationship between rsp/rbp and the stack.</p>
+
+<p>Assume that there is now the following function call chain and function C() is being executed:</p>
+
+<p>A()-&gt;B()-&gt;C()
+Then the stack frame of function ABC and the status of rsp/rbp are roughly as shown in the figure below (note that the stack grows from high address to low address):
+<img src="https://i.loli.net/2021/01/01/Ng7PbHK5ESs9p68.png" alt="layout of stack1.png" /></p>
+
+<p>Regarding the above picture, there are a few points that need to be explained:</p>
+
+<ul>
+<li><p>When calling a function, parameters and return values are stored in the caller&rsquo;s stack frame, not in the called function;</p></li>
+
+<li><p>The C function is currently being executed, and the function call chain is A()-&gt;B()-&gt;C(), so in terms of stack frames, the stack frame of the C function is currently on the top of the stack;</p></li>
+
+<li><p>The CPU hardware register rsp points to the top of the entire stack. Of course, it also points to the top of the stack frame of the C function, and the rbp register points to the starting position of the C function stack frame;</p></li>
+
+<li><p>Although the stack frames of the three functions ABC in the picture appear to be about the same size, in fact, in a real program, the stack frame size of each function may be different, because the number of local variables and the size of the memory occupied by different functions are different;</p></li>
+
+<li><p>Some compilers such as gcc will put parameters and return values in registers instead of on the stack. The parameters and return values of functions in the Go language are placed on the stack;</p></li>
+</ul>
+
+<p><br/></p>
+
+<p>As the program runs, if both functions C and B are executed and return to function A to continue execution, the stack status will be as follows:</p>
+
+<p><img src="https://i.loli.net/2021/01/01/CpHXbQ5jYGD84an.png" alt="layout of stack2.png" /></p>
+
+<p>Because both functions C and B have completed execution and returned to function A, the stack frames of functions C and B have been popped out of the stack by POP, which means that the stack memory consumed by them has been automatically recycled. Because function A is now being executed, the registers rbp and rsp point to the corresponding positions in the stack of function A. If function A continues to call function D, the stack will look like this again:</p>
+
+<p><br/>
+<img src="https://i.loli.net/2021/01/01/K9OaWT8MEQXcrFC.png" alt="layout of stack3.png" /></p>
+
+<p><br/>
+The stack frame of function D actually uses the stack memory used to call functions B and C before. Because functions B and C have been executed, function D now reuses this memory. This is why the address of function local variables should never be returned in C language, because the stack memory at the same address will be reused, but there is no such restriction in go language (escape analysis). When it finds that the program returns the address of a local variable, the compiler will put this variable on the heap. From the above analysis, we can see that the registers rbp and rsp always point to the stack frame of the executing function.</p>
+
+<p><br/>
+The stack frame size of the sample code <code>add</code> function is 0. When the <code>add</code> function stack is called, the <code>sp</code> register points to the top address of the function call stack. <code>X</code> is <code>add</code>. After the function is executed, return to <code>main</code> function address, then the starting address of the first parameter variable a is <code>X + 8</code>. <br/>
+Finally, execute the <code>RET</code> instruction. This step clears the stack frame of the called function <code>add</code>, then pops the return address on the top of the stack and assigns it to the instruction register <code>rip</code>, and the return address is the next line in the <code>main</code> function that calls the <code>add</code> function.</p>
+
+<p>#Virtual registers provided by go assembly</p>
+
+<p>In addition to these registers that correspond one-to-one to the AMD64 CPU hardware registers, the go assembly also introduces several virtual registers that do not correspond to any hardware registers. These registers are generally used to store memory addresses. The main purpose of introducing them is to facilitate programmers and compilers to locate code and data in memory.</p>
+
+<p>﻿﻿The following focuses on the use of two common virtual registers in go assembly:</p>
+
+<p><strong><em>FP virtual register</em></strong>: Mainly used to reference function parameters. Go language stipulates that parameters must be placed on the stack when a function is called. For example, the called function uses <code>first_arg+0(FP)</code> to reference the first parameter passed in by the caller, and <code>second_arg+8(FP)</code> to reference the second parameter. , and by analogy, the <code>first_arg</code> and <code>second_arg</code> here are just symbols to help us read the source code and have no practical meaning for the compiler. <code>+0</code> and <code>+8</code> represent the offset relative to the FP register. Let&rsquo;s use a function fragment in runtime as an example to see the use of FP.</p>
+
+<p>　　 There is a function called gogo in go runtime, which accepts a pointer of type gobuf.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">// func gogo(buf *gobuf)
+// restore state from Gobuf; longjmp
+TEXT runtime·gogo(SB), NOSPLIT, $16-8
+MOVQbuf+0(FP), BX// gobuf --&gt;bx
+......</pre></td></tr></table>
+</div>
+</div>
+<p><code>MOVQ buf+0(FP), BX</code> This instruction puts the pointer buf passed in by the caller into the BX register. It can be seen that the gogo function obtains the parameters through <code>buf+0(FP)</code>. From the perspective of the called function (here, the gogo function), the relationship between FP and the function stack frame is as shown below. It can be seen that the FP register points to the stack frame of the caller, not the stack frame of the called function.</p>
+
+<p><strong><em>SB virtual register</em></strong>: Saves the starting address of the program address space. Do you still remember the picture of the layout of the process in memory that we saw in the function call stack section? The value saved in this SB register is the starting address of the code area, which is mainly used to locate global symbols. Function definitions, function calls, global variable definitions and references to them in go assembly will use this SB virtual register. We don&rsquo;t need to pay too much attention to this virtual register. We just know that it is a virtual register when we see it in the code.</p>
+
+<h1 id="function-definition">Function definition</h1>
+
+<p> Let’s take the gogo function in go runtime as an example:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">// func gogo(buf *gobuf)
+// restore state from Gobuf; longjmp
+TEXT runtime·gogo(SB), NOSPLIT, $16-8
+......</pre></td></tr></table>
+</div>
+</div>
+<p> The following is an explanation of each part of the first line of the function definition:</p>
+
+<ul>
+<li><p><code>TEXT runtime·gogo(SB)</code>: Indicates that a global function (symbol) named gogo is defined in the code area, and this function belongs to the runtime package.</p></li>
+
+<li><p><code>NOSPLIT</code>: Instructs the compiler not to insert code that checks whether the stack overflows in this function.</p></li>
+
+<li><p><code>$16-8</code>: The number 16 indicates that the stack frame size of this function is 16 bytes, and 8 indicates that the parameters and return value of this function require a total of 8 bytes of memory. Because the gogo function here has no return value, only a pointer parameter, and for the AMD64 platform, the pointer is 8 bytes. The parameters and function return values ​​of function calls in the Go language are placed on the stack, and this part of the stack memory is reserved by the caller rather than the called function. Therefore, when defining the function, you need to specify how much space needs to be reserved in the caller&rsquo;s stack frame.</p></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">zhengxz</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2021-01-01
+
+    </span>
+  </p>
+
+
+</div>
+<footer class="post-footer">
+
+      <nav class="post-nav">
+        <a class="prev" href="/en/post/domain-driven-design-everything-you-wanted-to-know-1/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Translation: Domain-Driven Design - Everything You Always Wanted to Know (1)</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/en/post/introduction-to-go-assembly-1/">
+            <span class="next-text nav-default">A Practical Introduction to Go Assembly (1)</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+
+
+
+
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+  <a href="https://zheng-bobo.github.io/en/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+
+
+  <span class="copyright-year">
+    &copy;
+    2019 -
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span>zhengxz</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

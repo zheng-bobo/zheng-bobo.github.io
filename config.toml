@@ -1,6 +1,7 @@
 baseURL = "https://zheng-bobo.github.io/"
 languageCode = "en"
 defaultContentLanguage = "zh-cn"                             # en / zh-cn / ... (This field determines which i18n file to use)
+defaultContentLanguageInSubdir = false
 title = "Blowing in the wind"
 preserveTaxonomyNames = true
 enableRobotsTXT = true
@@ -28,31 +29,70 @@ copyright = ""            # default: author.name ↓        # 默认为下面配
   priority = 0.5
   filename = "sitemap.xml"
 
-[[menu.main]]             # config your menu              # 配置目录
-  name = "Blog"
-  weight = 10
-  identifier = "home"
-  url = "/"
-[[menu.main]]
-  name = "归档"
-  weight = 20
-  identifier = "archives"
-  url = "/post/"
-[[menu.main]]
-  name = "标签"
-  weight = 30
-  identifier = "tags"
-  url = "/tags/"
-[[menu.main]]
-  name = "分类"
-  weight = 40
-  identifier = "categories"
-  url = "/categories/"
-[[menu.main]]
-  name = "关于我"
-  weight = 50
-  identifier = "about"
-  url = "/about/"
+[languages]
+  [languages.zh-cn]
+    languageName = "中文"
+    languageCode = "zh-CN"
+    weight = 1
+    title = "Blowing in the wind"
+
+    [[languages.zh-cn.menu.main]]
+      name = "Blog"
+      weight = 10
+      identifier = "home"
+      url = "/"
+    [[languages.zh-cn.menu.main]]
+      name = "归档"
+      weight = 20
+      identifier = "archives"
+      url = "/post/"
+    [[languages.zh-cn.menu.main]]
+      name = "标签"
+      weight = 30
+      identifier = "tags"
+      url = "/tags/"
+    [[languages.zh-cn.menu.main]]
+      name = "分类"
+      weight = 40
+      identifier = "categories"
+      url = "/categories/"
+    [[languages.zh-cn.menu.main]]
+      name = "关于我"
+      weight = 50
+      identifier = "about"
+      url = "/about/"
+
+  [languages.en]
+    languageName = "EN"
+    languageCode = "en"
+    weight = 2
+    title = "Blowing in the wind"
+
+    [[languages.en.menu.main]]
+      name = "Blog"
+      weight = 10
+      identifier = "home"
+      url = "/en/"
+    [[languages.en.menu.main]]
+      name = "Archives"
+      weight = 20
+      identifier = "archives"
+      url = "/en/post/"
+    [[languages.en.menu.main]]
+      name = "Tags"
+      weight = 30
+      identifier = "tags"
+      url = "/en/tags/"
+    [[languages.en.menu.main]]
+      name = "Categories"
+      weight = 40
+      identifier = "categories"
+      url = "/en/categories/"
+    [[languages.en.menu.main]]
+      name = "About"
+      weight = 50
+      identifier = "about"
+      url = "/en/about/"
 
 [params]
   version = "4.x"           # Used to give a friendly message when you have an incompatible update
@@ -110,6 +150,7 @@ copyright = ""            # default: author.name ↓        # 默认为下面配
   #   (relative to /static/css and /static/js respectively)
   customCSS = ["readability.css", "about.css"]
   customJS = []
+  showLanguageSelector = true
 
   [params.publicCDN]        # load these files from public cdn                          # 启用公共CDN，需自行定义
     enable = true

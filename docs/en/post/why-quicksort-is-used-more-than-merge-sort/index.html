@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Why Is Quicksort Used More Often Than Merge Sort? - Blowing in the wind</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="zhengxz" /><meta name="description" content="What is honey to you is arsenic to another.   Quick sort: 1 2 3  * Worst-case time complexity: O(n^2) * Best-case time complexity: O(n log n) * Average time complexity: O(n log n)   Merge sort: 1  * Worst-, best-, and average-case time complexity: O(n log n)   Since the time complexity of merge sort is &amp;gt;= the time complexity of quick sort in different situations, why are the sorting algorithms we use in actual programming quick sort instead of merge sort?" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.59.1 with theme even" />
+
+
+<link rel="canonical" href="https://zheng-bobo.github.io/en/post/why-quicksort-is-used-more-than-merge-sort/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.4747d1be8010357c5daf4cd103b0bc1cff65936180045419874ea97f32138102.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/readability.css">
+<link rel="stylesheet" href="/css/about.css">
+
+
+<meta property="og:title" content="Why Is Quicksort Used More Often Than Merge Sort?" />
+<meta property="og:description" content="What is honey to you is arsenic to another.   Quick sort: 1 2 3  * Worst-case time complexity: O(n^2) * Best-case time complexity: O(n log n) * Average time complexity: O(n log n)   Merge sort: 1  * Worst-, best-, and average-case time complexity: O(n log n)   Since the time complexity of merge sort is &gt;= the time complexity of quick sort in different situations, why are the sorting algorithms we use in actual programming quick sort instead of merge sort?" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zheng-bobo.github.io/en/post/why-quicksort-is-used-more-than-merge-sort/" />
+<meta property="article:published_time" content="2019-11-13T20:32:10+08:00" />
+<meta property="article:modified_time" content="2019-11-13T20:32:10+08:00" /><meta property="og:site_name" content="Blowing in the wind" />
+<meta itemprop="name" content="Why Is Quicksort Used More Often Than Merge Sort?">
+<meta itemprop="description" content="What is honey to you is arsenic to another.   Quick sort: 1 2 3  * Worst-case time complexity: O(n^2) * Best-case time complexity: O(n log n) * Average time complexity: O(n log n)   Merge sort: 1  * Worst-, best-, and average-case time complexity: O(n log n)   Since the time complexity of merge sort is &gt;= the time complexity of quick sort in different situations, why are the sorting algorithms we use in actual programming quick sort instead of merge sort?">
+
+
+<meta itemprop="datePublished" content="2019-11-13T20:32:10&#43;08:00" />
+<meta itemprop="dateModified" content="2019-11-13T20:32:10&#43;08:00" />
+<meta itemprop="wordCount" content="514">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Why Is Quicksort Used More Often Than Merge Sort?"/>
+<meta name="twitter:description" content="What is honey to you is arsenic to another.   Quick sort: 1 2 3  * Worst-case time complexity: O(n^2) * Best-case time complexity: O(n log n) * Average time complexity: O(n log n)   Merge sort: 1  * Worst-, best-, and average-case time complexity: O(n log n)   Since the time complexity of merge sort is &gt;= the time complexity of quick sort in different situations, why are the sorting algorithms we use in actual programming quick sort instead of merge sort?"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/en/about/" class="logo">Bobo</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/en/">
+        <li class="mobile-menu-item">Blog</li>
+      </a><a href="/en/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/en/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/en/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/en/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item ">
+
+            <a href="/post/why-quicksort-better-than-mergesort/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item active">
+
+            <a href="/en/post/why-quicksort-is-used-more-than-merge-sort/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/en/about/" class="logo">Bobo</a>
+</div>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item ">
+
+            <a href="/post/why-quicksort-better-than-mergesort/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item active">
+
+            <a href="/en/post/why-quicksort-is-used-more-than-merge-sort/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/en/">Blog</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+
+    <header class="post-header">
+      <h1 class="post-title">Why Is Quicksort Used More Often Than Merge Sort?</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2019-11-13 </span>
+        <div class="post-category">
+            <a href="/en/categories/algorithms/"> Algorithms </a>
+            </div>
+          <span class="more-meta"> 514 words </span>
+          <span class="more-meta"> 3 mins read </span>
+
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#quick-sort">Quick sort:</a></li>
+<li><a href="#merge-sort">Merge sort:</a></li>
+<li><a href="#definition-of-big-o-notation-from-wikipedia">Definition of Big O notation from Wikipedia:</a></li>
+<li><a href="#understand">Understand</a></li>
+<li><a href="#in-what-scenarios-is-merge-sort-more-efficient-than-quick-sort">In what scenarios is merge sort more efficient than quick sort?</a></li>
+<li><a href="#conclusion">Conclusion</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+
+
+<!-- where class="blockquote-center" is required -->
+
+<blockquote class="blockquote-center">
+What is honey to you is arsenic to another. <br/>
+<!--                 Zheng Xie -->
+<!-- Right aligned -->
+</blockquote>
+
+<h3 id="quick-sort">Quick sort:</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">*  Worst-case time complexity: O(n^2)
+*  Best-case time complexity: O(n log n)
+*  Average time complexity: O(n log n)</pre></td></tr></table>
+</div>
+</div>
+<h3 id="merge-sort">Merge sort:</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">*  Worst-, best-, and average-case time complexity: O(n log n)</pre></td></tr></table>
+</div>
+</div>
+<p>Since the time complexity of merge sort is &gt;= the time complexity of quick sort in different situations, why are the sorting algorithms we use in actual programming quick sort instead of merge sort?</p>
+
+<h3 id="definition-of-big-o-notation-from-wikipedia">Definition of Big O notation from Wikipedia:</h3>
+
+<p>﻿ <strong>Big O notation</strong> (English: Big O notation), also known as <strong>asymptotic notation</strong>, is a <a href="https://zh.wikipedia.org/wiki/%E6%95%B0%E5%AD%A6" title="mathematical">mathematical</a> symbol used to describe <a href="https://zh.wikipedia.org/wiki/%E5%87%BD%E6%95%B0" title="function">function</a><a href="https://zh.wikipedia.org/wiki/%E6%B8%90%E8%BF%91%E5%88%86%E6%9E%90" title="asymptotic analysis">asymptotic behavior</a>. More precisely, it is an <strong>asymptotic upper bound</strong> for a function <a href="https://zh.wikipedia.org/wiki/%E6%95%B0%E9%87%8F%E7%BA%A7" title="order of magnitude">order of magnitude</a> described in terms of another (usually simpler) function.</p>
+
+<p> As an example, the time it takes to solve a problem of size n (or the array of steps required) can be expressed as:
+<div style="text-align:center">T(n) = n^2 + 2n +2</div>
+As n increases, the n^2 terms will begin to dominate, and the other terms can be ignored.
+ Just write down the rest in big O notation and write:</p>
+
+<p><img src="https://upload-images.jianshu.io/upload_images/12457267-fa937d51e1431e6e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png" /></p>
+
+<p>  And we say that the algorithm has a time complexity of order n^2 (square order).</p>
+
+<h3 id="understand">Understand</h3>
+
+<p> For the above function, when the size of n is extremely large, we ignore the small term 2n and the constant 2, and the time complexity is O(n^2).
+ In the actual production process, the scale we deal with is not actually very large. At this time, this small term and constant cannot be ignored.</p>
+
+<p> The actual time it takes for quick sort and merge sort to handle a problem of size n is:
+<div style="text-align:center">T(n) = nlgn + c, c is a constant </div></p>
+
+<p>﻿ Quick sort is generally implemented as in-place sorting (in-place), without creating any auxiliary array to save temporary values.
+ Merge sort needs to allocate and deallocate auxiliary arrays, and the constant time required is obviously equivalent to quick sort.</p>
+
+<p> Taking into account the influence of constants, because the constants of quick sort are smaller than that of sort, although the complexity of the two is the same, quick sort is faster.</p>
+
+<h3 id="in-what-scenarios-is-merge-sort-more-efficient-than-quick-sort">In what scenarios is merge sort more efficient than quick sort?</h3>
+
+<p> When sorting data in a linked list structure, merge sort is more efficient than quick sort. Since linked list cells are typically scattered throughout memory, accessing adjacent linked list cells does not bring any positional benefit. Therefore, one of Quicksort&rsquo;s huge performance advantages is eaten up. Likewise, the benefits of working in place no longer apply, since merge sort&rsquo;s linked list algorithm does not require any additional auxiliary storage.</p>
+
+<p>  That is to say, quick sort is still very fast on linked lists. Merge sort tends to be faster because it splits the list in half more evenly and does less work per iteration to complete the merge than the partitioning step.</p>
+
+<h3 id="conclusion">Conclusion</h3>
+
+<p>﻿Each algorithm has its most suitable scenario, and there is no universal algorithm implementation for all models. Reasonable algorithms should be selected for different scenarios.</p>
+
+<p>References:
+<a href="https://stackoverflow.com/questions/7629904/why-is-mergesort-better-for-linked-lists">Why is mergesort better for linked lists?</a></p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">zhengxz</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2019-11-13
+
+    </span>
+  </p>
+
+
+</div>
+<footer class="post-footer">
+
+      <nav class="post-nav">
+        <a class="prev" href="/en/post/go-main-goroutine-scheduler-2/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Inside Go&#39;s Main Goroutine Scheduler (2)</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/en/post/go-main-goroutine-scheduler-1/">
+            <span class="next-text nav-default">Inside Go&#39;s Main Goroutine Scheduler (1)</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+
+
+
+
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+  <a href="https://zheng-bobo.github.io/en/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+
+
+  <span class="copyright-year">
+    &copy;
+    2019 -
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span>zhengxz</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

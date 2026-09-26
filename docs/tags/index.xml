@@ -5,155 +5,155 @@
     <link>https://zheng-bobo.github.io/tags/</link>
     <description>Recent content in Tags on Blowing in the wind</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en</language>
+    <language>zh-CN</language>
     <lastBuildDate>Mon, 14 Sep 2026 10:25:02 +0200</lastBuildDate>
-    
-	<atom:link href="https://zheng-bobo.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+
+  <atom:link href="https://zheng-bobo.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+
+
     <item>
       <title>Attention</title>
       <link>https://zheng-bobo.github.io/tags/attention/</link>
       <pubDate>Mon, 14 Sep 2026 10:25:02 +0200</pubDate>
-      
+
       <guid>https://zheng-bobo.github.io/tags/attention/</guid>
       <description></description>
     </item>
-    
+
     <item>
       <title>GPT</title>
       <link>https://zheng-bobo.github.io/tags/gpt/</link>
       <pubDate>Mon, 14 Sep 2026 10:25:02 +0200</pubDate>
-      
+
       <guid>https://zheng-bobo.github.io/tags/gpt/</guid>
       <description></description>
     </item>
-    
+
     <item>
       <title>PyTorch</title>
       <link>https://zheng-bobo.github.io/tags/pytorch/</link>
       <pubDate>Mon, 14 Sep 2026 10:25:02 +0200</pubDate>
-      
+
       <guid>https://zheng-bobo.github.io/tags/pytorch/</guid>
       <description></description>
     </item>
-    
+
     <item>
       <title>Transformer</title>
       <link>https://zheng-bobo.github.io/tags/transformer/</link>
       <pubDate>Mon, 14 Sep 2026 10:25:02 +0200</pubDate>
-      
+
       <guid>https://zheng-bobo.github.io/tags/transformer/</guid>
       <description></description>
     </item>
-    
+
     <item>
       <title>深度学习</title>
       <link>https://zheng-bobo.github.io/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/</link>
       <pubDate>Mon, 14 Sep 2026 10:25:02 +0200</pubDate>
-      
+
       <guid>https://zheng-bobo.github.io/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/</guid>
       <description></description>
     </item>
-    
+
     <item>
       <title>AI Agents</title>
       <link>https://zheng-bobo.github.io/tags/ai-agents/</link>
       <pubDate>Tue, 11 Aug 2026 06:27:01 +0200</pubDate>
-      
+
       <guid>https://zheng-bobo.github.io/tags/ai-agents/</guid>
       <description></description>
     </item>
-    
+
     <item>
       <title>LATS</title>
       <link>https://zheng-bobo.github.io/tags/lats/</link>
       <pubDate>Tue, 11 Aug 2026 06:27:01 +0200</pubDate>
-      
+
       <guid>https://zheng-bobo.github.io/tags/lats/</guid>
       <description></description>
     </item>
-    
+
     <item>
       <title>ReAct</title>
       <link>https://zheng-bobo.github.io/tags/react/</link>
       <pubDate>Tue, 11 Aug 2026 06:27:01 +0200</pubDate>
-      
+
       <guid>https://zheng-bobo.github.io/tags/react/</guid>
       <description></description>
     </item>
-    
+
     <item>
       <title>Reinforcement Learning</title>
       <link>https://zheng-bobo.github.io/tags/reinforcement-learning/</link>
       <pubDate>Tue, 11 Aug 2026 06:27:01 +0200</pubDate>
-      
+
       <guid>https://zheng-bobo.github.io/tags/reinforcement-learning/</guid>
       <description></description>
     </item>
-    
+
     <item>
       <title>Test-Time Compute</title>
       <link>https://zheng-bobo.github.io/tags/test-time-compute/</link>
       <pubDate>Tue, 11 Aug 2026 06:27:01 +0200</pubDate>
-      
+
       <guid>https://zheng-bobo.github.io/tags/test-time-compute/</guid>
       <description></description>
     </item>
-    
+
     <item>
       <title>Verifier</title>
       <link>https://zheng-bobo.github.io/tags/verifier/</link>
       <pubDate>Tue, 11 Aug 2026 06:27:01 +0200</pubDate>
-      
+
       <guid>https://zheng-bobo.github.io/tags/verifier/</guid>
       <description></description>
     </item>
-    
+
     <item>
       <title>AI</title>
       <link>https://zheng-bobo.github.io/tags/ai/</link>
       <pubDate>Mon, 23 Mar 2026 12:22:13 +0100</pubDate>
-      
+
       <guid>https://zheng-bobo.github.io/tags/ai/</guid>
       <description></description>
     </item>
-    
+
     <item>
       <title>Product Management</title>
       <link>https://zheng-bobo.github.io/tags/product-management/</link>
       <pubDate>Mon, 23 Mar 2026 12:22:13 +0100</pubDate>
-      
+
       <guid>https://zheng-bobo.github.io/tags/product-management/</guid>
       <description></description>
     </item>
-    
+
     <item>
       <title>Small AI</title>
       <link>https://zheng-bobo.github.io/tags/small-ai/</link>
       <pubDate>Mon, 23 Mar 2026 12:22:13 +0100</pubDate>
-      
+
       <guid>https://zheng-bobo.github.io/tags/small-ai/</guid>
       <description></description>
     </item>
-    
+
     <item>
       <title>职业发展</title>
       <link>https://zheng-bobo.github.io/tags/%E8%81%8C%E4%B8%9A%E5%8F%91%E5%B1%95/</link>
       <pubDate>Mon, 23 Mar 2026 12:22:13 +0100</pubDate>
-      
+
       <guid>https://zheng-bobo.github.io/tags/%E8%81%8C%E4%B8%9A%E5%8F%91%E5%B1%95/</guid>
       <description></description>
     </item>
-    
+
     <item>
       <title>软件工程</title>
       <link>https://zheng-bobo.github.io/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/</link>
       <pubDate>Mon, 23 Mar 2026 12:22:13 +0100</pubDate>
-      
+
       <guid>https://zheng-bobo.github.io/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/</guid>
       <description></description>
     </item>
-    
+
   </channel>
 </rss>

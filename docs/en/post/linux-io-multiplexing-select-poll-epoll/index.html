@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Translation: Linux I/O Multiplexing - select vs. poll vs. epoll - Blowing in the wind</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="zhengxz" /><meta name="description" content="Introduction  Before reading this article, you can first understand the five I/O models of Liunx
+ References: I/O Models &amp;ndash;Section 6.2 of &amp;ldquo;UNIX® Network Programming Volume 1, Third Edition: The Sockets Networking&amp;rdquo; by Richard Stevens
+The following is the text of the article    One of the basic concepts of Linux (actually Unix) is that everything in Unix/Linux is a file. Each process has a file descriptor table that points to files, sockets, devices, and other operating system objects related to the process." /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.59.1 with theme even" />
+
+
+<link rel="canonical" href="https://zheng-bobo.github.io/en/post/linux-io-multiplexing-select-poll-epoll/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.4747d1be8010357c5daf4cd103b0bc1cff65936180045419874ea97f32138102.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/readability.css">
+<link rel="stylesheet" href="/css/about.css">
+
+
+<meta property="og:title" content="Translation: Linux I/O Multiplexing - select vs. poll vs. epoll" />
+<meta property="og:description" content="Introduction  Before reading this article, you can first understand the five I/O models of Liunx
+ References: I/O Models &ndash;Section 6.2 of &ldquo;UNIX® Network Programming Volume 1, Third Edition: The Sockets Networking&rdquo; by Richard Stevens
+The following is the text of the article    One of the basic concepts of Linux (actually Unix) is that everything in Unix/Linux is a file. Each process has a file descriptor table that points to files, sockets, devices, and other operating system objects related to the process." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zheng-bobo.github.io/en/post/linux-io-multiplexing-select-poll-epoll/" />
+<meta property="article:published_time" content="2021-02-11T09:45:47+08:00" />
+<meta property="article:modified_time" content="2021-02-11T09:45:47+08:00" /><meta property="og:site_name" content="Blowing in the wind" />
+<meta itemprop="name" content="Translation: Linux I/O Multiplexing - select vs. poll vs. epoll">
+<meta itemprop="description" content="Introduction  Before reading this article, you can first understand the five I/O models of Liunx
+ References: I/O Models &ndash;Section 6.2 of &ldquo;UNIX® Network Programming Volume 1, Third Edition: The Sockets Networking&rdquo; by Richard Stevens
+The following is the text of the article    One of the basic concepts of Linux (actually Unix) is that everything in Unix/Linux is a file. Each process has a file descriptor table that points to files, sockets, devices, and other operating system objects related to the process.">
+
+
+<meta itemprop="datePublished" content="2021-02-11T09:45:47&#43;08:00" />
+<meta itemprop="dateModified" content="2021-02-11T09:45:47&#43;08:00" />
+<meta itemprop="wordCount" content="1813">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Translation: Linux I/O Multiplexing - select vs. poll vs. epoll"/>
+<meta name="twitter:description" content="Introduction  Before reading this article, you can first understand the five I/O models of Liunx
+ References: I/O Models &ndash;Section 6.2 of &ldquo;UNIX® Network Programming Volume 1, Third Edition: The Sockets Networking&rdquo; by Richard Stevens
+The following is the text of the article    One of the basic concepts of Linux (actually Unix) is that everything in Unix/Linux is a file. Each process has a file descriptor table that points to files, sockets, devices, and other operating system objects related to the process."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/en/about/" class="logo">Bobo</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/en/">
+        <li class="mobile-menu-item">Blog</li>
+      </a><a href="/en/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/en/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/en/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/en/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item ">
+
+            <a href="/post/%E8%AF%91liunx-io-multiplexing-select-vs-poll-vs-epoll/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item active">
+
+            <a href="/en/post/linux-io-multiplexing-select-poll-epoll/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/en/about/" class="logo">Bobo</a>
+</div>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item ">
+
+            <a href="/post/%E8%AF%91liunx-io-multiplexing-select-vs-poll-vs-epoll/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item active">
+
+            <a href="/en/post/linux-io-multiplexing-select-poll-epoll/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/en/">Blog</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+
+    <header class="post-header">
+      <h1 class="post-title">Translation: Linux I/O Multiplexing - select vs. poll vs. epoll</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2021-02-11 </span>
+        <div class="post-category">
+            <a href="/en/categories/network/"> Network </a>
+            <a href="/en/categories/translation/"> Translation </a>
+            </div>
+          <span class="more-meta"> 1813 words </span>
+          <span class="more-meta"> 9 mins read </span>
+
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#io-multiplexing">IO Multiplexing</a></li>
+<li><a href="#select">Select</a>
+<ul>
+<li><a href="#select-system-call">Select system call</a></li>
+<li><a href="#selectsummary">SelectSummary</a></li>
+</ul></li>
+<li><a href="#poll">Poll</a>
+<ul>
+<li><a href="#poll-system-call">Poll system call</a></li>
+<li><a href="#poll-vs-select">Poll vs Select</a></li>
+</ul></li>
+<li><a href="#epoll">Epoll</a>
+<ul>
+<li><a href="#epoll-system-call">Epoll system call</a></li>
+<li><a href="#epoll-vs-select-poll">Epoll vs Select/Poll</a></li>
+</ul></li>
+<li><a href="#personal-understanding">Personal understanding</a></li>
+<li><a href="#further-reading">Further reading</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+
+
+<h3 id="introduction">Introduction</h3>
+
+<p> Before reading this article, you can first understand the five I/O models of Liunx</p>
+
+<p> References: <a href="http://www.masterraghu.com/subjects/np/introduction/unix_network_programming_v1.3/ch06lev1sec2.html">I/O Models</a> &ndash;Section 6.2 of &ldquo;UNIX® Network Programming Volume 1, Third Edition: The Sockets Networking&rdquo; by Richard Stevens</p>
+
+<blockquote class="blockquote-center">
+The following is the text of the article <br/>
+<!--                 Zheng Xie -->
+<!-- Right aligned -->
+</blockquote>
+
+<p> One of the basic concepts of Linux (actually Unix) is that everything in Unix/Linux is a file. Each process has a file descriptor table that points to files, sockets, devices, and other operating system objects related to the process.</p>
+
+<p>  Conventionally, systems involving IO resources will have an initialization phase, and then enter some kind of standby mode - waiting for any client to send a request and respond to it.</p>
+
+<p><img src="https://i.loli.net/2021/02/11/dGflJxjXE3wsOVW.png" alt="_01_typic system.png" /></p>
+
+<h3 id="io-multiplexing">IO Multiplexing</h3>
+
+<p> The solution is to use the kernel mechanism to poll a set of file descriptors. In Linux you have 3 options:</p>
+
+<p>*select(2)
+* poll(2)
+*epoll</p>
+
+<p>﻿﻿The above 3 methods are all based on the same idea, create a set of file descriptors, tell the kernel what you want to do with each file descriptor (read, write,&hellip;), and use a thread to block a function call until at least one file descriptor requests the operation available.</p>
+
+<h3 id="select">Select</h3>
+
+<h4 id="select-system-call">Select system call</h4>
+
+<p>The select system call provides a mechanism to implement synchronous multiplexed I/O.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout);</pre></td></tr></table>
+</div>
+</div>
+<p> Calls to select will block until the monitored file descriptor allows I/O operations, or the specified execution time has expired.</p>
+
+<p> The monitored file descriptors are divided into three groups:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">*   Monitor the file descriptors in `readfds` to determine whether data is available to read.
+
+*   Monitor the file descriptors in `writefds` to determine whether a write can complete without blocking.
+
+*   Monitor the file descriptors in `exceptionfds` for exceptions or available [out-of-band data](https://en.wikipedia.org/wiki/Out-of-band_data). These conditions apply only to sockets.</pre></td></tr></table>
+</div>
+</div>
+<p> The given collection can be passed NULL, in which case select will not monitor the events corresponding to the collection.</p>
+
+<p> After successful return, each collection will be modified so that it contains only file descriptors that are ready to perform I/O events of the corresponding type of collection.</p>
+
+<p>&emsp;&emsp;Example:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span><span class="lnt">82
+</span><span class="lnt">83
+</span><span class="lnt">84
+</span><span class="lnt">85
+</span><span class="lnt">86
+</span><span class="lnt">87
+</span><span class="lnt">88
+</span><span class="lnt">89
+</span><span class="lnt">90
+</span><span class="lnt">91
+</span><span class="lnt">92
+</span><span class="lnt">93
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">#include &lt;stdio.h&gt;
+#include &lt;sys/types.h&gt;
+#include &lt;sys/socket.h&gt;
+#include &lt;netinet/in.h&gt;
+#include &lt;wait.h&gt;
+#include &lt;signal.h&gt;
+#include &lt;errno.h&gt;
+#include &lt;sys/select.h&gt;
+#include &lt;sys/time.h&gt;
+#include &lt;unistd.h&gt;
+
+#define MAXBUF 256
+
+void child_process(void)
+{
+  sleep(2);
+  char msg[MAXBUF];
+  struct sockaddr_in addr = {0};
+  int n, sockfd,num=1;
+  srandom(getpid());
+  /* Create socket and connect to server */
+  sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  addr.sin_family = AF_INET;
+  addr.sin_port = htons(2000);
+  addr.sin_addr.s_addr = inet_addr(&#34;127.0.0.1&#34;);
+
+  connect(sockfd, (struct sockaddr*)&amp;addr, sizeof(addr));
+
+  printf(&#34;child {%d} connected \n&#34;, getpid());
+  while(1){
+        int sl = (random() % 10 ) +  1;
+        num++;
+         sleep(sl);
+      sprintf (msg, &#34;Test message %d from client %d&#34;, num, getpid());
+      n = write(sockfd, msg, strlen(msg));    /* Send message */
+  }
+
+}
+
+int main()
+{
+  char buffer[MAXBUF];
+  int fds[5];
+  struct sockaddr_in addr;
+  struct sockaddr_in client;
+  int addrlen, n,i,max=0;;
+  int sockfd, commfd;
+  fd_set rset;
+  for(i=0;i&lt;5;i++)
+  {
+      if(fork() == 0)
+      {
+          child_process();
+          exit(0);
+      }
+  }
+
+  sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  memset(&amp;addr, 0, sizeof (addr));
+  addr.sin_family = AF_INET;
+  addr.sin_port = htons(2000);
+  addr.sin_addr.s_addr = INADDR_ANY;
+  bind(sockfd,(struct sockaddr*)&amp;addr ,sizeof(addr));
+  listen (sockfd, 5);
+
+  for (i=0;i&lt;5;i++)
+  {
+    memset(&amp;client, 0, sizeof (client));
+    addrlen = sizeof(client);
+    fds[i] = accept(sockfd,(struct sockaddr*)&amp;client, &amp;addrlen);
+    if(fds[i] &gt; max)
+        max = fds[i];
+  }
+
+  while(1){
+    FD_ZERO(&amp;rset);
+      for (i = 0; i&lt; 5; i++ ) {
+          FD_SET(fds[i],&amp;rset);
+      }
+
+       puts(&#34;round again&#34;);
+    select(max+1, &amp;rset, NULL, NULL, NULL);
+
+    for(i=0;i&lt;5;i++) {
+        if (FD_ISSET(fds[i], &amp;rset)){
+            memset(buffer,0,MAXBUF);
+            read(fds[i], buffer, MAXBUF);
+            puts(buffer);
+        }
+    }
+  }
+  return 0;
+}</pre></td></tr></table>
+</div>
+</div>
+<p> We create 5 child processes, each process connects to the server and sends messages to the server. The server process uses accept() to create a different file descriptor for each client.</p>
+
+<p>The first parameter of select should be the file descriptor with the highest number among the three sets, plus 1 so we can traverse to the fd with the highest number. (select needs to know the highest descriptor value so that it can iterate through the bits and know which bit to stop at.)</p>
+
+<p>The main function while loop creates a set of file descriptors, calls the select function, and checks which file descriptor is ready for data to be read in the for loop. For simplicity, I didn&rsquo;t add exception checking.</p>
+
+<p> Each time it returns, select changes the collection to only contain file descriptors that are ready to read/write data, so we need to rebuild the collection every iteration.</p>
+
+<p> Because of the internal implementation of fd_set, we must tell what the maximum file descriptor number is. Each fd is represented by a bit,
+fd_set is an array with int elements and a length of 32 (32 *32bit=1024bits, each bit represents a descriptor, which can represent 1024 file descriptors).</p>
+
+<p>The select function checks any bit until it reaches the maximum value max+1, which means if we only listen to 5 file descriptors but the highest number of bits is 900, this function will check the file descriptors from 0 to 900. Under the POSIX standard, select can be replaced by pselect (a pointer to the signal mask is added)</p>
+
+<h4 id="selectsummary">SelectSummary</h4>
+
+<p> Each collection needs to be created before each call</p>
+
+<p>˜The function monitors from bit 0 to the highest bit N - O(n)</p>
+
+<p>﻿﻿We need to iterate over the file descriptor to check if it exists in the set returned by select</p>
+
+<p> The main advantage of select is that it is highly portable - has the same implementation on every unix system</p>
+
+<h3 id="poll">Poll</h3>
+
+<h4 id="poll-system-call">Poll system call</h4>
+
+<p> Different from select, because the file descriptor of select is based on a set of three bit masks and is inefficient, poll uses an array whose length is nfds and whose elements are pollfd structures. Prototype is simpler:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">int poll (struct pollfd *fds, unsigned int nfds, int timeout);</pre></td></tr></table>
+</div>
+</div>
+<p>The pollfd structure has different fields for events and return events, so we don’t need to build it every time:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">struct pollfd {
+      int fd;
+      short events;
+      short revents;
+};</pre></td></tr></table>
+</div>
+</div>
+<p> For each file descriptor, construct an object of type pollfd and populate it with the expected events. After the poll function returns, check the revents field</p>
+
+<p>﻿The above example uses poll instead:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">  for (i=0;i&lt;5;i++)
+  {
+    memset(&amp;client, 0, sizeof (client));
+    addrlen = sizeof(client);
+    pollfds[i].fd = accept(sockfd,(struct sockaddr*)&amp;client, &amp;addrlen);
+    pollfds[i].events = POLLIN;
+  }
+  sleep(1);
+  while(1){
+      puts(&#34;round again&#34;);
+    poll(pollfds, 5, 50000);
+
+    for(i=0;i&lt;5;i++) {
+        if (pollfds[i].revents &amp; POLLIN){
+            pollfds[i].revents = 0;
+            memset(buffer,0,MAXBUF);
+            read(pollfds[i].fd, buffer, MAXBUF);
+            puts(buffer);
+        }
+    }
+  }</pre></td></tr></table>
+</div>
+</div>
+<p>﻿Like calling select, we need to check each pollfd object to see if its file descriptor is ready, but do not need to build the collection on each iteration</p>
+
+<h4 id="poll-vs-select">Poll vs Select</h4>
+
+<ul>
+<li><p>poll does not require the user to calculate the value of the highest numbered file descriptor + 1</p></li>
+
+<li><p>poll is more efficient for large value file descriptors. Imagine observing a single file descriptor with value 900 via select — the kernel would have to check every bit of every incoming set, up to the 900th bit.</p></li>
+
+<li><p>The file descriptor set of select is statically sized (1024).</p></li>
+
+<li><p>With select, the file descriptor set will be rebuilt on return, so each subsequent call must reinitialize them. The poll system call separates input (event fields) from output (reserved fields), allowing pollfd arrays to be reused without changes.</p></li>
+
+<li><p>The timeout parameter of select is undefined on return. Portable code needs to reinitialize it. pselect does not have this problem</p></li>
+
+<li><p>Since some Unix systems do not support poll, select is more portable.</p></li>
+</ul>
+
+<h3 id="epoll">Epoll</h3>
+
+<h4 id="epoll-system-call">Epoll system call</h4>
+
+<p> When using select or poll, we manage the user space ourselves and send the collection on each call and wait for the function to return. Each time a socket is added, we add it to the collection and then call select/poll again.</p>
+
+<p>  The epoll system call helps us create and manage contexts in the kernel. We divide the task into 3 steps:</p>
+
+<ul>
+<li>Use epoll_create to create a context in the kernel</li>
+<li>Use epoll_ctl to add and remove file descriptors to/from the context</li>
+<li>Use epoll_wait to wait for events in the context</li>
+</ul>
+
+<p>﻿The above example uses epoll instead:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">  int epfd = epoll_create(10);
+  ...
+  ...
+  for (i=0;i&lt;5;i++)
+  {
+    static struct epoll_event ev;
+    memset(&amp;client, 0, sizeof (client));
+    addrlen = sizeof(client);
+    ev.data.fd = accept(sockfd,(struct sockaddr*)&amp;client, &amp;addrlen);
+    ev.events = EPOLLIN;
+    epoll_ctl(epfd, EPOLL_CTL_ADD, ev.data.fd, &amp;ev);
+  }
+
+  while(1){
+      puts(&#34;round again&#34;);
+      nfds = epoll_wait(epfd, events, 5, 10000);
+
+    for(i=0;i&lt;nfds;i++) {
+            memset(buffer,0,MAXBUF);
+            read(events[i].data.fd, buffer, MAXBUF);
+            puts(buffer);
+    }
+  }</pre></td></tr></table>
+</div>
+</div>
+<p> We first call epoll_create to create a context (the parameter is ignored, but must be a positive number). When the client connects, we call epoll_ctl to create an epoll_event object and add it to the context, and in the while loop we only wait in the context epfd.</p>
+
+<h4 id="epoll-vs-select-poll">Epoll vs Select/Poll</h4>
+
+<ul>
+<li><p>We can add and remove file descriptors while waiting</p></li>
+
+<li><p>epoll_wait only returns objects with ready file descriptors</p></li>
+
+<li><p>epoll has better performance - O(1) instead of O(n)</p></li>
+
+<li><p>epoll can behave as level trigger or edge trigger (EPOLLLT and EPOLLET two trigger modes) (see man page)</p></li>
+
+<li><p>epoll is Linux specific and therefore not portable</p></li>
+</ul>
+
+<p> Slides about Liunx IO in my meetup<a href="https://www.slideshare.net/liranbh/linux-io-72197884">here</a></p>
+
+<p> You can view all codes <a href="https://www.slideshare.net/liranbh/linux-io-72197884">here</a></p>
+
+<blockquote class="blockquote-center">
+End of article text <br/>
+<!--                 Zheng Xie -->
+<!-- Right aligned -->
+</blockquote>
+
+<h3 id="personal-understanding">Personal understanding</h3>
+
+<ol>
+<li><p>Select, poll, and epoll are all synchronization models (the process of copying data from the kernel to the user state is blocked);</p></li>
+
+<li><p>Each time select/poll returns, it must perform rotation training to check whether the monitored file descriptor has the expected IO operation, and the time complexity is O(N); epoll does not need rotation training and directly returns the file descriptor structure with the expected IO operation, and the time complexity is O(1);</p></li>
+
+<li><p>There is a limit on the file descriptors monitored by select (usually 1024), but there is no limit on poll and epoll (the maximum value is 65535);</p></li>
+
+<li><p>Each time select returns, it only returns the expected fd, so fd_set needs to be re-created every time. Poll separates the pollfd structure events and revents, so there is no need to create it every time;</p></li>
+
+<li><p>epoll has two modes: ET and LT, while select/poll only has LT mode.</p></li>
+</ol>
+
+<h3 id="further-reading">Further reading</h3>
+
+<p> <a href="https://www.cnblogs.com/lojunren/p/3856290.html">Detailed explanation of I/O reuse and epoll under Linux</a></p>
+
+<p> <a href="http://blog.chinaunix.net/uid-28541347-id-4273856.html">Learn to use epoll thoroughly (1)—Analysis of ET mode implementation</a></p>
+
+<p> <a href="https://strikefreedom.top/go-netpoll-io-multiplexing-reactor">Comprehensive disclosure of the source code of Go netpoller’s native network model</a></p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">zhengxz</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2021-02-11
+
+    </span>
+  </p>
+
+
+</div>
+<footer class="post-footer">
+
+      <nav class="post-nav">
+        <a class="prev" href="/en/post/stanford-cs230-career-advice-in-ai/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Stanford CS230: Career Advice for the AI Era</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/en/post/domain-driven-design-everything-you-wanted-to-know-1/">
+            <span class="next-text nav-default">Translation: Domain-Driven Design - Everything You Always Wanted to Know (1)</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+
+
+
+
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+  <a href="https://zheng-bobo.github.io/en/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+
+
+  <span class="copyright-year">
+    &copy;
+    2019 -
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span>zhengxz</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

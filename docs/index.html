@@ -48,7 +48,7 @@
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://zheng-bobo.github.io/" />
 
-<meta property="og:updated_time" content="2026-09-26T00:00:00+00:00" />
+<meta property="og:updated_time" content="2026-09-26T00:00:00+00:00" /><meta property="og:site_name" content="Blowing in the wind" />
 <meta itemprop="name" content="Blowing in the wind">
 <meta itemprop="description" content="Hugo theme even example site.">
 
@@ -69,7 +69,7 @@
 <body>
   <div id="mobile-navbar" class="mobile-navbar">
   <div class="mobile-header-logo">
-    <a href="/" class="logo">Bobo</a>
+    <a href="/about/" class="logo">Bobo</a>
   </div>
   <div class="mobile-navbar-icon">
     <span></span>
@@ -92,7 +92,29 @@
       </a>
   </ul>
 
-  
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item active">
+
+            <a href="/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item ">
+
+            <a href="/en/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
 
 
 </nav>
@@ -104,6 +126,28 @@
 </div>
 
 
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item active">
+
+            <a href="/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item ">
+
+            <a href="/en/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
 
 
 
@@ -141,7 +185,7 @@
         <span class="more-meta"> 预计阅读 6 分钟 </span>
     </div>
   </header>
-  
+
   <div class="post-content">
     <div class="post-summary">
       <p>Transformer 看起来由许多组件组成，但一条 GPT 风格的前向路径可以概括为：</p>
@@ -197,7 +241,7 @@ Next-token logits → Cross-Entropy Loss</code></pre></td></tr></table>
         <span class="more-meta"> 预计阅读 9 分钟 </span>
     </div>
   </header>
-  
+
   <div class="post-content">
     <div class="post-summary">
       <p>Self-Improving AI Agent 并不是一个会无限递归修改自己的神秘系统。更实际的理解是：Agent 在生成、行动、观察和验证之间形成闭环，把推理时获得的反馈用于改进当前答案、后续决策，甚至下一轮训练。</p>
@@ -222,7 +266,7 @@ Next-token logits → Cross-Entropy Loss</code></pre></td></tr></table>
         <span class="more-meta"> 预计阅读 5 分钟 </span>
     </div>
   </header>
-  
+
   <div class="post-content">
     <div class="post-summary">
       <p>AI 正在快速改变软件工程：写代码的成本持续下降，工程师能够完成的任务越来越复杂，产品研发的瓶颈也随之转移。这篇文章整理了 CS230 分享中关于 AI 职业发展的五点建议——理解变化、选择同行者、用产出衡量努力、打牢技术基础，以及关注 Small AI。</p>
@@ -246,7 +290,7 @@ Next-token logits → Cross-Entropy Loss</code></pre></td></tr></table>
         <span class="more-meta"> 预计阅读 8 分钟 </span>
     </div>
   </header>
-  
+
   <div class="post-content">
     <div class="post-summary">
       导读 &emsp;&emsp;读这篇文章前可以先了解下Liunx5种I/O模型 &emsp;&emsp;参考文献: I/O Models &ndash;Richard Stevens的《UNI
@@ -269,7 +313,7 @@ Next-token logits → Cross-Entropy Loss</code></pre></td></tr></table>
         <span class="more-meta"> 预计阅读 11 分钟 </span>
     </div>
   </header>
-  
+
   <div class="post-content">
     <div class="post-summary">
       Domain-Driven Design原文地址 &emsp;&emsp;随着个人代码库的扩展,其复杂性也不可避免地会随之增加。随着这种情况发生,按原本的意图去保持代码
@@ -292,7 +336,7 @@ Next-token logits → Cross-Entropy Loss</code></pre></td></tr></table>
         <span class="more-meta"> 预计阅读 6 分钟 </span>
     </div>
   </header>
-  
+
   <div class="post-content">
     <div class="post-summary">
       汇编角度看函数调用 &emsp;&emsp;我们以一个简单的例子来作为开始: 1 2 3 4 5 6 7 8 9 10 package main func main() { add(1, 1) } func add(a, b int64) (c int64) { c = a + b return } &
@@ -315,7 +359,7 @@ Next-token logits → Cross-Entropy Loss</code></pre></td></tr></table>
         <span class="more-meta"> 预计阅读 8 分钟 </span>
     </div>
   </header>
-  
+
   <div class="post-content">
     <div class="post-summary">
       程序的存储空间布局 &emsp;&emsp;进程(Process)是一个正在执行的程序实例(instance)。每个实例有自己的地址空间和执行
@@ -338,7 +382,7 @@ Next-token logits → Cross-Entropy Loss</code></pre></td></tr></table>
         <span class="more-meta"> 预计阅读 8 分钟 </span>
     </div>
   </header>
-  
+
   <div class="post-content">
     <div class="post-summary">
       CAP理论概述 一个分布式系统最多只能同时满足一致性（consistency）、可用性（Availability）和分区容错性（Partiti
@@ -350,16 +394,16 @@ Next-token logits → Cross-Entropy Loss</code></pre></td></tr></table>
 </article>
 
     </section>
-  
+
   <nav class="pagination">
-    
+
     <a class="next" href="/page/2/">
         <span class="next-text">下一页</span>
         <i class="iconfont icon-right"></i>
       </a>
   </nav>
         </div>
-        
+
 
       </div>
     </main>
@@ -375,15 +419,15 @@ Next-token logits → Cross-Entropy Loss</code></pre></td></tr></table>
   </span>
   <span class="division">|</span>
   <span class="theme-info">
-    主题 - 
+    主题 -
     <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
   </span>
 
-  
+
 
   <span class="copyright-year">
-    &copy; 
-    2019 - 
+    &copy;
+    2019 -
     2026<span class="heart"><i class="iconfont icon-heart"></i></span><span>zhengxz</span>
   </span>
 </div>
@@ -394,7 +438,7 @@ Next-token logits → Cross-Entropy Loss</code></pre></td></tr></table>
       <i class="iconfont icon-up"></i>
     </div>
   </div>
-  
+
   <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>

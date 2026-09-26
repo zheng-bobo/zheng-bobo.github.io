@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>HTTP/1.1 vs. HTTP/2 - Blowing in the wind</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="zhengxz" /><meta name="description" content="HTTP 1.1 In January 1997, HTTP/1.1 version was released, only half a year later than version 1.0. It further improved the HTTP protocol and has been used to this day 20 years later, and is still the most popular version. Main optimization points:
+ Support long connection by default  HTTP/1.1 supports persistent connections and request pipelining. Persistent connections reuse established TCP connections and avoid repeating the RTT cost of the three-way handshake." /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.59.1 with theme even" />
+
+
+<link rel="canonical" href="https://zheng-bobo.github.io/en/post/http-1-1-vs-http-2/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.4747d1be8010357c5daf4cd103b0bc1cff65936180045419874ea97f32138102.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/readability.css">
+<link rel="stylesheet" href="/css/about.css">
+
+
+<meta property="og:title" content="HTTP/1.1 vs. HTTP/2" />
+<meta property="og:description" content="HTTP 1.1 In January 1997, HTTP/1.1 version was released, only half a year later than version 1.0. It further improved the HTTP protocol and has been used to this day 20 years later, and is still the most popular version. Main optimization points:
+ Support long connection by default  HTTP/1.1 supports persistent connections and request pipelining. Persistent connections reuse established TCP connections and avoid repeating the RTT cost of the three-way handshake." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zheng-bobo.github.io/en/post/http-1-1-vs-http-2/" />
+<meta property="article:published_time" content="2020-01-16T10:25:00+08:00" />
+<meta property="article:modified_time" content="2020-01-16T10:25:00+08:00" /><meta property="og:site_name" content="Blowing in the wind" />
+<meta itemprop="name" content="HTTP/1.1 vs. HTTP/2">
+<meta itemprop="description" content="HTTP 1.1 In January 1997, HTTP/1.1 version was released, only half a year later than version 1.0. It further improved the HTTP protocol and has been used to this day 20 years later, and is still the most popular version. Main optimization points:
+ Support long connection by default  HTTP/1.1 supports persistent connections and request pipelining. Persistent connections reuse established TCP connections and avoid repeating the RTT cost of the three-way handshake.">
+
+
+<meta itemprop="datePublished" content="2020-01-16T10:25:00&#43;08:00" />
+<meta itemprop="dateModified" content="2020-01-16T10:25:00&#43;08:00" />
+<meta itemprop="wordCount" content="1165">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="HTTP/1.1 vs. HTTP/2"/>
+<meta name="twitter:description" content="HTTP 1.1 In January 1997, HTTP/1.1 version was released, only half a year later than version 1.0. It further improved the HTTP protocol and has been used to this day 20 years later, and is still the most popular version. Main optimization points:
+ Support long connection by default  HTTP/1.1 supports persistent connections and request pipelining. Persistent connections reuse established TCP connections and avoid repeating the RTT cost of the three-way handshake."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/en/about/" class="logo">Bobo</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/en/">
+        <li class="mobile-menu-item">Blog</li>
+      </a><a href="/en/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/en/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/en/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/en/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item ">
+
+            <a href="/post/http1.1%E4%B8%8Ehttp2%E7%9A%84%E5%8C%BA%E5%88%AB/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item active">
+
+            <a href="/en/post/http-1-1-vs-http-2/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/en/about/" class="logo">Bobo</a>
+</div>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item ">
+
+            <a href="/post/http1.1%E4%B8%8Ehttp2%E7%9A%84%E5%8C%BA%E5%88%AB/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item active">
+
+            <a href="/en/post/http-1-1-vs-http-2/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/en/">Blog</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+
+    <header class="post-header">
+      <h1 class="post-title">HTTP/1.1 vs. HTTP/2</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2020-01-16 </span>
+        <div class="post-category">
+            <a href="/en/categories/network/"> Network </a>
+            </div>
+          <span class="more-meta"> 1165 words </span>
+          <span class="more-meta"> 6 mins read </span>
+
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+<ul>
+<li><a href="#http-1-1">HTTP 1.1</a></li>
+<li><a href="#http-2">HTTP 2</a>
+<ul>
+<li><a href="#1-1-binary-framing">1.1 Binary Framing</a></li>
+<li><a href="#1-2-multiplexing">1.2 Multiplexing</a>
+<ul>
+<li><a href="#1-2-1-frame">1.2.1. Frame</a></li>
+<li><a href="#1-2-2-stream">1.2.2. Stream</a></li>
+</ul></li>
+<li><a href="#1-3-request-priority">1.3 Request priority</a></li>
+<li><a href="#1-4-header-compression">1.4 header compression</a></li>
+<li><a href="#1-5-server-push">1.5 Server push</a></li>
+</ul></li>
+<li><a href="#references">References:</a></li>
+</ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+
+
+<h1 id="http-1-1">HTTP 1.1</h1>
+
+<p>In January 1997, HTTP/1.1 version was released, only half a year later than version 1.0. It further improved the HTTP protocol and has been used to this day 20 years later, and is still the most popular version. Main optimization points:</p>
+
+<ul>
+<li>Support long connection by default</li>
+</ul>
+
+<p>HTTP/1.1 supports <code>persistent connections</code> and request <code>pipelining</code>. Persistent connections reuse established TCP connections and avoid repeating the RTT cost of the three-way handshake. A browser sends the <code>Connection: keep-alive</code> header, and the server keeps the connection open after responding so that later requests can reuse it.</p>
+
+<p><img src="https://i.loli.net/2020/01/16/eRHhIT2qWFPnQfC.png" alt="Long and short connections.png" /></p>
+
+<p><img src="https://i.loli.net/2020/01/16/CyAdLxbFT13zwc9.png" alt="Pipeline.png" /></p>
+
+<p>HTTP pipeline can overcome the blocking caused by the limit of parallel requests in the same domain. It is built on persistent connections and sends all requests to the server at the same time. However, the server needs to respond one by one in order, rather than waiting for a response to come back before sending the next request. This saves a lot of time for requests to the server. However, HTTP pipeline still has the problem of blocking. If the previous response is delayed, subsequent responses will be blocked.</p>
+
+<ul>
+<li>Bandwidth optimization</li>
+</ul>
+
+<p>HTTP 1.1 supports sending only header information (without any body information). If the server believes that the client has the authority to request the server, it will return <code>100</code>, otherwise it will return <code>401</code>. If the client receives <code>100</code>, it will start sending the request body to the server. In this way, when the server returns <code>401</code>, the client does not need to send the request body, saving bandwidth.</p>
+
+<p>﻿HTTP/1.1 also supports resuming interrupted downloads through the <code>Range</code> request header. A client can request only part of a resource, and the server responds with <code>206 Partial Content</code>, allowing applications to use bandwidth and connections more efficiently.</p>
+
+<ul>
+<li>Host header processing</li>
+</ul>
+
+<p> In HTTP 1.0, each server is considered to be bound to a unique IP address. Therefore, the URL in the request message does not pass the hostname (hostname). However, with the development of virtual host technology, multiple virtual hosts (Multi-homed Web Servers) can exist on a physical server, and they share an IP address. HTTP1.1 request messages and response messages should support the Host header field, and if there is no Host header field in the request message, an error (400 Bad Request) will be reported.</p>
+
+<h1 id="http-2">HTTP 2</h1>
+
+<h2 id="1-1-binary-framing">1.1 Binary Framing</h2>
+
+<p>HTTP/1.x is a text protocol, which is destined to be a very redundant protocol. HTTP/2 changes this. Based on the semantics of HTTP/1.x, text data is encapsulated in frames and binary encoding is used.
+﻿﻿In the figure below, binary framing is the binary framing layer. Here, HTTP/1.x headers are translated into headers type frames, and the body is translated into data type frames.</p>
+
+<p><img src="https://i.loli.net/2020/01/16/UPQdJKgnf1EwXOL.png" alt="Binary Framing.png" /></p>
+
+<h2 id="1-2-multiplexing">1.2 Multiplexing</h2>
+
+<p>In HTTP/2, there are two very important concepts: frame and stream.</p>
+
+<h3 id="1-2-1-frame">1.2.1. Frame</h3>
+
+<p>  The smallest unit of data transmission in HTTP/2, so the frame must not only subdivide and express each part of HTTP/1.
+﻿Each frame contains several fields, including length, type, flags, stream identifier, frame payload, etc., where type represents the type of frame. There are 10 different types defined in the HTTP/2 standard, including:
+* HEADERS (head, equivalent to HEAD)
+* DATA (data, equivalent to BODY)
+* PRIORITY (set the priority of the stream)
+* RST_STREAM (terminate stream)
+* SETTINGS (set the parameters of this connection)
+* PUSH_PROMISE (server push)
+* PING (measure RTT)
+* GOAWAY (terminate connection)
+* WINDOW_UPDATE (flow control)
+* CONTINUATION (continue to transmit header data)</p>
+
+<h3 id="1-2-2-stream">1.2.2. Stream</h3>
+
+<p>&ldquo;Stream&rdquo; is a logical concept in HTTP/2, which means that on a TCP connection, we can continuously send messages to the other party. Each message here is regarded as a frame, and each frame has a <code>stream identifier</code> field to indicate which &ldquo;stream&rdquo; this frame belongs to. Then when the other party receives it, all the frames of each &ldquo;stream&rdquo; are spliced ​​according to <code>stream identifier</code> to form a whole block of data. We treat each HTTP/1.1 request as a &ldquo;stream&rdquo;, then the request is turned into multiple streams, the request response data is cut into multiple frames, and the frames in different streams are sent to the other party in an interleaved manner. This is the multiplexing in HTTP/2.</p>
+
+<p><img src="https://i.loli.net/2020/01/16/4KdxEB79ptghXoe.png" alt="Multiplex.png" /></p>
+
+<p> From the picture above we can notice:
+* Different streams are sent in staggered manner;
+* The HEADERS frame precedes the DATA frame;
+* The IDs of streams are all odd numbers, indicating that they are initiated by the client. This is stipulated by the standard, then the ones initiated by the server are even numbers.</p>
+
+<p> For HTTP performance, <code>low latency matters more than high bandwidth</code>. A TCP connection tunes itself over time: it begins with a limited transmission rate and increases it after successful delivery. This is TCP <code>slow start</code>. As a result, bursty, short-lived HTTP connections are inefficient.
+HTTP2 allows multiple streams to share the same connection through multiplexing, which can use TCP connections more effectively, so that high bandwidth can truly serve the performance of HTTP.</p>
+
+<h2 id="1-3-request-priority">1.3 Request priority</h2>
+
+<p> After decomposing HTTP messages into many independent frames, each stream can be assigned a 31-bit priority value by optimizing the interleaving and transmission order of these frames: 0 represents the highest priority; 2 to the power of 31 -1 represents the lowest priority.
+  The server can control resource allocation (CPU, memory, bandwidth) according to the priority of the flow, and after the response data is ready, the highest priority frame will be sent to the client first.
+HTTP 2.0 solves all these inefficiencies in one fell swoop: the browser can dispatch requests as soon as a resource is discovered, specify the priority of each stream, and let the server determine the optimal response order. This way requests don&rsquo;t have to be queued, which saves time and maximizes the use of each connection.</p>
+
+<h2 id="1-4-header-compression">1.4 header compression</h2>
+
+<p> In HTTP/1.x, the header is not compressed, gzip only compresses the body, and HTTP/2 provides a header compression solution. Generally, polling request headers, especially cookies, occupy a lot of space. Header compression makes the entire HTTP data packet much smaller and the transmission will be faster. SPDY uses the DEFLATE algorithm, and HTTP2 uses the HPACK algorithm specifically designed for compression. For the source and details of SPDY, please see: [<a href="https://jiaolonghuang.github.io/2015/08/17/http2&amp;spdy/">https://jiaolonghuang.github.io/2015/08/17/http2&amp;spdy/</a>]</p>
+
+<p><img src="https://i.loli.net/2020/01/16/wCVGZRTdrXJ4ANv.jpg" alt="First part compressed.jpg" /></p>
+
+<h2 id="1-5-server-push">1.5 Server push</h2>
+
+<p> Server Push means that the server can push the content required by the client in advance through push, also called &ldquo;cache push&rdquo;.
+The server can send multiple responses to a client request. The server pushes resources to the client without the client explicitly requesting them. The server can push the necessary resources to the client in advance, which can reduce the request delay time. For example, the server can actively push JS and CSS files to the client instead of waiting until the HTML parses the resources to send the request. The general process is shown in the figure below:</p>
+
+<p><img src="https://i.loli.net/2020/01/16/agm35vZYPS4nJF1.png" alt="Server push.png" /></p>
+
+<h1 id="references">References:</h1>
+
+<p><a href="https://http2.akamai.com/demo">Performance comparison between HTTP1.1 and HTTP2</a>
+<a href="https://www.zhihu.com/question/34074946">What are the major improvements of HTTP/2 compared to 1.0?</a>
+<a href="https://blog.csdn.net/linsongbin1/article/details/54980801">Main differences between HTTP1.0 HTTP 1.1 HTTP 2.0</a>
+<a href="https://www.kancloud.cn/digest/web-performance-http2">Web Performance Optimization and HTTP/2</a></p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">zhengxz</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2020-01-16
+
+    </span>
+  </p>
+
+
+</div>
+<footer class="post-footer">
+
+      <nav class="post-nav">
+        <a class="prev" href="/en/post/use-a-mutex-or-a-channel/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Use a Mutex or a Channel?</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/en/post/inside-go-channel-runtime/">
+            <span class="next-text nav-default">Inside Go&#39;s Channel Runtime</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+
+
+
+
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+  <a href="https://zheng-bobo.github.io/en/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+
+
+  <span class="copyright-year">
+    &copy;
+    2019 -
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span>zhengxz</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

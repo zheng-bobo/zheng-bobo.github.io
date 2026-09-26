@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Small AI on Blowing in the wind</title>
+    <link>https://zheng-bobo.github.io/en/tags/small-ai/</link>
+    <description>Recent content in Small AI on Blowing in the wind</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 23 Mar 2026 12:22:13 +0100</lastBuildDate>
+
+  <atom:link href="https://zheng-bobo.github.io/en/tags/small-ai/index.xml" rel="self" type="application/rss+xml" />
+
+
+    <item>
+      <title>Stanford CS230: Career Advice for the AI Era</title>
+      <link>https://zheng-bobo.github.io/en/post/stanford-cs230-career-advice-in-ai/</link>
+      <pubDate>Mon, 23 Mar 2026 12:22:13 +0100</pubDate>
+
+      <guid>https://zheng-bobo.github.io/en/post/stanford-cs230-career-advice-in-ai/</guid>
+      <description>&lt;p&gt;AI is rapidly changing software engineering: the cost of writing code continues to fall, the tasks engineers can complete are becoming more and more complex, and the bottleneck of product development is also shifting. This article summarizes five suggestions on AI career development shared in CS230 - understand changes, choose peers, measure efforts with output, lay a solid technical foundation, and pay attention to Small AI.&lt;/p&gt;</description>
+    </item>
+
+  </channel>
+</rss>

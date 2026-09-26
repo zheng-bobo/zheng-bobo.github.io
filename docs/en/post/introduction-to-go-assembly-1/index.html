@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>A Practical Introduction to Go Assembly (1) - Blowing in the wind</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="zhengxz" /><meta name="description" content="Program storage space layout  A process is an executing program instance. Each instance has its own address space and execution state. A program becomes a process when the operating system adds the appropriate information to the kernel data structures and allocates the necessary resources to run the program code.
+ A thread is an abstract data type that represents a thread of execution within a process. A thread has its own execution stack, program counter value, register set and state." /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.59.1 with theme even" />
+
+
+<link rel="canonical" href="https://zheng-bobo.github.io/en/post/introduction-to-go-assembly-1/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.4747d1be8010357c5daf4cd103b0bc1cff65936180045419874ea97f32138102.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/readability.css">
+<link rel="stylesheet" href="/css/about.css">
+
+
+<meta property="og:title" content="A Practical Introduction to Go Assembly (1)" />
+<meta property="og:description" content="Program storage space layout  A process is an executing program instance. Each instance has its own address space and execution state. A program becomes a process when the operating system adds the appropriate information to the kernel data structures and allocates the necessary resources to run the program code.
+ A thread is an abstract data type that represents a thread of execution within a process. A thread has its own execution stack, program counter value, register set and state." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zheng-bobo.github.io/en/post/introduction-to-go-assembly-1/" />
+<meta property="article:published_time" content="2020-12-30T11:25:47+08:00" />
+<meta property="article:modified_time" content="2020-12-30T11:25:47+08:00" /><meta property="og:site_name" content="Blowing in the wind" />
+<meta itemprop="name" content="A Practical Introduction to Go Assembly (1)">
+<meta itemprop="description" content="Program storage space layout  A process is an executing program instance. Each instance has its own address space and execution state. A program becomes a process when the operating system adds the appropriate information to the kernel data structures and allocates the necessary resources to run the program code.
+ A thread is an abstract data type that represents a thread of execution within a process. A thread has its own execution stack, program counter value, register set and state.">
+
+
+<meta itemprop="datePublished" content="2020-12-30T11:25:47&#43;08:00" />
+<meta itemprop="dateModified" content="2020-12-30T11:25:47&#43;08:00" />
+<meta itemprop="wordCount" content="1939">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="A Practical Introduction to Go Assembly (1)"/>
+<meta name="twitter:description" content="Program storage space layout  A process is an executing program instance. Each instance has its own address space and execution state. A program becomes a process when the operating system adds the appropriate information to the kernel data structures and allocates the necessary resources to run the program code.
+ A thread is an abstract data type that represents a thread of execution within a process. A thread has its own execution stack, program counter value, register set and state."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/en/about/" class="logo">Bobo</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/en/">
+        <li class="mobile-menu-item">Blog</li>
+      </a><a href="/en/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/en/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/en/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/en/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item ">
+
+            <a href="/post/go%E6%B1%87%E7%BC%96%E7%AE%80%E6%98%93%E5%85%A5%E9%97%A81/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item active">
+
+            <a href="/en/post/introduction-to-go-assembly-1/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/en/about/" class="logo">Bobo</a>
+</div>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+
+
+
+        <li class="language-item ">
+
+            <a href="/post/go%E6%B1%87%E7%BC%96%E7%AE%80%E6%98%93%E5%85%A5%E9%97%A81/" lang="zh-cn" hreflang="zh-cn">中文</a>
+
+        </li>
+
+
+
+        <li class="language-item active">
+
+            <a href="/en/post/introduction-to-go-assembly-1/" lang="en" hreflang="en">EN</a>
+
+        </li>
+
+    </ul>
+  </nav>
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/en/">Blog</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+
+    <header class="post-header">
+      <h1 class="post-title">A Practical Introduction to Go Assembly (1)</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2020-12-30 </span>
+        <div class="post-category">
+            <a href="/en/categories/go/"> Go </a>
+            </div>
+          <span class="more-meta"> 1939 words </span>
+          <span class="more-meta"> 10 mins read </span>
+
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+<ul>
+<li><a href="#program-storage-space-layout">Program storage space layout</a></li>
+<li><a href="#brief-introduction-to-assembly-knowledge">Brief introduction to assembly knowledge</a>
+<ul>
+<li><a href="#at-t-format">AT&amp;T format</a></li>
+<li><a href="#register">Register</a></li>
+<li><a href="#plan9-go-compilation">Plan9 Go Compilation</a></li>
+</ul></li>
+<li><a href="#go-s-assembler">Go&rsquo;s Assembler</a></li>
+<li><a href="#expand-knowledge">Expand knowledge</a></li>
+<li><a href="#references">References</a></li>
+</ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+
+
+<h1 id="program-storage-space-layout">Program storage space layout</h1>
+
+<p> A <code>process</code> is an executing program instance. Each instance has its own address space and execution state. A program becomes a process when the operating system adds the appropriate information to the kernel data structures and allocates the necessary resources to run the program code.</p>
+
+<p> A <code>thread</code> is an abstract data type that represents a thread of execution within a process. A thread has its own execution stack, program counter value, register set and state.</p>
+
+<p>The standard memory segment layout of a Linux process in virtual memory is roughly as shown in the figure below:
+<img src="https://i.loli.net/2020/12/30/Fe3QLr5UHPmjYgR.png" alt="layout of program.png" /></p>
+
+<p><br/></p>
+
+<p> The user process adopts <a href="https://baike.baidu.com/item/%E5%9F%BA%E6%9C%AC%E5%88%86%E6%AE%B5%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86%E6%96%B9%E5%BC%8F">Segmented Memory Management</a> internally, and the segmented storage contents are as follows (in descending order of addresses)
+<br/></p>
+
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Storage content</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Stack</td>
+<td>Local variables, function parameters, return addresses, etc.</td>
+</tr>
+
+<tr>
+<td>Heap</td>
+<td>Dynamically allocated memory</td>
+</tr>
+
+<tr>
+<td>BSS segment (Block Started by Symbol Segment)</td>
+<td>Global variables and static local variables that are not initialized or have an initial value of 0, usually refer to a memory area used to store initialized global variables in the program.</td>
+</tr>
+
+<tr>
+<td>Data Segment</td>
+<td>Global variables and static local variables that have been initialized and have non-zero initial values, usually refer to a memory area used to store initialized global variables in the program.</td>
+</tr>
+
+<tr>
+<td>Code segment (Text Segemnt)</td>
+<td>Executable code, string literal value, read-only variable, usually refers to a memory area used to store program execution code.</td>
+</tr>
+</tbody>
+</table>
+
+<p><br/></p>
+
+<p>You can use the <code>size</code> command to view the <code>section size</code> and <code>total size</code> of the executable binary program, and specify the <code>-A</code> parameter to output it according to <code>System V size</code>. The default is to output according to B<code>erkeley size</code>.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">func main() {
+    var a, b, c = 0, 0, 0
+    c = a + b
+    print(c)
+}
+
+zhengxuzhangde-MacBook-Pro:compilation zhengxuzhang$ size compliation_add
+__TEXT  __DATA  __OBJC  others      dec         hex
+786432  131560  0       16839480    17757472    10ef520</pre></td></tr></table>
+</div>
+</div>
+<p><br/></p>
+
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Meaning</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>__TEXT</td>
+<td>Code segment</td>
+</tr>
+
+<tr>
+<td>__DATA</td>
+<td>Data segment</td>
+</tr>
+
+<tr>
+<td>__OBJC</td>
+<td>Objective-C runtime support library;</td>
+</tr>
+
+<tr>
+<td>dec</td>
+<td>The ‘dec’ (as a decimal number) is the sum of text, data and bss:dec (abbreviation of decimal, that is, decimal number) is the arithmetic sum of text, data and bss.</td>
+</tr>
+
+<tr>
+<td>hex</td>
+<td>The hex value is the hexadecimal representation of the dec value.</td>
+</tr>
+</tbody>
+</table>
+
+<p><br/></p>
+
+<h1 id="brief-introduction-to-assembly-knowledge">Brief introduction to assembly knowledge</h1>
+
+<p>The golang source code is written using the <code>AT&amp;T</code> format and <code>Plan9</code> assembly (application layer).</p>
+
+<h2 id="at-t-format">AT&amp;T format</h2>
+
+<p>The basic format of AT&amp;T assembly instructions is:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">opcode [operand]
+
+Opcode [source operand] [destination operand]</pre></td></tr></table>
+</div>
+</div>
+<p>  It can be seen that every assembly instruction usually consists of two parts:</p>
+
+<ul>
+<li><p>Opcode: The opcode instructs the CPU what operation to perform, such as whether to perform addition, subtraction, or read and write memory. Every instruction must have an opcode.</p></li>
+
+<li><p>Operand: The operand is the object of the operation. For example, an addition operation requires two addends. These two addends are the operands of this instruction. The number of operands is generally 0, 1 or 2.</p></li>
+</ul>
+
+<p>  If there are two operands, the first is the source operand and the second is the destination operand. The destination operand indicates where the result should be saved after the instruction is executed.</p>
+
+<p>A few examples of assembly instructions:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">add  %rdx,%rax</pre></td></tr></table>
+</div>
+</div>
+<p>﻿﻿The opcode of this instruction is add, which means performing an addition operation. It has two operands, rdx and rax. If an instruction has two operands, the first operand is called the source operand, and the second operand is called the destination operand. As the name implies, the destination operand indicates where the result should be saved after the instruction is executed. So the above instruction means summing the values ​​in the rax and rdx registers and saving the result in the rax register. In fact, the second operand of this instruction, the rax register, is both the source and destination operands, because rax is both one of the two addends of the addition operation and must store the result of the addition operation. After this instruction is executed, the value of the rax register changes. The value before the instruction is overwritten and lost. If the previous value of the rax register is still useful, then you must first use the instruction to save it to other registers or memory.</p>
+
+<p>Let’s look at an example with only one operand:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">callq 0x400526</pre></td></tr></table>
+</div>
+</div>
+<p>﻿﻿The opcode of this instruction is callq, which means calling a function. The operand is 0x400526, which is the address of the called function.</p>
+
+<p>Finally, let’s look at an instruction without operands:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">retq</pre></td></tr></table>
+</div>
+</div>
+<p>﻿﻿This instruction only has the opcode retq, which means returning from the called function to the calling function to continue execution.</p>
+
+<p>For AT&amp;T format assembly instructions, some instructions are as follows:</p>
+
+<ol>
+<li>The register name needs to be prefixed with <code>%</code>, and <code>$</code> before the immediate number.</li>
+<li>The format of the register <a href="https://baike.baidu.com/item/%E5%AF%84%E5%AD%98%E5%99%A8%E9%97%B4%E6%8E%A5%E5%AF%BB%E5%9D%80">Indirect Addressing</a> is <code>offset(%register)</code>. If <code>offset</code> is 0, you can omit the offset and write it directly as <code>(%register)</code>.</li>
+<li>If there is a register operand in the AT&amp;T format assembly instruction, you can determine how many bits the operand is (8, 16, 32 or 64 bits) based on the name of the register (for example, rax, eax, ax, and al represent 64, 32, 16, and 8-bit registers respectively).</li>
+</ol>
+
+<h2 id="register">Register</h2>
+
+<p>Application layer code generally uses three types of 19 registers:</p>
+
+<ol>
+<li><p><code>General-purpose registers</code> (64-bit): <code>rax</code>, <code>rbx</code>, <code>rcx</code>, <code>rdx</code>, <code>rsi</code>, <code>rdi</code>, <code>rbp</code>, <code>rsp</code>, <code>r8</code>, <code>r9</code>, <code>r10</code>, <code>r11</code>, <code>r12</code>, <code>r13</code>, <code>r14</code>, <code>r15</code>. The CPU does not prescribe how these 16 registers must be used, so programmers and compilers can assign their roles (<code>rsp</code> and <code>rbp</code> do have conventional purposes). <br/></p></li>
+
+<li><p>Program count register (64-bit, PC register, sometimes also called IP register): <code>rip</code> register. It is used to store the address of the next instruction to be executed. This register determines the execution flow of the program;</p></li>
+
+<li><p><code>Segment registers</code>: <code>fs</code> and <code>gs</code> (both 16 bits). They are commonly used to implement <code>thread-local storage (TLS)</code>. For example, Go and pthreads on AMD64 Linux use <code>fs</code> to implement TLS for system threads.</p></li>
+
+<li><p>Go assembly also defines four <code>pseudo-registers</code>. The compiler uses them to maintain context and identify special locations:</p>
+
+<p><code>FP(Frame pointer)</code>: arguments and locals</p>
+
+<p><code>PC(Program counter)</code>: jumps and branches</p>
+
+<p><code>SB(Static base pointer)</code>: global symbols</p>
+
+<p><code>SP(Stack pointer)</code>: top of stack</p></li>
+</ol>
+
+<p><br/>
+﻿﻿The above 16 general-purpose registers can also be used as 32/16/8-bit registers, but they need to be renamed when used. For example, the name eax can be used to represent a 32-bit register, which uses the lower 32 bits of the rax register.</p>
+
+<p>For ease of reference, the following table lists the names of the 32/16/8-bit registers corresponding to these 64 general-purpose registers:
+<img src="https://i.loli.net/2020/12/30/h96UQZNBfCE8oWR.png" alt="universally register.png" /></p>
+
+<p><br/>
+﻿Two special general-purpose registers: <code>rsp</code>, the stack pointer, and <code>rbp</code>, the frame pointer</p>
+
+<p>These two registers are related to the function call stack. The rsp register is generally used to store the top address of the function call stack, while the rbp register is usually used to store the stack frame starting address of the function. The compiler generally uses these two registers plus a certain offset to access function local variables or function parameters, such as:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">mov 0x8(%rsp),%rdx</pre></td></tr></table>
+</div>
+</div>
+<p>﻿ This instruction copies the value at memory address <code>0x8(%rsp)</code> into <code>rdx</code>. Here, <code>0x8(%rsp)</code> reads memory at the address in the <code>rsp</code> register plus an offset of 8—the location of the function parameter.</p>
+
+<h2 id="plan9-go-compilation">Plan9 Go Compilation</h2>
+
+<p><strong>1</strong>. The registers used in Plan9 do not need to be prefixed with <code>r</code> or <code>e</code>, for example, <code>rax</code>, just write <code>AX</code>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">MOVQ $101, AX = mov $101, %rax</pre></td></tr></table>
+</div>
+</div>
+<p><strong>2</strong>. Register opcodes in AT&amp;T format generally use lowercase and there is a % symbol in front of the register name, while go assembly uses uppercase and there is no % symbol in front of the register name, for example:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">#AT&amp;T format
+mov %rbp,%rsp
+
+#go assembly format
+MOVQ BP,SP</pre></td></tr></table>
+</div>
+</div>
+<p>  The following is the correspondence between the names of general general registers in AMD64 and PLAN9:
+<img src="https://i.loli.net/2021/01/01/JVwCdEuq5BPQSGU.png" alt="IA64andplan9.png" /></p>
+
+<p><strong>3</strong>. The opcodes of some instructions related to memory will be added with <code>b</code>, <code>w</code>, <code>l</code> and <code>q</code> letters respectively indicating that the memory being operated is <code>1</code>, <code>2</code>, <code>4</code> or <code>8</code> bytes, such as the instruction <code>movl $0x0,-0x8(%rbp)</code>, the suffix letter of the operation code <code>movl</code> <code>l</code> indicates that we need to assign the value of 0 to the four memory cells starting from the address <code>-0x8(%rbp)</code>.</p>
+
+<p><strong>4</strong>. LEA and MOV, where LEA is used to operate addresses; and MOV is used to operate data. For example:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt">1
+</span><span class="lnt">2
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">LEAQ 8(SP), SI // argv puts the 8(SP) address into the SI register
+MOVQ 0(SP), DI // argc puts the content of 0(SP) into the DI register</pre></td></tr></table>
+</div>
+</div>
+<h1 id="go-s-assembler">Go&rsquo;s Assembler</h1>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kd">type</span> <span class="nx">unused</span> <span class="kd">struct</span> <span class="p">{</span>
+    <span class="nx">parameter1</span> <span class="kt">int</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">a</span><span class="p">,</span> <span class="nx">b</span><span class="p">,</span> <span class="nx">c</span> <span class="p">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+    <span class="nx">c</span> <span class="p">=</span> <span class="nx">a</span> <span class="o">+</span> <span class="nx">b</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nx">c</span><span class="p">)</span>
+<span class="p">}</span></pre></td></tr></table>
+</div>
+</div>
+<p>  1. Specify the generation of assembly code under the liunx64-bit system architecture</p>
+
+<p>ˆ GOOS=linux GOARCH=amd64 go tool compile -S compliation_add.go</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">&#34;&#34;.main STEXT size=69 args=0x0 locals=0x10
+        0x0000 00000 (compliation_add.go:7)     TEXT    &#34;&#34;.main(SB), ABIInternal, $16-0
+        0x0000 00000 (compliation_add.go:7)     MOVQ    (TLS), CX
+        0x0009 00009 (compliation_add.go:7)     CMPQ    SP, 16(CX)
+        0x000d 00013 (compliation_add.go:7)     JLS     62
+        0x000f 00015 (compliation_add.go:7)     SUBQ    $16, SP
+        0x0013 00019 (compliation_add.go:7)     MOVQ    BP, 8(SP)
+        0x0018 00024 (compliation_add.go:7)     LEAQ    8(SP), BP
+        0x001d 00029 (compliation_add.go:7)     FUNCDATA        $0, gclocals·33cdeccccebe80329f1fdbee7f5874cb(SB)
+        0x001d 00029 (compliation_add.go:7)     FUNCDATA        $1, gclocals·33cdeccccebe80329f1fdbee7f5874cb(SB)
+        0x001d 00029 (compliation_add.go:7)     FUNCDATA        $2, gclocals·33cdeccccebe80329f1fdbee7f5874cb(SB)
+        0x001d 00029 (compliation_add.go:10)    PCDATA  $0, $0
+        0x001d 00029 (compliation_add.go:10)    PCDATA  $1, $0
+        0x001d 00029 (compliation_add.go:10)    CALL    runtime.printlock(SB)
+        0x0022 00034 (compliation_add.go:10)    MOVQ    $0, (SP)
+        0x002a 00042 (compliation_add.go:10)    CALL    runtime.printint(SB)
+        0x002f 00047 (compliation_add.go:10)    CALL    runtime.printunlock(SB)
+        0x0034 00052 (compliation_add.go:11)    MOVQ    8(SP), BP
+        0x0039 00057 (compliation_add.go:11)    ADDQ    $16, SP
+        0x003d 00061 (compliation_add.go:11)    RET
+        0x003e 00062 (compliation_add.go:11)    NOP
+        0x003e 00062 (compliation_add.go:7)     PCDATA  $1, $-1
+        0x003e 00062 (compliation_add.go:7)     PCDATA  $0, $-1
+        0x003e 00062 (compliation_add.go:7)     CALL    runtime.morestack_noctxt(SB)
+        0x0043 00067 (compliation_add.go:7)     JMP     0</pre></td></tr></table>
+</div>
+</div>
+<p>﻿ FUNCDATA and PCDATA directives contain usage information used by the garbage collector, introduced by the compiler.</p>
+
+<p><br/>
+  2. View the assembly of binary files</p>
+
+<p>&emsp;&emsp;go tool objdump -s main.main compliation_add</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></pre></td>
+<td class="lntd">
+<pre class="chroma">TEXT main.main(SB) /Users/zhengxuzhang/Project/go/src/runtimeMainProject/compilation/compliation_add.go
+  compliation_add.go:7  0x1051560               65488b0c2530000000      MOVQ GS:0x30, CX
+  compliation_add.go:7  0x1051569               483b6110                CMPQ 0x10(CX), SP
+  compliation_add.go:7  0x105156d               762f                    JBE 0x105159e
+  compliation_add.go:7  0x105156f               4883ec10                SUBQ $0x10, SP
+  compliation_add.go:7  0x1051573               48896c2408              MOVQ BP, 0x8(SP)
+  compliation_add.go:7  0x1051578               488d6c2408              LEAQ 0x8(SP), BP
+  compliation_add.go:10 0x105157d               e82e3afdff              CALL runtime.printlock(SB)
+  compliation_add.go:10 0x1051582               48c7042400000000        MOVQ $0x0, 0(SP)
+  compliation_add.go:10 0x105158a               e8a141fdff              CALL runtime.printint(SB)
+  compliation_add.go:10 0x105158f               e89c3afdff              CALL runtime.printunlock(SB)
+  compliation_add.go:11 0x1051594               488b6c2408              MOVQ 0x8(SP), BP
+  compliation_add.go:11 0x1051599               4883c410                ADDQ $0x10, SP
+  compliation_add.go:11 0x105159d               c3                      RET
+  compliation_add.go:7  0x105159e               e84d81ffff              CALL runtime.morestack_noctxt(SB)
+  compliation_add.go:7  0x10515a3               ebbb                    JMP main.main(SB)</pre></td></tr></table>
+</div>
+</div>
+<p><br/>
+<br/>
+This concludes the introduction of simple introductory knowledge about go assembly. This article is also compiled based on the articles of masters. I believe readers will still have many questions about assembly after reading this. <br/>
+<br/>
+I am also continuing to learn. I will continue to introduce more in-depth knowledge on organizing go assembly in the future, such as:</p>
+
+<p>What are the roles of the pseudo-registers <code>FP (Frame pointer)</code>, <code>PC (Program counter)</code>, <code>SB (Static base pointer)</code>, and <code>SP (Stack pointer)</code>? <br/>
+How do the two key registers, <code>rsp</code> (stack pointer) and <code>rbp</code> (frame pointer), work? <br/>
+How is the <code>main goroutine</code> created and scheduled to start? <br/>
+   &hellip;<br/></p>
+
+<p>  I will continue to interpret these issues in subsequent articles and encourage you to share them!</p>
+
+<h1 id="expand-knowledge">Expand knowledge</h1>
+
+<p><br/>
+  The difference between AT&amp;T assembly and Intel assembly instructions</p>
+
+<p><img src="https://i.loli.net/2020/12/30/M4wXpDlL5j1yPTF.png" alt="Difference between AT&amp;T assembly and Intel assembly instructions:.png" /></p>
+
+<h1 id="references">References</h1>
+
+<p><a href="http://m.blog.chinaunix.net/uid-69961881-id-5829403.html">(Memory layout of process 3) Linux process layout in memory</a></p>
+
+<p><a href="https://www.cnblogs.com/abozhang/p/10766689.html">Go Language Scheduler Source Code Scenario Analysis 2: CPU Registers</a></p>
+
+<p><a href="https://www.jianshu.com/p/47422b239f8b?utm_campaign=studygolang.com&amp;utm_medium=studygolang.com&amp;utm_source=studygolang.com">Golang compilation</a></p>
+
+<p><a href="https://golang.org/doc/asm">A Quick Guide to Go&rsquo;s Assembler</a></p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">zhengxz</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2020-12-30
+
+    </span>
+  </p>
+
+
+</div>
+<footer class="post-footer">
+
+      <nav class="post-nav">
+        <a class="prev" href="/en/post/introduction-to-go-assembly-2/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">A Practical Introduction to Go Assembly (2)</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/en/post/cap-and-service-discovery-systems/">
+            <span class="next-text nav-default">CAP and a Comparison of Service Discovery Systems</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+
+
+
+
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+  <a href="https://zheng-bobo.github.io/en/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme -
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+
+
+  <span class="copyright-year">
+    &copy;
+    2019 -
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span>zhengxz</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

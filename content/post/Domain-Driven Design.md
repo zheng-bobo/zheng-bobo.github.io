@@ -2,6 +2,7 @@
 title: （译）Domain-Driven Design:Everything You Always Wanted to Know About it, But Were Afraid to Ask(1)
 categories: [architecture]
 date: 2021-02-02 12:06:47  +0800 
+aliases: ["/domain-driven-design/"]
 ---
 ***[Domain-Driven Design原文地址](https://medium.com/ssense-tech/domain-driven-design-everything-you-always-wanted-to-know-about-it-but-were-afraid-to-ask-a85e7b74497a)***
 
