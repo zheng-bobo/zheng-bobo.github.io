@@ -183,6 +183,23 @@ article.post:has(> .post-toc) > .post-header .post-title {
   padding-left: 16px;
 }
 
+@media (min-width: 1024px) {
+  .main:has(.post > .post-toc) {
+    width: min(1280px, calc(100vw - 32px));
+    margin-left: calc((800px - min(1280px, calc(100vw - 32px))) / 2);
+  }
+
+  article.post:has(> .post-toc) {
+    width: calc(100% - 252px);
+    max-width: 760px;
+    margin-left: 252px;
+  }
+
+  .post .post-toc {
+    display: block;
+  }
+}
+
 .post-toc ~ .post-content a {
   color: var(--reading-accent);
   text-decoration-thickness: 1px;
@@ -249,7 +266,7 @@ article.post:has(> .post-toc) > .post-header .post-title {
   border-color: var(--reading-rule);
 }
 
-@media (max-width: 1279px) {
+@media (max-width: 1023px) {
   .post .post-toc {
     display: none;
   }
