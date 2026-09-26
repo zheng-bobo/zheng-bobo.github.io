@@ -58,6 +58,13 @@
   </url>
 
   <url>
+    <loc>https://zheng-bobo.github.io/en/post/nanochat-gpt-pretraining-from-source/</loc>
+    <lastmod>2026-09-26T21:00:00+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
     <loc>https://zheng-bobo.github.io/en/tags/</loc>
     <lastmod>2026-09-26T21:00:00+02:00</lastmod>
     <changefreq>weekly</changefreq>
@@ -66,13 +73,6 @@
 
   <url>
     <loc>https://zheng-bobo.github.io/en/tags/transformer/</loc>
-    <lastmod>2026-09-26T21:00:00+02:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-
-  <url>
-    <loc>https://zheng-bobo.github.io/en/post/nanochat-gpt-pretraining-from-source/</loc>
     <lastmod>2026-09-26T21:00:00+02:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
@@ -121,14 +121,14 @@
   </url>
 
   <url>
-    <loc>https://zheng-bobo.github.io/en/tags/ai-agents/</loc>
+    <loc>https://zheng-bobo.github.io/en/categories/ai-agents/</loc>
     <lastmod>2026-09-12T21:08:45+02:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <url>
-    <loc>https://zheng-bobo.github.io/en/categories/ai-agents/</loc>
+    <loc>https://zheng-bobo.github.io/en/tags/ai-agents/</loc>
     <lastmod>2026-09-12T21:08:45+02:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>

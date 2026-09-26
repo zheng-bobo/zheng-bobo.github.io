@@ -213,7 +213,7 @@
           <h2 class="blog-archive-year" id="year-2026">2026</h2>
         <a class="blog-archive-index-item" href="/en/post/nanochat-gpt-pretraining-from-source/">
           <time datetime="2026-09-26">09-26</time>
-          <span>Understanding GPT Pretraining Through nanochat: Model, Data, and Training Loop</span>
+          <span>Reading nanochat Source: From Configuration to a Training Step</span>
         </a>
         <a class="blog-archive-index-item" href="/en/post/transformer-architecture/">
           <time datetime="2026-09-14">09-14</time>
@@ -308,17 +308,17 @@
   <div class="blog-recent-posts" aria-label="Recent posts">
       <article class="blog-summary-card">
         <header>
-          <h2><a href="/en/post/nanochat-gpt-pretraining-from-source/">Understanding GPT Pretraining Through nanochat: Model, Data, and Training Loop</a></h2>
+          <h2><a href="/en/post/nanochat-gpt-pretraining-from-source/">Reading nanochat Source: From Configuration to a Training Step</a></h2>
           <div class="blog-summary-meta">
             <time datetime="2026-09-26">September 26, 2026</time>
             <span aria-hidden="true">·</span>
-            <span>6 mins read</span>
+            <span>7 mins read</span>
           </div>
         </header>
 
         <div class="blog-summary-excerpt post">
           <div class="post-content">
-            <div class="post-summary"><p>A GPT training program connects much more than a Transformer forward pass. It closes an entire loop:</p>
+            <div class="post-summary"><p>This article follows the execution order of <code>scripts/base_train.py</code>: command-line arguments, random seeds, DDP setup, model construction, weight initialization, scaling laws, optimizers, data loading, gradient accumulation, and finally one complete training step.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
@@ -333,7 +333,7 @@
           → evaluation, sampling, checkpointing, and resume</code></pre></td></tr></table>
 </div>
 </div>
-<p>This article starts from my conceptual Transformer notes and follows nanochat&rsquo;s actual code to show how tensors move, how parameters are updated, and what engineering layers are needed around the model.</p></div>
+<p>The organization and code-reading path follow my nanochat Notion notes. The prose has been edited for clarity, while the source snippets and their original reading sequence are preserved.</p></div>
           </div>
         </div>
 

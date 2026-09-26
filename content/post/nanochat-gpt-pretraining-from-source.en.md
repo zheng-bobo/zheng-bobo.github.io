@@ -1,5 +1,5 @@
 ---
-title: "Understanding GPT Pretraining Through nanochat: Model, Data, and Training Loop"
+title: "Reading nanochat Source: From Configuration to a Training Step"
 date: 2026-09-26 21:00:00 +0200
 slug: "nanochat-gpt-pretraining-from-source"
 categories: [Artificial Intelligence]
@@ -8,7 +8,7 @@ mathjax: true
 mathjaxEnableSingleDollar: true
 ---
 
-A GPT training program connects much more than a Transformer forward pass. It closes an entire loop:
+This article follows the execution order of `scripts/base_train.py`: command-line arguments, random seeds, DDP setup, model construction, weight initialization, scaling laws, optimizers, data loading, gradient accumulation, and finally one complete training step.
 
 ```text
 documents → tokenizer and sequence packing → inputs/targets
@@ -17,7 +17,7 @@ documents → tokenizer and sequence packing → inputs/targets
           → evaluation, sampling, checkpointing, and resume
 ```
 
-This article starts from my conceptual Transformer notes and follows nanochat's actual code to show how tensors move, how parameters are updated, and what engineering layers are needed around the model.
+The organization and code-reading path follow my nanochat Notion notes. The prose has been edited for clarity, while the source snippets and their original reading sequence are preserved.
 
 <!--more-->
 

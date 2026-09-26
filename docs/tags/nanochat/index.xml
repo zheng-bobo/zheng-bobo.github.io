@@ -12,27 +12,12 @@
 
 
     <item>
-      <title>从 nanochat 源码读懂 GPT 预训练：模型、数据与训练循环</title>
+      <title>nanochat 源码解读：从参数配置到单步训练</title>
       <link>https://zheng-bobo.github.io/post/nanochat-gpt-pretraining-from-source/</link>
       <pubDate>Sat, 26 Sep 2026 21:00:00 +0200</pubDate>
 
       <guid>https://zheng-bobo.github.io/post/nanochat-gpt-pretraining-from-source/</guid>
-      <description>&lt;p&gt;一段 GPT 训练代码真正串起的，不只是 Transformer 的前向传播，而是一整条闭环：&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
-&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
-&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;&lt;span class=&#34;lnt&#34;&gt;1
-&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
-&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
-&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
-&lt;td class=&#34;lntd&#34;&gt;
-&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;原始文档 → Tokenizer 与序列打包 → input/target
-        → GPT 前向传播 → Cross-Entropy Loss
-        → 反向传播与梯度累积 → Optimizer Step
-        → 评估、采样、保存与恢复&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;p&gt;本文以我的 Transformer 笔记为概念起点，再沿着 nanochat 的真实源码追踪张量如何流动、参数如何更新，以及一个可运行的预训练系统还需要补上哪些工程环节。&lt;/p&gt;</description>
+      <description>&lt;p&gt;本文沿着 &lt;code&gt;scripts/base_train.py&lt;/code&gt; 的执行顺序阅读 nanochat：从命令行参数、随机种子和 DDP 环境开始，依次进入模型构建、权重初始化、Scaling Laws、优化器、DataLoader、梯度累积与单步训练。重点不是抽象介绍 GPT，而是理解源码中的每一段配置如何落到真实训练过程里。&lt;/p&gt;</description>
     </item>
 
   </channel>

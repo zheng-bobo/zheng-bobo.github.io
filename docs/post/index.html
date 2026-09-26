@@ -213,7 +213,7 @@
           <h2 class="blog-archive-year" id="year-2026">2026</h2>
         <a class="blog-archive-index-item" href="/post/nanochat-gpt-pretraining-from-source/">
           <time datetime="2026-09-26">09-26</time>
-          <span>从 nanochat 源码读懂 GPT 预训练：模型、数据与训练循环</span>
+          <span>nanochat 源码解读：从参数配置到单步训练</span>
         </a>
         <a class="blog-archive-index-item" href="/post/transformer-architecture/">
           <time datetime="2026-09-14">09-14</time>
@@ -308,32 +308,17 @@
   <div class="blog-recent-posts" aria-label="最近文章">
       <article class="blog-summary-card">
         <header>
-          <h2><a href="/post/nanochat-gpt-pretraining-from-source/">从 nanochat 源码读懂 GPT 预训练：模型、数据与训练循环</a></h2>
+          <h2><a href="/post/nanochat-gpt-pretraining-from-source/">nanochat 源码解读：从参数配置到单步训练</a></h2>
           <div class="blog-summary-meta">
             <time datetime="2026-09-26">2026年09月26日</time>
             <span aria-hidden="true">·</span>
-            <span>预计阅读 7 分钟</span>
+            <span>预计阅读 9 分钟</span>
           </div>
         </header>
 
         <div class="blog-summary-excerpt post">
           <div class="post-content">
-            <div class="post-summary"><p>一段 GPT 训练代码真正串起的，不只是 Transformer 的前向传播，而是一整条闭环：</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-text" data-lang="text">原始文档 → Tokenizer 与序列打包 → input/target
-        → GPT 前向传播 → Cross-Entropy Loss
-        → 反向传播与梯度累积 → Optimizer Step
-        → 评估、采样、保存与恢复</code></pre></td></tr></table>
-</div>
-</div>
-<p>本文以我的 Transformer 笔记为概念起点，再沿着 nanochat 的真实源码追踪张量如何流动、参数如何更新，以及一个可运行的预训练系统还需要补上哪些工程环节。</p></div>
+            <div class="post-summary"><p>本文沿着 <code>scripts/base_train.py</code> 的执行顺序阅读 nanochat：从命令行参数、随机种子和 DDP 环境开始，依次进入模型构建、权重初始化、Scaling Laws、优化器、DataLoader、梯度累积与单步训练。重点不是抽象介绍 GPT，而是理解源码中的每一段配置如何落到真实训练过程里。</p></div>
           </div>
         </div>
 

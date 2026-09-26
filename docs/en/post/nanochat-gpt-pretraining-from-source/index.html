@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <title>Understanding GPT Pretraining Through nanochat: Model, Data, and Training Loop - Blowing in the wind</title>
+  <title>Reading nanochat Source: From Configuration to a Training Step - Blowing in the wind</title>
   <meta name="renderer" content="webkit" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
 
@@ -16,8 +16,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="zhengxz" /><meta name="description" content="A GPT training program connects much more than a Transformer forward pass. It closes an entire loop:
-1 2 3 4  documents → tokenizer and sequence packing → inputs/targets → GPT forward → cross-entropy loss → backward and gradient accumulation → optimizer step → evaluation, sampling, checkpointing, and resume   This article starts from my conceptual Transformer notes and follows nanochat&amp;rsquo;s actual code to show how tensors move, how parameters are updated, and what engineering layers are needed around the model.
+<meta name="author" content="zhengxz" /><meta name="description" content="This article follows the execution order of scripts/base_train.py: command-line arguments, random seeds, DDP setup, model construction, weight initialization, scaling laws, optimizers, data loading, gradient accumulation, and finally one complete training step.
+1 2 3 4  documents → tokenizer and sequence packing → inputs/targets → GPT forward → cross-entropy loss → backward and gradient accumulation → optimizer step → evaluation, sampling, checkpointing, and resume   The organization and code-reading path follow my nanochat Notion notes. The prose has been edited for clarity, while the source snippets and their original reading sequence are preserved.
 " /><meta name="keywords" content="Hugo, theme, even" />
 
 
@@ -43,8 +43,8 @@
 <link rel="stylesheet" href="/css/about.css">
 
 
-<meta property="og:title" content="Understanding GPT Pretraining Through nanochat: Model, Data, and Training Loop" />
-<meta property="og:description" content="A GPT training program connects much more than a Transformer forward pass. It closes an entire loop:
+<meta property="og:title" content="Reading nanochat Source: From Configuration to a Training Step" />
+<meta property="og:description" content="This article follows the execution order of scripts/base_train.py: command-line arguments, random seeds, DDP setup, model construction, weight initialization, scaling laws, optimizers, data loading, gradient accumulation, and finally one complete training step.
 
 
 1
@@ -59,13 +59,13 @@ documents → tokenizer and sequence packing → inputs/targets
           → evaluation, sampling, checkpointing, and resume
 
 
-This article starts from my conceptual Transformer notes and follows nanochat&rsquo;s actual code to show how tensors move, how parameters are updated, and what engineering layers are needed around the model." />
+The organization and code-reading path follow my nanochat Notion notes. The prose has been edited for clarity, while the source snippets and their original reading sequence are preserved." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://zheng-bobo.github.io/en/post/nanochat-gpt-pretraining-from-source/" />
 <meta property="article:published_time" content="2026-09-26T21:00:00+02:00" />
 <meta property="article:modified_time" content="2026-09-26T21:00:00+02:00" /><meta property="og:site_name" content="Blowing in the wind" />
-<meta itemprop="name" content="Understanding GPT Pretraining Through nanochat: Model, Data, and Training Loop">
-<meta itemprop="description" content="A GPT training program connects much more than a Transformer forward pass. It closes an entire loop:
+<meta itemprop="name" content="Reading nanochat Source: From Configuration to a Training Step">
+<meta itemprop="description" content="This article follows the execution order of scripts/base_train.py: command-line arguments, random seeds, DDP setup, model construction, weight initialization, scaling laws, optimizers, data loading, gradient accumulation, and finally one complete training step.
 
 
 1
@@ -80,19 +80,19 @@ documents → tokenizer and sequence packing → inputs/targets
           → evaluation, sampling, checkpointing, and resume
 
 
-This article starts from my conceptual Transformer notes and follows nanochat&rsquo;s actual code to show how tensors move, how parameters are updated, and what engineering layers are needed around the model.">
+The organization and code-reading path follow my nanochat Notion notes. The prose has been edited for clarity, while the source snippets and their original reading sequence are preserved.">
 
 
 <meta itemprop="datePublished" content="2026-09-26T21:00:00&#43;02:00" />
 <meta itemprop="dateModified" content="2026-09-26T21:00:00&#43;02:00" />
-<meta itemprop="wordCount" content="1278">
+<meta itemprop="wordCount" content="1289">
 
 
 
 <meta itemprop="keywords" content="nanochat,GPT,Transformer,LLM Training,PyTorch," />
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Understanding GPT Pretraining Through nanochat: Model, Data, and Training Loop"/>
-<meta name="twitter:description" content="A GPT training program connects much more than a Transformer forward pass. It closes an entire loop:
+<meta name="twitter:title" content="Reading nanochat Source: From Configuration to a Training Step"/>
+<meta name="twitter:description" content="This article follows the execution order of scripts/base_train.py: command-line arguments, random seeds, DDP setup, model construction, weight initialization, scaling laws, optimizers, data loading, gradient accumulation, and finally one complete training step.
 
 
 1
@@ -107,7 +107,7 @@ documents → tokenizer and sequence packing → inputs/targets
           → evaluation, sampling, checkpointing, and resume
 
 
-This article starts from my conceptual Transformer notes and follows nanochat&rsquo;s actual code to show how tensors move, how parameters are updated, and what engineering layers are needed around the model."/>
+The organization and code-reading path follow my nanochat Notion notes. The prose has been edited for clarity, while the source snippets and their original reading sequence are preserved."/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -224,15 +224,15 @@ This article starts from my conceptual Transformer notes and follows nanochat&rs
           <article class="post">
 
     <header class="post-header">
-      <h1 class="post-title">Understanding GPT Pretraining Through nanochat: Model, Data, and Training Loop</h1>
+      <h1 class="post-title">Reading nanochat Source: From Configuration to a Training Step</h1>
 
       <div class="post-meta">
         <span class="post-time"> 2026-09-26 </span>
         <div class="post-category">
             <a href="/en/categories/artificial-intelligence/"> Artificial Intelligence </a>
             </div>
-          <span class="more-meta"> 1278 words </span>
-          <span class="more-meta"> 6 mins read </span>
+          <span class="more-meta"> 1289 words </span>
+          <span class="more-meta"> 7 mins read </span>
 
       </div>
     </header>
@@ -267,7 +267,7 @@ This article starts from my conceptual Transformer notes and follows nanochat&rs
   </div>
 </div>
     <div class="post-content">
-      <p>A GPT training program connects much more than a Transformer forward pass. It closes an entire loop:</p>
+      <p>This article follows the execution order of <code>scripts/base_train.py</code>: command-line arguments, random seeds, DDP setup, model construction, weight initialization, scaling laws, optimizers, data loading, gradient accumulation, and finally one complete training step.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
@@ -282,7 +282,7 @@ This article starts from my conceptual Transformer notes and follows nanochat&rs
           → evaluation, sampling, checkpointing, and resume</code></pre></td></tr></table>
 </div>
 </div>
-<p>This article starts from my conceptual Transformer notes and follows nanochat&rsquo;s actual code to show how tensors move, how parameters are updated, and what engineering layers are needed around the model.</p>
+<p>The organization and code-reading path follow my nanochat Notion notes. The prose has been edited for clarity, while the source snippets and their original reading sequence are preserved.</p>
 
 <blockquote>
 <p><strong>Source version</strong></p>

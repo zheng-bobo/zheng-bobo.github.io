@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <title>从 nanochat 源码读懂 GPT 预训练：模型、数据与训练循环 - Blowing in the wind</title>
+  <title>nanochat 源码解读：从参数配置到单步训练 - Blowing in the wind</title>
   <meta name="renderer" content="webkit" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
 
@@ -16,8 +16,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="zhengxz" /><meta name="description" content="一段 GPT 训练代码真正串起的，不只是 Transformer 的前向传播，而是一整条闭环：
-1 2 3 4  原始文档 → Tokenizer 与序列打包 → input/target → GPT 前向传播 → Cross-Entropy Loss → 反向传播与梯度累积 → Optimizer Step → 评估、采样、保存与恢复   本文以我的 Transformer 笔记为概念起点，再沿着 nanochat 的真实源码追踪张量如何流动、参数如何更新，以及一个可运行的预训练系统还需要补上哪些工程环节。
+<meta name="author" content="zhengxz" /><meta name="description" content="本文沿着 scripts/base_train.py 的执行顺序阅读 nanochat：从命令行参数、随机种子和 DDP 环境开始，依次进入模型构建、权重初始化、Scaling Laws、优化器、DataLoader、梯度累积与单步训练。重点不是抽象介绍 GPT，而是理解源码中的每一段配置如何落到真实训练过程里。
 " /><meta name="keywords" content="Hugo, theme, even" />
 
 
@@ -43,71 +42,26 @@
 <link rel="stylesheet" href="/css/about.css">
 
 
-<meta property="og:title" content="从 nanochat 源码读懂 GPT 预训练：模型、数据与训练循环" />
-<meta property="og:description" content="一段 GPT 训练代码真正串起的，不只是 Transformer 的前向传播，而是一整条闭环：
-
-
-1
-2
-3
-4
-
-
-原始文档 → Tokenizer 与序列打包 → input/target
-        → GPT 前向传播 → Cross-Entropy Loss
-        → 反向传播与梯度累积 → Optimizer Step
-        → 评估、采样、保存与恢复
-
-
-本文以我的 Transformer 笔记为概念起点，再沿着 nanochat 的真实源码追踪张量如何流动、参数如何更新，以及一个可运行的预训练系统还需要补上哪些工程环节。" />
+<meta property="og:title" content="nanochat 源码解读：从参数配置到单步训练" />
+<meta property="og:description" content="本文沿着 scripts/base_train.py 的执行顺序阅读 nanochat：从命令行参数、随机种子和 DDP 环境开始，依次进入模型构建、权重初始化、Scaling Laws、优化器、DataLoader、梯度累积与单步训练。重点不是抽象介绍 GPT，而是理解源码中的每一段配置如何落到真实训练过程里。" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://zheng-bobo.github.io/post/nanochat-gpt-pretraining-from-source/" />
 <meta property="article:published_time" content="2026-09-26T21:00:00+02:00" />
 <meta property="article:modified_time" content="2026-09-26T21:00:00+02:00" /><meta property="og:site_name" content="Blowing in the wind" />
-<meta itemprop="name" content="从 nanochat 源码读懂 GPT 预训练：模型、数据与训练循环">
-<meta itemprop="description" content="一段 GPT 训练代码真正串起的，不只是 Transformer 的前向传播，而是一整条闭环：
-
-
-1
-2
-3
-4
-
-
-原始文档 → Tokenizer 与序列打包 → input/target
-        → GPT 前向传播 → Cross-Entropy Loss
-        → 反向传播与梯度累积 → Optimizer Step
-        → 评估、采样、保存与恢复
-
-
-本文以我的 Transformer 笔记为概念起点，再沿着 nanochat 的真实源码追踪张量如何流动、参数如何更新，以及一个可运行的预训练系统还需要补上哪些工程环节。">
+<meta itemprop="name" content="nanochat 源码解读：从参数配置到单步训练">
+<meta itemprop="description" content="本文沿着 scripts/base_train.py 的执行顺序阅读 nanochat：从命令行参数、随机种子和 DDP 环境开始，依次进入模型构建、权重初始化、Scaling Laws、优化器、DataLoader、梯度累积与单步训练。重点不是抽象介绍 GPT，而是理解源码中的每一段配置如何落到真实训练过程里。">
 
 
 <meta itemprop="datePublished" content="2026-09-26T21:00:00&#43;02:00" />
 <meta itemprop="dateModified" content="2026-09-26T21:00:00&#43;02:00" />
-<meta itemprop="wordCount" content="3317">
+<meta itemprop="wordCount" content="4351">
 
 
 
 <meta itemprop="keywords" content="nanochat,GPT,Transformer,LLM Training,PyTorch," />
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="从 nanochat 源码读懂 GPT 预训练：模型、数据与训练循环"/>
-<meta name="twitter:description" content="一段 GPT 训练代码真正串起的，不只是 Transformer 的前向传播，而是一整条闭环：
-
-
-1
-2
-3
-4
-
-
-原始文档 → Tokenizer 与序列打包 → input/target
-        → GPT 前向传播 → Cross-Entropy Loss
-        → 反向传播与梯度累积 → Optimizer Step
-        → 评估、采样、保存与恢复
-
-
-本文以我的 Transformer 笔记为概念起点，再沿着 nanochat 的真实源码追踪张量如何流动、参数如何更新，以及一个可运行的预训练系统还需要补上哪些工程环节。"/>
+<meta name="twitter:title" content="nanochat 源码解读：从参数配置到单步训练"/>
+<meta name="twitter:description" content="本文沿着 scripts/base_train.py 的执行顺序阅读 nanochat：从命令行参数、随机种子和 DDP 环境开始，依次进入模型构建、权重初始化、Scaling Laws、优化器、DataLoader、梯度累积与单步训练。重点不是抽象介绍 GPT，而是理解源码中的每一段配置如何落到真实训练过程里。"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -224,15 +178,15 @@
           <article class="post">
 
     <header class="post-header">
-      <h1 class="post-title">从 nanochat 源码读懂 GPT 预训练：模型、数据与训练循环</h1>
+      <h1 class="post-title">nanochat 源码解读：从参数配置到单步训练</h1>
 
       <div class="post-meta">
         <span class="post-time"> 2026-09-26 </span>
         <div class="post-category">
             <a href="/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/"> 人工智能 </a>
             </div>
-          <span class="more-meta"> 约 3317 字 </span>
-          <span class="more-meta"> 预计阅读 7 分钟 </span>
+          <span class="more-meta"> 约 4351 字 </span>
+          <span class="more-meta"> 预计阅读 9 分钟 </span>
 
       </div>
     </header>
@@ -244,388 +198,61 @@
 <ul>
 <li>
 <ul>
-<li><a href="#1-先建立全局视图-三个核心文件">1. 先建立全局视图：三个核心文件</a></li>
-<li><a href="#2-数据如何变成训练目标">2. 数据如何变成训练目标</a>
+<li><a href="#0-默认参数-先看训练脚本暴露了什么">0. 默认参数：先看训练脚本暴露了什么</a></li>
+<li><a href="#1-seed-可复现从哪里开始">1. Seed：可复现从哪里开始</a></li>
+<li><a href="#2-distributed-data-parallel">2. Distributed Data Parallel</a>
 <ul>
-<li><a href="#2-1-语言模型的监督信号来自-右移一位">2.1 语言模型的监督信号来自“右移一位”</a></li>
-<li><a href="#2-2-bos-aligned-best-fit-packing">2.2 BOS-aligned Best-Fit Packing</a></li>
+<li><a href="#为什么计时前后需要-synchronize">为什么计时前后需要 synchronize</a></li>
 </ul></li>
-<li><a href="#3-一个参数-depth-如何决定模型尺寸">3. 一个参数 <code>depth</code> 如何决定模型尺寸</a></li>
-<li><a href="#4-nanochat-不是-最朴素-的-transformer">4. nanochat 不是“最朴素”的 Transformer</a></li>
-<li><a href="#5-前向传播-沿张量形状走一遍">5. 前向传播：沿张量形状走一遍</a>
+<li><a href="#3-w-b-只让主进程记录实验">3. W&amp;B：只让主进程记录实验</a></li>
+<li><a href="#4-build-model-meta-从-depth-推导模型尺寸">4. <code>build_model_meta</code>：从 depth 推导模型尺寸</a></li>
+<li><a href="#5-gpt-初始化与前向数据流">5. GPT 初始化与前向数据流</a>
 <ul>
-<li><a href="#5-1-token-embedding-与-smear">5.1 Token Embedding 与 Smear</a></li>
-<li><a href="#5-2-attention">5.2 Attention</a></li>
-<li><a href="#5-3-block-与-mlp">5.3 Block 与 MLP</a></li>
-<li><a href="#5-4-lm-head-logit-soft-cap-与-loss">5.4 LM Head、logit soft-cap 与 loss</a></li>
+<li><a href="#5-1-meta-device-分配存储-初始化权重">5.1 Meta device → 分配存储 → 初始化权重</a></li>
+<li><a href="#5-2-embedding-blocks-与-lm-head">5.2 Embedding、Blocks 与 LM Head</a></li>
+<li><a href="#5-3-沿张量形状走一遍">5.3 沿张量形状走一遍</a></li>
+<li><a href="#5-4-value-embedding">5.4 Value Embedding</a></li>
+<li><a href="#5-5-输出-logits-与-loss">5.5 输出 logits 与 loss</a></li>
+<li><a href="#5-6-init-weights">5.6 <code>init_weights</code></a></li>
 </ul></li>
-<li><a href="#6-一次-optimizer-step-为什么可能包含多个-forward-backward">6. 一次 optimizer step 为什么可能包含多个 forward/backward</a></li>
-<li><a href="#7-为什么同时使用-muon-与-adamw">7. 为什么同时使用 Muon 与 AdamW</a></li>
-<li><a href="#8-scaling-laws-如何进入训练脚本">8. Scaling Laws 如何进入训练脚本</a></li>
-<li><a href="#9-评估-采样与-checkpoint-不是附属功能">9. 评估、采样与 checkpoint 不是附属功能</a></li>
-<li><a href="#10-把概念笔记映射回真实源码">10. 把概念笔记映射回真实源码</a></li>
-<li><a href="#参考源码">参考源码</a></li>
+<li><a href="#6-决定训练时长-batch-学习率与权重衰减">6. 决定训练时长、batch、学习率与权重衰减</a>
+<ul>
+<li><a href="#6-1-用参数量估计-token-horizon">6.1 用参数量估计 token horizon</a></li>
+<li><a href="#6-2-估计总-batch-size">6.2 估计总 batch size</a></li>
+<li><a href="#6-3-根据-batch-缩放学习率">6.3 根据 batch 缩放学习率</a></li>
+<li><a href="#6-4-缩放-weight-decay">6.4 缩放 weight decay</a></li>
+</ul></li>
+<li><a href="#7-初始化-optimizer">7. 初始化 Optimizer</a></li>
+<li><a href="#8-初始化训练与验证-dataloader">8. 初始化训练与验证 DataLoader</a></li>
+<li><a href="#9-计算-grad-accum-steps">9. 计算 <code>grad_accum_steps</code></a></li>
+<li><a href="#10-单步训练">10. 单步训练</a>
+<ul>
+<li><a href="#10-1-梯度累积">10.1 梯度累积</a></li>
+<li><a href="#10-2-learning-rate-schedule">10.2 Learning-rate schedule</a></li>
+<li><a href="#10-3-muon-momentum-与-weight-decay">10.3 Muon momentum 与 weight decay</a></li>
+</ul></li>
+<li><a href="#总结">总结</a></li>
+<li><a href="#参考资料">参考资料</a></li>
 </ul></li>
 </ul>
 </nav>
   </div>
 </div>
     <div class="post-content">
-      <p>一段 GPT 训练代码真正串起的，不只是 Transformer 的前向传播，而是一整条闭环：</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-text" data-lang="text">原始文档 → Tokenizer 与序列打包 → input/target
-        → GPT 前向传播 → Cross-Entropy Loss
-        → 反向传播与梯度累积 → Optimizer Step
-        → 评估、采样、保存与恢复</code></pre></td></tr></table>
-</div>
-</div>
-<p>本文以我的 Transformer 笔记为概念起点，再沿着 nanochat 的真实源码追踪张量如何流动、参数如何更新，以及一个可运行的预训练系统还需要补上哪些工程环节。</p>
+      <p>本文沿着 <code>scripts/base_train.py</code> 的执行顺序阅读 nanochat：从命令行参数、随机种子和 DDP 环境开始，依次进入模型构建、权重初始化、Scaling Laws、优化器、DataLoader、梯度累积与单步训练。重点不是抽象介绍 GPT，而是理解源码中的每一段配置如何落到真实训练过程里。</p>
 
 <blockquote>
 <p><strong>源码版本说明</strong></p>
 
-<p>本文基于 <a href="https://github.com/karpathy/nanochat">karpathy/nanochat</a> commit <a href="https://github.com/karpathy/nanochat/tree/92d63d4e8bb4df75c3b71618f31ddde2378b2bcd"><code>92d63d4e8bb4df75c3b71618f31ddde2378b2bcd</code></a>（提交时间：2026-07-03，提交信息：<code>clean up fragile code</code>）。重点参考固定版本的 <a href="https://github.com/karpathy/nanochat/blob/92d63d4e8bb4df75c3b71618f31ddde2378b2bcd/scripts/base_train.py"><code>scripts/base_train.py</code></a>、<a href="https://github.com/karpathy/nanochat/blob/92d63d4e8bb4df75c3b71618f31ddde2378b2bcd/nanochat/gpt.py"><code>nanochat/gpt.py</code></a> 和 <a href="https://github.com/karpathy/nanochat/blob/92d63d4e8bb4df75c3b71618f31ddde2378b2bcd/nanochat/dataloader.py"><code>nanochat/dataloader.py</code></a>。nanochat 更新很快，阅读其他版本时应以对应 commit 为准。</p>
+<p>本文基于 <a href="https://github.com/karpathy/nanochat">karpathy/nanochat</a> commit <a href="https://github.com/karpathy/nanochat/tree/92d63d4e8bb4df75c3b71618f31ddde2378b2bcd"><code>92d63d4e8bb4df75c3b71618f31ddde2378b2bcd</code></a>（2026-07-03，<code>clean up fragile code</code>）。主要阅读固定版本的 <a href="https://github.com/karpathy/nanochat/blob/92d63d4e8bb4df75c3b71618f31ddde2378b2bcd/scripts/base_train.py"><code>scripts/base_train.py</code></a>、<a href="https://github.com/karpathy/nanochat/blob/92d63d4e8bb4df75c3b71618f31ddde2378b2bcd/nanochat/gpt.py"><code>nanochat/gpt.py</code></a> 和 <a href="https://github.com/karpathy/nanochat/blob/92d63d4e8bb4df75c3b71618f31ddde2378b2bcd/nanochat/dataloader.py"><code>nanochat/dataloader.py</code></a>。源码更新很快，阅读其他版本时请以对应 commit 为准。</p>
 </blockquote>
 
-<h2 id="1-先建立全局视图-三个核心文件">1. 先建立全局视图：三个核心文件</h2>
+<h2 id="0-默认参数-先看训练脚本暴露了什么">0. 默认参数：先看训练脚本暴露了什么</h2>
 
-<p>阅读 <code>base_train.py</code> 时最容易犯的错误，是把所有逻辑都归到“训练循环”。实际上它更像一个编排器：</p>
-
-<table>
-<thead>
-<tr>
-<th>文件</th>
-<th>主要职责</th>
-<th>核心输出</th>
-</tr>
-</thead>
-
-<tbody>
-<tr>
-<td><code>dataloader.py</code></td>
-<td>读取文档、分词、打包并构造 next-token 监督信号</td>
-<td><code>x, y: (B, T)</code></td>
-</tr>
-
-<tr>
-<td><code>gpt.py</code></td>
-<td>Embedding、Attention、MLP、LM Head 与 loss</td>
-<td>标量 loss 或 <code>(B,T,V)</code> logits</td>
-</tr>
-
-<tr>
-<td><code>base_train.py</code></td>
-<td>初始化、分布式训练、调度、评估和 checkpoint</td>
-<td>更新后的模型状态</td>
-</tr>
-</tbody>
-</table>
-
-<p>把它们连起来，最小训练过程可以抽象为：</p>
+<p><code>base_train.py</code> 的命令行参数分为日志、运行设备、FP8、模型结构、训练时长、优化、评估和输出八组。完整默认配置如下：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">train_loader</span><span class="p">)</span>       <span class="c1"># (B, T), (B, T)</span>
-<span class="n">loss</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>              <span class="c1"># scalar</span>
-<span class="p">(</span><span class="n">loss</span> <span class="o">/</span> <span class="n">grad_accum</span><span class="p">)</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
-<span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
-<span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">(</span><span class="n">set_to_none</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span></code></pre></td></tr></table>
-</div>
-</div>
-<p>真正的源码在这四行周围加入了多 GPU、混合精度、预取、动态超参数、评估、采样以及断点恢复。</p>
-
-<h2 id="2-数据如何变成训练目标">2. 数据如何变成训练目标</h2>
-
-<h3 id="2-1-语言模型的监督信号来自-右移一位">2.1 语言模型的监督信号来自“右移一位”</h3>
-
-<p>数据加载器为每一行准备 $T+1$ 个 token，再构造：</p>
-
-<p>$$
-x = tokens[:, :-1], \qquad y = tokens[:, 1:]
-$$</p>
-
-<p>例如：</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-text" data-lang="text">完整序列: &lt;BOS&gt;  I  like  AI  .
-x:       &lt;BOS&gt;  I  like  AI
-y:          I  like  AI   .</code></pre></td></tr></table>
-</div>
-</div>
-<p>因此 <code>x</code> 和 <code>y</code> 的形状都是 $(B,T)$。位置 $t$ 的输入负责预测位置 $t+1$ 的 token，这就是 next-token prediction。</p>
-
-<h3 id="2-2-bos-aligned-best-fit-packing">2.2 BOS-aligned Best-Fit Packing</h3>
-
-<p>nanochat 没有简单地把所有文档首尾相接。它维护一个文档缓冲区，在每一行中反复挑选“能完整放入剩余空间的最长文档”；实在放不下时，再裁剪一个文档填满空间。这样做有三个结果：</p>
-
-<ul>
-<li>每行都从 BOS token 开始；</li>
-<li>batch 没有 padding，计算利用率为 100%；</li>
-<li>为了严格填满窗口，会牺牲一部分被裁剪的 token。</li>
-</ul>
-
-<p>数据状态还记录 <code>parquet index / row group index / epoch</code>。checkpoint 不只保存模型和优化器，也保存数据读取位置，否则恢复训练后可能重复或跳过大量数据。</p>
-
-<h2 id="3-一个参数-depth-如何决定模型尺寸">3. 一个参数 <code>depth</code> 如何决定模型尺寸</h2>
-
-<p><code>base_train.py</code> 的设计目标之一，是让模型深度成为主要的复杂度旋钮。模型宽度首先由</p>
-
-<p>$$
-C_{base}=depth \times aspect_ratio
-$$</p>
-
-<p>得到，再向上取整到 <code>head_dim</code> 的整数倍：</p>
-
-<p>$$
-C=\left\lceil\frac{C_{base}}{head_dim}\right\rceil head_dim,
-\qquad H=\frac{C}{head_dim}
-$$</p>
-
-<p>默认 <code>aspect_ratio=64</code>、<code>head_dim=128</code>。这样 Attention 的每个 head 都能得到整齐的维度，也更符合 Flash Attention 的硬件要求。</p>
-
-<p>模型采用三阶段初始化：</p>
-
-<ol>
-<li>在 <code>meta</code> device 上创建只有形状、没有真实存储的模型；</li>
-<li>使用 <code>to_empty(device=...)</code> 在目标设备分配存储；</li>
-<li>统一调用 <code>init_weights()</code> 初始化参数。</li>
-</ol>
-
-<p>这避免了先在 CPU 创建完整参数、再复制到 GPU 的额外峰值内存。若从 checkpoint 恢复，初始化后的参数会被已保存权重覆盖。</p>
-
-<h2 id="4-nanochat-不是-最朴素-的-transformer">4. nanochat 不是“最朴素”的 Transformer</h2>
-
-<p>我的原始笔记使用了经典教学结构：Token Embedding + learned Position Embedding、LayerNorm、GELU FFN。nanochat 保留 GPT 的主干，但采用了更现代、也更实验性的组合。</p>
-
-<table>
-<thead>
-<tr>
-<th>教学版 GPT</th>
-<th>此版本 nanochat</th>
-</tr>
-</thead>
-
-<tbody>
-<tr>
-<td>Learned Position Embedding</td>
-<td>RoPE，只作用于 Q、K</td>
-</tr>
-
-<tr>
-<td>LayerNorm</td>
-<td>无可学习参数的 RMSNorm</td>
-</tr>
-
-<tr>
-<td>GELU</td>
-<td>ReLU²</td>
-</tr>
-
-<tr>
-<td>所有层全局 Attention</td>
-<td><code>SSSL</code> 滑动窗口模式，最后一层强制全局</td>
-</tr>
-
-<tr>
-<td>Token Embedding 与 LM Head 可共享</td>
-<td>两者不共享权重</td>
-</tr>
-
-<tr>
-<td>标准 residual</td>
-<td>额外包含 x0 blending、residual scaling 与 backout</td>
-</tr>
-</tbody>
-</table>
-
-<p>所以，理解基础原理时可以沿用原笔记；逐行对照源码时，则必须尊重当前实现，而不能把 <code>Position Embedding</code> 或 <code>LayerNorm</code> 强行映射到不存在的模块上。</p>
-
-<h2 id="5-前向传播-沿张量形状走一遍">5. 前向传播：沿张量形状走一遍</h2>
-
-<p>设：</p>
-
-<ul>
-<li>$B$：batch size；</li>
-<li>$T$：序列长度；</li>
-<li>$C$：模型维度 <code>n_embd</code>；</li>
-<li>$H$：query head 数；</li>
-<li>$H_{kv}$：key/value head 数；</li>
-<li>$D=C/H$：每个 head 的维度；</li>
-<li>$V$：词表大小。</li>
-</ul>
-
-<h3 id="5-1-token-embedding-与-smear">5.1 Token Embedding 与 Smear</h3>
-
-<p>输入 token ID 的形状为 $(B,T)$。Embedding lookup 后：</p>
-
-<p>$$
-(B,T) \rightarrow (B,T,C)
-$$</p>
-
-<p>nanochat 随后先做 RMSNorm，再使用 <code>Smear</code> 将前一个 token 的 embedding 经过门控后混入当前位置。这可以被理解为一种很便宜的 bigram 通道：Attention 尚未开始，当前位置已经得到一点前序信息。</p>
-
-<h3 id="5-2-attention">5.2 Attention</h3>
-
-<p>每层先将 residual stream 投影成：</p>
-
-<p>$$
-Q:(B,T,H,D),\qquad K,V:(B,T,H_{kv},D)
-$$</p>
-
-<p><code>gpt.py</code> 支持 Grouped-Query Attention，因此 $H_{kv}$ 可以小于 $H$；但当前 <code>base_train.py</code> 建模时令 <code>n_kv_head = n_head</code>，实际训练配置仍是普通 Multi-Head Attention。</p>
-
-<p>接下来依次发生：</p>
-
-<ol>
-<li>可选的 Value Embedding 通过输入相关 gate 混入 $V$；</li>
-<li>RoPE 旋转 $Q$ 和 $K$，编码相对位置；</li>
-<li>对 $Q$、$K$ 做 QK Norm；</li>
-<li>使用 Flash Attention 3，不能使用时退回 PyTorch SDPA；</li>
-<li>合并 heads 并通过输出投影回到 $(B,T,C)$。</li>
-</ol>
-
-<p>Attention 仍然是 causal 的：位置 $t$ 只能读取不晚于自己的 token。<code>window_pattern=&quot;SSSL&quot;</code> 则进一步限制部分层只关注最近窗口，以降低长序列开销；最后一层始终使用完整上下文。</p>
-
-<h3 id="5-3-block-与-mlp">5.3 Block 与 MLP</h3>
-
-<p>一个 block 的主结构仍然是 pre-norm residual：</p>
-
-<p>$$
-x \leftarrow x + Attention(RMSNorm(x))
-$$</p>
-
-<p>$$
-x \leftarrow x + MLP(RMSNorm(x))
-$$</p>
-
-<p>MLP 的宽度变化为：</p>
-
-<p>$$
-C \rightarrow 4C \rightarrow C
-$$</p>
-
-<p>激活函数不是 GELU，而是：</p>
-
-<p>$$
-ReLU^2(z)=\max(0,z)^2
-$$</p>
-
-<p>在进入每层前，nanochat 还会缩放当前 residual，并重新混入初始 embedding $x_0$。这些标量是可学习参数，应把它们看成 nanochat 的实验设计，而不是所有 GPT 都必须具备的组件。</p>
-
-<h3 id="5-4-lm-head-logit-soft-cap-与-loss">5.4 LM Head、logit soft-cap 与 loss</h3>
-
-<p>最后一次 RMSNorm 后，LM Head 产生：</p>
-
-<p>$$
-(B,T,C) \rightarrow (B,T,V_{padded})
-$$</p>
-
-<p>词表会为硬件效率补齐到 64 的倍数，随后 logits 再裁剪回真实词表 $V$。计算 loss 前转成 FP32，并使用平滑 soft-cap：</p>
-
-<p>$$
-logits \leftarrow 15\tanh(logits/15)
-$$</p>
-
-<p>最后将 logits 展平为 $(BT,V)$、targets 展平为 $(BT)$，计算 cross entropy。训练模式返回一个标量 loss；没有 targets 时则直接返回 logits 用于推理。</p>
-
-<h2 id="6-一次-optimizer-step-为什么可能包含多个-forward-backward">6. 一次 optimizer step 为什么可能包含多个 forward/backward</h2>
-
-<p><code>total_batch_size</code> 在这里以 token 数表示，而不是“样本条数”。每个 rank 一次前后向处理的 token 数为：</p>
-
-<p>$$
-B_{device}\times T
-$$</p>
-
-<p>如果有 $W$ 个 DDP rank，那么：</p>
-
-<p>$$
-tokens<em>{micro}=B</em>{device}\times T\times W
-$$</p>
-
-<p>梯度累积次数为：</p>
-
-<p>$$
-N<em>{accum}=\frac{total_batch_size}{tokens</em>{micro}}
-$$</p>
-
-<p>每个 micro-step 的 loss 都要除以 $N_{accum}$，因为 <code>.backward()</code> 默认累加梯度。如果漏掉这一步，梯度会随累积次数成比例放大。</p>
-
-<p>训练循环还有一个容易忽略的性能细节：完成当前 batch 的 backward 后立即请求下一个 batch，使 CPU 分词和 Host-to-Device copy 尽量与 GPU 工作重叠。</p>
-
-<h2 id="7-为什么同时使用-muon-与-adamw">7. 为什么同时使用 Muon 与 AdamW</h2>
-
-<p>nanochat 将参数按性质分组：</p>
-
-<ul>
-<li>Transformer 的二维矩阵参数使用 Muon；</li>
-<li>token/value embeddings、LM Head 和各种标量使用 AdamW；</li>
-<li>不同参数组拥有不同 learning rate、betas 和 weight decay。</li>
-</ul>
-
-<p>因此 <code>optimizer.step()</code> 表面上只有一行，背后却不是“所有参数使用同一种更新规则”。此外，learning rate、Muon momentum 和 Muon weight decay 都会随 step 更新：</p>
-
-<ul>
-<li>learning rate：线性 warmup → 恒定 → 线性 warmdown；</li>
-<li>Muon momentum：先升高，训练末期再下降；</li>
-<li>Muon weight decay：余弦衰减到 0。</li>
-</ul>
-
-<h2 id="8-scaling-laws-如何进入训练脚本">8. Scaling Laws 如何进入训练脚本</h2>
-
-<p>如果用户没有直接指定训练步数，nanochat 会根据 scaling parameters 和目标 data/parameter ratio 估算目标 token 数：</p>
-
-<p>$$
-D=ratio\times N_{scaling}
-$$</p>
-
-<p>随后用经验关系估计总 batch size，并据此修正 learning rate 与 weight decay。这里要区分两类结论：</p>
-
-<ul>
-<li>“训练 token 数应随模型规模变化”是 scaling law 的整体思想；</li>
-<li>具体指数、参考 batch 以及把 AdamW 的推导迁移到 Muon，是该版本实现里的经验选择，源码注释也明确承认其中存在假设。</li>
-</ul>
-
-<p>阅读研究型代码时，这种区分非常重要：<strong>代码能运行，不等于每个超参数公式都是普适定律。</strong></p>
-
-<h2 id="9-评估-采样与-checkpoint-不是附属功能">9. 评估、采样与 checkpoint 不是附属功能</h2>
-
-<p>完整训练系统必须回答三个问题：模型是否在变好、是否还能生成、训练中断后能否继续。</p>
-
-<p>nanochat 因此周期性执行：</p>
-
-<ul>
-<li>validation bits-per-byte（比依赖词表大小的 token loss 更适合跨 tokenizer 比较）；</li>
-<li>CORE benchmark；</li>
-<li>固定 prompt 的 greedy sampling；</li>
-<li>checkpoint 保存。</li>
-</ul>
-
-<p>checkpoint 包括模型、优化器、模型配置、命令行配置、数据加载位置、step、最佳验证指标、平滑 loss 和累计训练时间。恢复训练的本质不是“加载一份权重”，而是恢复一个完整状态机。</p>
-
-<h2 id="10-把概念笔记映射回真实源码">10. 把概念笔记映射回真实源码</h2>
-
-<p>最终可以把整条数据流压缩为：</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt"> 1
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -640,35 +267,985 @@ $$</p>
 </span><span class="lnt">13
 </span><span class="lnt">14
 </span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-text" data-lang="text">documents
-  ↓ tokenize + BOS-aligned best-fit packing
-x, y: (B, T)
-  ↓ token embedding + RMSNorm + Smear
-hidden: (B, T, C)
-  ↓ repeated [RoPE/QK-Norm Attention + ReLU² MLP]
-hidden: (B, T, C)
-  ↓ RMSNorm + LM Head + soft-cap
-logits: (B, T, V)
-  ↓ cross entropy
-loss: scalar
-  ↓ gradient accumulation
-MuonAdamW step
-  ↓
-evaluation / sampling / checkpoint</code></pre></td></tr></table>
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&#34;Pretrain base model&#34;</span><span class="p">)</span>
+<span class="c1"># Logging</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--run&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&#34;dummy&#34;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;wandb run name (&#39;dummy&#39; disables wandb logging)&#34;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--metrics-jsonl&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&#34;&#34;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;optional path for structured train/validation metrics&#34;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--log-train-bpb&#34;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&#34;store_true&#34;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;compute and log training bits per byte for every optimization step&#34;</span><span class="p">)</span>
+<span class="c1"># Runtime</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--device-type&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&#34;&#34;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;cuda|cpu|mps (empty = autodetect)&#34;</span><span class="p">)</span>
+<span class="c1"># FP8 training</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--fp8&#34;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&#34;store_true&#34;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;enable FP8 training (requires H100+ GPU)&#34;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--fp8-recipe&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&#34;tensorwise&#34;</span><span class="p">,</span>
+                    <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&#34;rowwise&#34;</span><span class="p">,</span> <span class="s2">&#34;tensorwise&#34;</span><span class="p">],</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;FP8 scaling recipe: tensorwise (faster, recommended) or rowwise (more accurate but slower)&#34;</span><span class="p">)</span>
+<span class="c1"># Model architecture</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--depth&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;depth of the Transformer model&#34;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--aspect-ratio&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;model_dim = depth * aspect_ratio&#34;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--head-dim&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;target head dimension for attention&#34;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--max-seq-len&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">2048</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;max context length&#34;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--window-pattern&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&#34;SSSL&#34;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;sliding window pattern tiled across layers: L=full, S=half context (e.g. &#39;SSL&#39;)&#34;</span><span class="p">)</span>
+<span class="c1"># Training horizon (only one used, in order of precedence)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--num-iterations&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;explicit number of optimization steps (-1 = disable)&#34;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--target-flops&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;calculate num_iterations to reach target_flops (-1 = disable)&#34;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--target-param-data-ratio&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;calculate num_iterations to maintain data:param ratio (Chinchilla=20, -1 = disable)&#34;</span><span class="p">)</span>
+<span class="c1"># Optimization</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--device-batch-size&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;per-device batch size. good number to reduce to 16,8,4,... if you OOM on VRAM.&#34;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--total-batch-size&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;total batch size in tokens. decent numbers are e.g. 524288. (-1 = auto-compute optimal)&#34;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--embedding-lr&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;learning rate for embedding parameters (Adam)&#34;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--unembedding-lr&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.008</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;learning rate for unembedding parameters (Adam)&#34;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--weight-decay&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.28</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;cautious weight decay for the Muon optimizer (for weights)&#34;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--matrix-lr&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;learning rate for matrix parameters (Muon)&#34;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--scalar-lr&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;learning rate for scalars (resid_lambdas, x0_lambdas)&#34;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--warmup-steps&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;number of steps for LR warmup&#34;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--warmdown-ratio&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.65</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;ratio of iterations for LR warmdown&#34;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--final-lr-frac&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;final LR as fraction of initial LR&#34;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--resume-from-step&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;resume training from this step (-1 = disable)&#34;</span><span class="p">)</span>
+<span class="c1"># Evaluation</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--eval-every&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">250</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;evaluate val bpb every N steps (-1 = disable)&#34;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--eval-tokens&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">80</span><span class="o">*</span><span class="mi">524288</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;number of tokens to evaluate val loss on&#34;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--core-metric-every&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;evaluate CORE metric every N steps (-1 = disable)&#34;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--core-metric-max-per-task&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;examples per task for CORE metric&#34;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--sample-every&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;sample from model every N steps (-1 = disable)&#34;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--save-every&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;save checkpoints every N steps (-1 = only at end)&#34;</span><span class="p">)</span>
+<span class="c1"># Output</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&#34;--model-tag&#34;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&#34;override model tag for checkpoint directory name&#34;</span><span class="p">)</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+<span class="n">user_config</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># for logging</span></code></pre></td></tr></table>
 </div>
 </div>
-<p>我的原始 Transformer 笔记回答的是“一个 GPT block 为什么成立”；nanochat 则进一步展示了“怎样把它变成一个可训练、可扩展、可恢复、可评估的系统”。二者结合起来，才是从架构理解走向训练工程的完整路径。</p>
+<p>这里有两个容易混淆的 batch 概念：<code>device_batch_size</code> 是单个 rank 一次前向处理的序列数；<code>total_batch_size</code> 以 token 数计量，表示所有 GPU 和梯度累积 micro-step 合起来的一次参数更新规模。</p>
 
-<h2 id="参考源码">参考源码</h2>
+<h2 id="1-seed-可复现从哪里开始">1. Seed：可复现从哪里开始</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">device_type</span> <span class="o">==</span> <span class="s2">&#34;cuda&#34;</span><span class="p">:</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>伪随机数生成器本质上是确定性的状态机，可以用简化的线性同余模型理解：</p>
+
+<p>$$
+x_{n+1}=(a x_n+c)\bmod m
+$$</p>
+
+<p>seed 设置初始状态 $x_0$。相同 seed、算法和调用顺序会产生相同序列；但完整复现还取决于硬件、CUDA 算子和分布式执行顺序。</p>
+
+<h2 id="2-distributed-data-parallel">2. Distributed Data Parallel</h2>
+
+<p>DDP 可以类比高性能计算中的 MPI：<code>torchrun</code> 启动多个独立 Python 进程，并为每个进程设置 <code>RANK</code>、<code>LOCAL_RANK</code>、<code>WORLD_SIZE</code>。通常一张 GPU 对应一个进程。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash"><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-bash" data-lang="bash">torchrun --standalone --nproc_per_node<span class="o">=</span><span class="m">2</span> scripts/base_train.py</code></pre></td></tr></table>
+</div>
+</div>
+<p>两个进程通常分别得到 <code>LOCAL_RANK=0</code> 和 <code>LOCAL_RANK=1</code>：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&#34;cuda&#34;</span><span class="p">,</span> <span class="n">ddp_local_rank</span><span class="p">)</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">set_device</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+<span class="n">dist</span><span class="o">.</span><span class="n">init_process_group</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s2">&#34;nccl&#34;</span><span class="p">,</span> <span class="n">device_id</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+<span class="n">dist</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span></code></pre></td></tr></table>
+</div>
+</div>
+<ul>
+<li><code>backend=&quot;nccl&quot;</code> 使用适合 CUDA GPU 间通信的 NCCL；</li>
+<li><code>device_id=device</code> 指定当前进程负责的 GPU；</li>
+<li><code>dist.barrier()</code> 让所有 rank 等齐后再继续。</li>
+</ul>
+
+<h3 id="为什么计时前后需要-synchronize">为什么计时前后需要 synchronize</h3>
+
+<p>GPU 运算通常异步执行。如果 CPU 提交 kernel 后立刻调用 <code>time.time()</code>，测到的可能只是提交任务的时间：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">synchronize</span><span class="p">()</span>
+<span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+<span class="c1"># forward、backward、optimizer 等 GPU 运算</span>
+
+<span class="n">synchronize</span><span class="p">()</span>
+<span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>第一次同步排除之前的 GPU 工作，第二次确保本步真正结束。同步会阻塞 CPU，因此只应放在需要准确计时的边界。</p>
+
+<h2 id="3-w-b-只让主进程记录实验">3. W&amp;B：只让主进程记录实验</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">use_dummy_wandb</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">run</span> <span class="o">==</span> <span class="s2">&#34;dummy&#34;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">master_process</span>
+<span class="n">wandb_run</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">DummyWandb</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">use_dummy_wandb</span>
+    <span class="k">else</span> <span class="n">wandb</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">project</span><span class="o">=</span><span class="s2">&#34;nanochat&#34;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">run</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">user_config</span><span class="p">)</span>
+<span class="p">)</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>W&amp;B（Weights &amp; Biases）用于记录训练配置和指标。<code>wandb.init()</code> 创建 run，<code>log()</code> 记录 loss、吞吐量等指标，<code>finish()</code> 标记结束。<code>--run=dummy</code> 不上传记录；分布式训练中非主进程也使用 dummy 实现，避免重复记录。</p>
+
+<h2 id="4-build-model-meta-从-depth-推导模型尺寸">4. <code>build_model_meta</code>：从 depth 推导模型尺寸</h2>
+
+<p>nanochat 以 <code>depth</code> 为核心规模参数，再结合 <code>aspect_ratio</code> 和 <code>head_dim</code> 推导宽度与 head 数：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">base_dim</span> <span class="o">=</span> <span class="n">depth</span> <span class="o">*</span> <span class="n">args</span><span class="o">.</span><span class="n">aspect_ratio</span>
+<span class="n">model_dim</span> <span class="o">=</span> <span class="p">((</span><span class="n">base_dim</span> <span class="o">+</span> <span class="n">args</span><span class="o">.</span><span class="n">head_dim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="n">args</span><span class="o">.</span><span class="n">head_dim</span><span class="p">)</span> <span class="o">*</span> <span class="n">args</span><span class="o">.</span><span class="n">head_dim</span>
+<span class="n">num_heads</span> <span class="o">=</span> <span class="n">model_dim</span> <span class="o">//</span> <span class="n">args</span><span class="o">.</span><span class="n">head_dim</span></code></pre></td></tr></table>
+</div>
+</div>
+<p><code>model_dim</code> 被向上取整为 <code>head_dim</code> 的倍数。以 <code>depth=2</code>、<code>aspect_ratio=64</code>、<code>head_dim=128</code> 为例：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">n_layer = 2
+n_embd = 128
+n_head = 1
+n_kv_head = 1
+head_dim = 128</code></pre></td></tr></table>
+</div>
+</div>
+<ul>
+<li><code>sequence_len</code>：单次输入的最大 token 数，默认 2048；</li>
+<li><code>vocab_size</code>：tokenizer 的 token ID 数量，决定 embedding 和输出层尺寸；</li>
+<li><code>window_pattern</code>：<code>L</code> 表示完整上下文，<code>S</code> 表示局部窗口；<code>SSSL</code> 循环应用，但最后一层强制使用完整上下文。</li>
+</ul>
+
+<p>Q、K、V 的线性层定义在 <code>gpt.py</code>：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="bp">self</span><span class="o">.</span><span class="n">c_q</span> <span class="o">=</span> <span class="n">Linear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_embd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_head</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">head_dim</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">c_k</span> <span class="o">=</span> <span class="n">Linear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_embd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_kv_head</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">head_dim</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">c_v</span> <span class="o">=</span> <span class="n">Linear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_embd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_kv_head</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">head_dim</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>对 depth-2 模型而言，相当于：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="bp">self</span><span class="o">.</span><span class="n">c_q</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">c_k</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">c_v</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span></code></pre></td></tr></table>
+</div>
+</div>
+<h2 id="5-gpt-初始化与前向数据流">5. GPT 初始化与前向数据流</h2>
+
+<h3 id="5-1-meta-device-分配存储-初始化权重">5.1 Meta device → 分配存储 → 初始化权重</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">model</span> <span class="o">=</span> <span class="n">build_model_meta</span><span class="p">()</span>          <span class="c1"># with torch.device(&#34;meta&#34;)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">to_empty</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>       <span class="c1"># allocate uninitialized storage</span>
+<span class="n">model</span><span class="o">.</span><span class="n">init_weights</span><span class="p">()</span>                <span class="c1"># initialize every tensor</span></code></pre></td></tr></table>
+</div>
+</div>
+<p><code>build_model_meta()</code> 只建立参数形状；<code>to_empty()</code> 直接在目标设备分配未初始化空间；<code>init_weights()</code> 初始化权重及 RoPE 的 cos/sin buffers。这样避免先在 CPU 建立完整模型再复制到 GPU 的额外峰值内存。</p>
+
+<h3 id="5-2-embedding-blocks-与-lm-head">5.2 Embedding、Blocks 与 LM Head</h3>
+
+<p>词表会补齐到 64 的倍数，使矩阵尺寸更适合 GPU：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">padded_vocab_size</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">vocab_size</span> <span class="o">+</span> <span class="n">pad_vocab_size_to</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="n">pad_vocab_size_to</span>
+<span class="p">)</span> <span class="o">*</span> <span class="n">pad_vocab_size_to</span>
+
+<span class="bp">self</span><span class="o">.</span><span class="n">transformer</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleDict</span><span class="p">({</span>
+    <span class="s2">&#34;wte&#34;</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span><span class="n">padded_vocab_size</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">n_embd</span><span class="p">),</span>
+    <span class="s2">&#34;h&#34;</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">([</span>
+        <span class="n">Block</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">layer_idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">layer_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">n_layer</span><span class="p">)</span>
+    <span class="p">]),</span>
+<span class="p">})</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">lm_head</span> <span class="o">=</span> <span class="n">Linear</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">n_embd</span><span class="p">,</span> <span class="n">padded_vocab_size</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">最后隐藏状态: [B, T, n_embd]
+lm_head 输出: [B, T, padded_vocab_size]
+裁掉 padding: [B, T, vocab_size]</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lm_head</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">logits</span> <span class="o">=</span> <span class="n">logits</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">]</span></code></pre></td></tr></table>
+</div>
+</div>
+<h3 id="5-3-沿张量形状走一遍">5.3 沿张量形状走一遍</h3>
+
+<table>
+<thead>
+<tr>
+<th>记号</th>
+<th>含义</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>$B$</td>
+<td>batch size</td>
+</tr>
+
+<tr>
+<td>$T$</td>
+<td>每条序列的 token 数</td>
+</tr>
+
+<tr>
+<td>$d$</td>
+<td><code>n_embd</code>，隐藏维度</td>
+</tr>
+
+<tr>
+<td>$H$</td>
+<td>Query head 数</td>
+</tr>
+
+<tr>
+<td>$H_{kv}$</td>
+<td>Key/Value head 数</td>
+</tr>
+
+<tr>
+<td>$D=d/H$</td>
+<td>每个 head 的维度</td>
+</tr>
+
+<tr>
+<td>$V, V_p$</td>
+<td>原始词表、补齐词表大小</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">idx [B, T]
+  → wte lookup
+x   [B, T, d]</code></pre></td></tr></table>
+</div>
+</div>
+<p>RMSNorm 和 smear 不改变主张量形状。进入 block 后：</p>
+
+<table>
+<thead>
+<tr>
+<th>投影</th>
+<th align="right">线性层权重形状</th>
+<th align="right">输出形状</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Q</td>
+<td align="right"><code>[H×D, d]</code></td>
+<td align="right"><code>[B, T, H, D]</code></td>
+</tr>
+
+<tr>
+<td>K</td>
+<td align="right"><code>[Hkv×D, d]</code></td>
+<td align="right"><code>[B, T, Hkv, D]</code></td>
+</tr>
+
+<tr>
+<td>V</td>
+<td align="right"><code>[Hkv×D, d]</code></td>
+<td align="right"><code>[B, T, Hkv, D]</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_q</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_head</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">head_dim</span><span class="p">)</span>
+<span class="n">k</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_k</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_kv_head</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">head_dim</span><span class="p">)</span>
+<span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_v</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_kv_head</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">head_dim</span><span class="p">)</span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">[B, T, H, D] → [B, T, H×D] = [B, T, d]</code></pre></td></tr></table>
+</div>
+</div>
+<p>因果遮罩、RoPE 和滑动窗口改变可关注的位置，但不改变主张量形状。MLP 的形状变化为：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">[B, T, d]
+  → c_fc，权重 [4d, d]
+[B, T, 4d]
+  → ReLU²
+[B, T, 4d]
+  → c_proj，权重 [d, 4d]
+[B, T, d]</code></pre></td></tr></table>
+</div>
+</div>
+<p>残差连接要求加法两边形状一致，所以 block 输入输出均为 <code>[B,T,d]</code>。</p>
+
+<h3 id="5-4-value-embedding">5.4 Value Embedding</h3>
+
+<p>启用 value embedding 的层拥有 <code>[Vp, Hkv×D]</code> 的额外查找表：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">idx [B, T] → value embedding [B, T, Hkv×D]</code></pre></td></tr></table>
+</div>
+</div>
+<p>reshape 后为 <code>[B,T,Hkv,D]</code>，再与普通 V 混合；门控张量 <code>[B,T,Hkv,1]</code> 控制注入量。</p>
+
+<h3 id="5-5-输出-logits-与-loss">5.5 输出 logits 与 loss</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">[B, T, d]
+  → lm_head
+[B, T, Vp]
+  → 裁掉 padding
+[B, T, V]</code></pre></td></tr></table>
+</div>
+</div>
+<p>训练时 logits 展平为 <code>[B×T,V]</code>，目标 token 展平为 <code>[B×T]</code>，再计算交叉熵。以 <code>d=128, H=1, Hkv=1</code> 为例：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">idx         [B, T]
+wte         [B, T, 128]
+Q/K/V       [B, T, 1, 128]
+attention   [B, T, 1, 128] → [B, T, 128]
+MLP         [B, T, 128] → [B, T, 512] → [B, T, 128]
+lm_head     [B, T, 128] → [B, T, vocab_size]</code></pre></td></tr></table>
+</div>
+</div>
+<h3 id="5-6-init-weights">5.6 <code>init_weights</code></h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">wte:                 normal, std=1.0
+lm_head:             normal, std=0.001
+for each block:
+    attn.c_q/k/v:    uniform, std≈1/sqrt(n_embd)
+    attn.c_proj:     zeros
+    mlp.c_fc:        smaller uniform
+    mlp.c_proj:      zeros</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">n_embd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">n_embd</span>
+<span class="n">s</span> <span class="o">=</span> <span class="mi">3</span><span class="o">**</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">n_embd</span><span class="o">**-</span><span class="mf">0.5</span>
+
+<span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="o">.</span><span class="n">h</span><span class="p">:</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">uniform_</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">attn</span><span class="o">.</span><span class="n">c_q</span><span class="o">.</span><span class="n">weight</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">uniform_</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">attn</span><span class="o">.</span><span class="n">c_k</span><span class="o">.</span><span class="n">weight</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">uniform_</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">attn</span><span class="o">.</span><span class="n">c_v</span><span class="o">.</span><span class="n">weight</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>均匀分布 $U(-s,s)$ 的标准差是 $s/\sqrt{3}=1/\sqrt{n_{embd}}$。Attention 和 MLP 输出投影从零开始：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="o">.</span><span class="n">h</span><span class="p">:</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">zeros_</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">attn</span><span class="o">.</span><span class="n">c_proj</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">uniform_</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">mlp</span><span class="o">.</span><span class="n">c_fc</span><span class="o">.</span><span class="n">weight</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span> <span class="o">*</span> <span class="mf">0.4</span><span class="p">,</span> <span class="n">s</span> <span class="o">*</span> <span class="mf">0.4</span><span class="p">)</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">zeros_</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">mlp</span><span class="o">.</span><span class="n">c_proj</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>所以初始时两个子层近似恒等残差路径：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">x + attention_output = x + 0 = x
+x + mlp_output       = x + 0 = x</code></pre></td></tr></table>
+</div>
+</div>
+<h2 id="6-决定训练时长-batch-学习率与权重衰减">6. 决定训练时长、batch、学习率与权重衰减</h2>
+
+<h3 id="6-1-用参数量估计-token-horizon">6.1 用参数量估计 token horizon</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">param_counts</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">num_scaling_params</span><span class="p">()</span>
+<span class="n">num_params</span> <span class="o">=</span> <span class="n">param_counts</span><span class="p">[</span><span class="s2">&#34;total&#34;</span><span class="p">]</span>
+<span class="n">num_flops_per_token</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">estimate_flops</span><span class="p">()</span>
+
+<span class="n">num_scaling_params</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">param_counts</span><span class="p">[</span><span class="s2">&#34;transformer_matrices&#34;</span><span class="p">]</span> <span class="o">+</span> <span class="n">param_counts</span><span class="p">[</span><span class="s2">&#34;lm_head&#34;</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="n">target_tokens</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">target_param_data_ratio</span> <span class="o">*</span> <span class="n">num_scaling_params</span><span class="p">)</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>默认 ratio 为 12，所以目标 token 数约为 scaling parameters 的 12 倍。</p>
+
+<h3 id="6-2-估计总-batch-size">6.2 估计总 batch size</h3>
+
+<p>nanochat 参考 <a href="https://arxiv.org/abs/2505.13738">Power Lines</a> 的经验关系 $B_{opt}\propto D^{0.383}$：</p>
+
+<p>$$
+B<em>{pred}=B</em>{REF}\left(\frac{D}{D_{REF}}\right)^{0.383}
+$$</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">batch_size_ratio</span> <span class="o">=</span> <span class="n">target_tokens</span> <span class="o">/</span> <span class="n">D_REF</span>
+<span class="n">B_REF</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="mi">19</span>  <span class="c1"># 524,288 tokens</span>
+<span class="n">predicted_batch_size</span> <span class="o">=</span> <span class="n">B_REF</span> <span class="o">*</span> <span class="n">batch_size_ratio</span> <span class="o">**</span> <span class="mf">0.383</span>
+<span class="n">total_batch_size</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="nb">round</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">predicted_batch_size</span><span class="p">))</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>最后取最近的 2 的幂。指数与参考点都是经验选择，不是对所有模型都严格最优的定律。</p>
+
+<h3 id="6-3-根据-batch-缩放学习率">6.3 根据 batch 缩放学习率</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">batch_lr_scale</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">batch_ratio</span> <span class="o">=</span> <span class="n">total_batch_size</span> <span class="o">/</span> <span class="n">B_REF</span>
+<span class="k">if</span> <span class="n">batch_ratio</span> <span class="o">!=</span> <span class="mf">1.0</span><span class="p">:</span>
+    <span class="c1"># AdamW: η ∝ √(B/B_ref)</span>
+    <span class="c1"># Muon: use the same scaling as an assumption</span>
+    <span class="n">batch_lr_scale</span> <span class="o">=</span> <span class="n">batch_ratio</span> <span class="o">**</span> <span class="mf">0.5</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>$$
+batch_lr_scale=\sqrt{\frac{B}{B_{REF}}}
+$$</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">batch_ratio = 131072 / 524288 = 0.25
+batch_lr_scale = sqrt(0.25) = 0.5</code></pre></td></tr></table>
+</div>
+</div>
+<h3 id="6-4-缩放-weight-decay">6.4 缩放 weight decay</h3>
+
+<p>脚本采用 <a href="https://arxiv.org/abs/2405.13698">T_epoch</a> 框架：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">weight_decay_scaled</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">weight_decay</span>
+    <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">total_batch_size</span> <span class="o">/</span> <span class="n">B_REF</span><span class="p">)</span>
+    <span class="o">*</span> <span class="p">(</span><span class="n">D_REF</span> <span class="o">/</span> <span class="n">target_tokens</span><span class="p">)</span>
+<span class="p">)</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>$$
+\lambda<em>{scaled}=\lambda</em>{ref}\sqrt{\frac{B}{B<em>{REF}}}\frac{D</em>{REF}}{D}
+$$</p>
+
+<p>第一项匹配 batch/learning-rate 缩放，第二项补偿训练 token horizon。</p>
+
+<h2 id="7-初始化-optimizer">7. 初始化 Optimizer</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">optimizer</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">setup_optimizer</span><span class="p">(</span>
+    <span class="n">unembedding_lr</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">unembedding_lr</span> <span class="o">*</span> <span class="n">batch_lr_scale</span><span class="p">,</span>
+    <span class="n">embedding_lr</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">embedding_lr</span> <span class="o">*</span> <span class="n">batch_lr_scale</span><span class="p">,</span>
+    <span class="n">scalar_lr</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">scalar_lr</span> <span class="o">*</span> <span class="n">batch_lr_scale</span><span class="p">,</span>
+    <span class="n">matrix_lr</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">matrix_lr</span> <span class="o">*</span> <span class="n">batch_lr_scale</span><span class="p">,</span>
+    <span class="n">weight_decay</span><span class="o">=</span><span class="n">weight_decay_scaled</span><span class="p">,</span>
+<span class="p">)</span></code></pre></td></tr></table>
+</div>
+</div>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>作用对象</th>
+<th>含义</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><code>unembedding_lr</code></td>
+<td><code>lm_head</code></td>
+<td>hidden state 到词表 logits 的输出层学习率</td>
+</tr>
+
+<tr>
+<td><code>embedding_lr</code></td>
+<td><code>wte</code>、value embeddings</td>
+<td>输入 embedding 学习率；value embedding 额外乘 0.5</td>
+</tr>
+
+<tr>
+<td><code>scalar_lr</code></td>
+<td>部分可学习标量</td>
+<td><code>resid_lambdas</code>、<code>x0_lambdas</code> 等</td>
+</tr>
+
+<tr>
+<td><code>matrix_lr</code></td>
+<td>Transformer 二维矩阵</td>
+<td>Muon 的基础学习率</td>
+</tr>
+
+<tr>
+<td><code>weight_decay</code></td>
+<td>Muon 矩阵参数</td>
+<td>已按 batch 和 token horizon 缩放的衰减强度</td>
+</tr>
+</tbody>
+</table>
+
+<p>一个 <code>optimizer.step()</code> 背后同时包含 AdamW 与 Muon 参数组，并非所有权重共享同一种更新规则。</p>
+
+<h2 id="8-初始化训练与验证-dataloader">8. 初始化训练与验证 DataLoader</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">train_loader</span> <span class="o">=</span> <span class="n">tokenizing_distributed_data_loader_with_state_bos_bestfit</span><span class="p">(</span>
+    <span class="n">tokenizer</span><span class="p">,</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">device_batch_size</span><span class="p">,</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">max_seq_len</span><span class="p">,</span>
+    <span class="n">split</span><span class="o">=</span><span class="s2">&#34;train&#34;</span><span class="p">,</span>
+    <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span>
+    <span class="n">resume_state_dict</span><span class="o">=</span><span class="n">dataloader_resume_state_dict</span><span class="p">,</span>
+<span class="p">)</span></code></pre></td></tr></table>
+</div>
+</div>
+<ul>
+<li><code>tokenizer</code>：将文档转换为 token；</li>
+<li><code>device_batch_size</code>：当前 rank 一次生成多少条序列；</li>
+<li><code>max_seq_len</code>：每条序列的长度；</li>
+<li><code>split=&quot;train&quot;</code>：读取训练分片；</li>
+<li><code>device</code>：输出张量所在设备；</li>
+<li><code>resume_state_dict</code>：从 checkpoint 恢复数据进度。</li>
+</ul>
+
+<p><code>bos_bestfit</code> 会尽量用完整文档填满每一行并保持 BOS 对齐。加载器产出 <code>(x, y, state)</code>：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">x</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># [B, T]</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span>   <span class="c1"># [B, T]</span></code></pre></td></tr></table>
+</div>
+</div>
+<p><code>y</code> 是 <code>x</code> 右移一位后的 next-token 目标；<code>state</code> 写入 checkpoint，供中断恢复。</p>
+
+<h2 id="9-计算-grad-accum-steps">9. 计算 <code>grad_accum_steps</code></h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="n">tokens_per_fwdbwd</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">device_batch_size</span> <span class="o">*</span> <span class="n">args</span><span class="o">.</span><span class="n">max_seq_len</span>
+<span class="n">world_tokens_per_fwdbwd</span> <span class="o">=</span> <span class="n">tokens_per_fwdbwd</span> <span class="o">*</span> <span class="n">ddp_world_size</span>
+<span class="n">grad_accum_steps</span> <span class="o">=</span> <span class="n">total_batch_size</span> <span class="o">//</span> <span class="n">world_tokens_per_fwdbwd</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>例如单 rank batch 为 2、序列长度 1024、共有 4 个 rank，则一次全局 micro-step 处理：</p>
+
+<p>$$
+2\times1024\times4=8192\text{ tokens}
+$$</p>
+
+<p>若 <code>total_batch_size=65536</code>，则 <code>grad_accum_steps=8</code>，累积 8 次 forward/backward 后才更新一次参数。</p>
+
+<h2 id="10-单步训练">10. 单步训练</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">for</span> <span class="n">micro_step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">grad_accum_steps</span><span class="p">):</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">loss</span> <span class="o">/</span> <span class="n">grad_accum_steps</span>
+    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">dataloader_state_dict</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">train_loader</span><span class="p">)</span>
+
+<span class="n">lrm</span> <span class="o">=</span> <span class="n">get_lr_multiplier</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+<span class="n">muon_momentum</span> <span class="o">=</span> <span class="n">get_muon_momentum</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+<span class="n">muon_weight_decay</span> <span class="o">=</span> <span class="n">get_weight_decay</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">param_groups</span><span class="p">:</span>
+    <span class="n">group</span><span class="p">[</span><span class="s2">&#34;lr&#34;</span><span class="p">]</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="s2">&#34;initial_lr&#34;</span><span class="p">]</span> <span class="o">*</span> <span class="n">lrm</span>
+    <span class="k">if</span> <span class="n">group</span><span class="p">[</span><span class="s2">&#34;kind&#34;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&#34;muon&#34;</span><span class="p">:</span>
+        <span class="n">group</span><span class="p">[</span><span class="s2">&#34;momentum&#34;</span><span class="p">]</span> <span class="o">=</span> <span class="n">muon_momentum</span>
+        <span class="n">group</span><span class="p">[</span><span class="s2">&#34;weight_decay&#34;</span><span class="p">]</span> <span class="o">=</span> <span class="n">muon_weight_decay</span>
+
+<span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">(</span><span class="n">set_to_none</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span></code></pre></td></tr></table>
+</div>
+</div>
+<h3 id="10-1-梯度累积">10.1 梯度累积</h3>
+
+<p><code>.backward()</code> 将梯度加到已有 <code>.grad</code>。先除以 <code>grad_accum_steps</code>，使最终梯度等价于各 micro-batch 梯度的平均值：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">for</span> <span class="n">micro_step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">grad_accum_steps</span><span class="p">):</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">/</span> <span class="n">grad_accum_steps</span>
+    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+
+<span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">(</span><span class="n">set_to_none</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span></code></pre></td></tr></table>
+</div>
+</div>
+<p><code>set_to_none=True</code> 通常比逐元素清零更省内存。backward 后立刻调用下一次 <code>next(train_loader)</code>，还能让 CPU 分词、数据搬运尽量与 GPU 工作重叠，并同步保存最新的数据加载状态。</p>
+
+<h3 id="10-2-learning-rate-schedule">10.2 Learning-rate schedule</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">get_lr_multiplier</span><span class="p">(</span><span class="n">it</span><span class="p">):</span>
+    <span class="n">warmup_iters</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">warmup_steps</span>
+    <span class="n">warmdown_iters</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">warmdown_ratio</span> <span class="o">*</span> <span class="n">num_iterations</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">it</span> <span class="o">&lt;</span> <span class="n">warmup_iters</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">it</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">warmup_iters</span>
+    <span class="k">elif</span> <span class="n">it</span> <span class="o">&lt;=</span> <span class="n">num_iterations</span> <span class="o">-</span> <span class="n">warmdown_iters</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">1.0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">progress</span> <span class="o">=</span> <span class="p">(</span><span class="n">num_iterations</span> <span class="o">-</span> <span class="n">it</span><span class="p">)</span> <span class="o">/</span> <span class="n">warmdown_iters</span>
+        <span class="k">return</span> <span class="n">progress</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">progress</span><span class="p">)</span> <span class="o">*</span> <span class="n">args</span><span class="o">.</span><span class="n">final_lr_frac</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>它分为线性 warmup、恒定学习率、线性 warmdown 三段，末尾降到 <code>final_lr_frac</code>，默认是基础学习率的 5%。</p>
+
+<h3 id="10-3-muon-momentum-与-weight-decay">10.3 Muon momentum 与 weight decay</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">get_muon_momentum</span><span class="p">(</span><span class="n">it</span><span class="p">):</span>
+    <span class="n">warmdown_iters</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">warmdown_ratio</span> <span class="o">*</span> <span class="n">num_iterations</span><span class="p">)</span>
+    <span class="n">warmdown_start</span> <span class="o">=</span> <span class="n">num_iterations</span> <span class="o">-</span> <span class="n">warmdown_iters</span>
+    <span class="k">if</span> <span class="n">it</span> <span class="o">&lt;</span> <span class="mi">400</span><span class="p">:</span>
+        <span class="n">frac</span> <span class="o">=</span> <span class="n">it</span> <span class="o">/</span> <span class="mi">400</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">frac</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.85</span> <span class="o">+</span> <span class="n">frac</span> <span class="o">*</span> <span class="mf">0.97</span>
+    <span class="k">elif</span> <span class="n">it</span> <span class="o">&gt;=</span> <span class="n">warmdown_start</span><span class="p">:</span>
+        <span class="n">progress</span> <span class="o">=</span> <span class="p">(</span><span class="n">it</span> <span class="o">-</span> <span class="n">warmdown_start</span><span class="p">)</span> <span class="o">/</span> <span class="n">warmdown_iters</span>
+        <span class="k">return</span> <span class="mf">0.97</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">progress</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.90</span> <span class="o">*</span> <span class="n">progress</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.97</span>
+
+<span class="k">def</span> <span class="nf">get_weight_decay</span><span class="p">(</span><span class="n">it</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">weight_decay_scaled</span> <span class="o">*</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span>
+        <span class="mi">1</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">it</span> <span class="o">/</span> <span class="n">num_iterations</span><span class="p">)</span>
+    <span class="p">)</span></code></pre></td></tr></table>
+</div>
+</div>
+<p>Muon momentum 前 400 步从 0.85 升到 0.97，warmdown 时降到 0.90；weight decay 按余弦曲线降到 0：</p>
+
+<p>$$
+wd(it)=wd_{scaled}\frac{1+\cos(\pi\,it/N)}{2}
+$$</p>
+
+<p>这两项只作用于 <code>kind == &quot;muon&quot;</code> 的参数组。</p>
+
+<h2 id="总结">总结</h2>
+
+<p>沿 <code>base_train.py</code> 的真实执行顺序，nanochat 的预训练链路是：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">解析参数
+  → seed、设备与 DDP
+  → 实验日志
+  → 由 depth 推导并构建 GPT
+  → 初始化权重
+  → 用 scaling laws 推导训练规模
+  → 建立 AdamW + Muon 参数组
+  → 初始化可恢复 DataLoader
+  → 计算梯度累积次数
+  → forward / backward / schedule / optimizer step
+  → 评估、采样与 checkpoint</code></pre></td></tr></table>
+</div>
+</div>
+<p>这些看似零散的细节最终都服务于同一个目标：让指定规模的 GPT 在给定硬件和 token 预算下，稳定、可观测、可恢复地完成预训练。</p>
+
+<h2 id="参考资料">参考资料</h2>
 
 <ul>
-<li><a href="https://github.com/karpathy/nanochat/tree/92d63d4e8bb4df75c3b71618f31ddde2378b2bcd">nanochat repository（固定 commit）</a></li>
+<li><a href="https://github.com/karpathy/nanochat/tree/92d63d4e8bb4df75c3b71618f31ddde2378b2bcd">nanochat 固定版本源码</a></li>
 <li><a href="https://github.com/karpathy/nanochat/blob/92d63d4e8bb4df75c3b71618f31ddde2378b2bcd/scripts/base_train.py"><code>scripts/base_train.py</code></a></li>
 <li><a href="https://github.com/karpathy/nanochat/blob/92d63d4e8bb4df75c3b71618f31ddde2378b2bcd/nanochat/gpt.py"><code>nanochat/gpt.py</code></a></li>
 <li><a href="https://github.com/karpathy/nanochat/blob/92d63d4e8bb4df75c3b71618f31ddde2378b2bcd/nanochat/dataloader.py"><code>nanochat/dataloader.py</code></a></li>
-<li><a href="https://app.notion.com/p/Transformer-Architecture-3dbf1cbefb538081b41ce7d64f6b4871">原始 Notion 笔记：Transformer Architecture</a></li>
+<li><a href="https://arxiv.org/abs/2505.13738">Power Lines</a></li>
+<li><a href="https://arxiv.org/abs/2405.13698">How to Scale Your EMA</a></li>
 </ul>
     </div>
 

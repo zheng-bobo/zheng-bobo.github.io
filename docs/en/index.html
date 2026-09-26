@@ -171,20 +171,20 @@
           <section id="posts" class="posts">
     <article class="post">
   <header class="post-header">
-    <h1 class="post-title"><a class="post-link" href="/en/post/nanochat-gpt-pretraining-from-source/">Understanding GPT Pretraining Through nanochat: Model, Data, and Training Loop</a></h1>
+    <h1 class="post-title"><a class="post-link" href="/en/post/nanochat-gpt-pretraining-from-source/">Reading nanochat Source: From Configuration to a Training Step</a></h1>
     <div class="post-meta">
       <span class="post-time"> 2026-09-26 </span>
       <div class="post-category">
           <a href="/en/categories/artificial-intelligence/"> Artificial Intelligence </a>
           </div>
-        <span class="more-meta"> 1278 words </span>
-        <span class="more-meta"> 6 mins read </span>
+        <span class="more-meta"> 1289 words </span>
+        <span class="more-meta"> 7 mins read </span>
     </div>
   </header>
 
   <div class="post-content">
     <div class="post-summary">
-      <p>A GPT training program connects much more than a Transformer forward pass. It closes an entire loop:</p>
+      <p>This article follows the execution order of <code>scripts/base_train.py</code>: command-line arguments, random seeds, DDP setup, model construction, weight initialization, scaling laws, optimizers, data loading, gradient accumulation, and finally one complete training step.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
@@ -199,7 +199,7 @@
           → evaluation, sampling, checkpointing, and resume</code></pre></td></tr></table>
 </div>
 </div>
-<p>This article starts from my conceptual Transformer notes and follows nanochat&rsquo;s actual code to show how tensors move, how parameters are updated, and what engineering layers are needed around the model.</p>
+<p>The organization and code-reading path follow my nanochat Notion notes. The prose has been edited for clarity, while the source snippets and their original reading sequence are preserved.</p>
     </div>
     <div class="read-more">
       <a href="/en/post/nanochat-gpt-pretraining-from-source/" class="read-more-link">Read more...</a>
