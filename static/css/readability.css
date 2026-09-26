@@ -58,6 +58,30 @@ article.post:has(> .post-toc) > .post-header .post-title {
   margin: 1.75em 0 0.65em;
 }
 
+.post-toc ~ .post-content p {
+  margin: 1.05em 0 1.25em;
+  text-wrap: pretty;
+}
+
+.post-toc ~ .post-content ul,
+.post-toc ~ .post-content ol {
+  margin: 1em 0 1.35em;
+  padding-left: 1.55em;
+}
+
+.post-toc ~ .post-content li + li {
+  margin-top: 0.32em;
+}
+
+.post-toc ~ .post-content li > p {
+  margin: 0.4em 0;
+}
+
+.post-toc ~ .post-content hr {
+  margin: 2.75em 0;
+  border-color: var(--reading-rule);
+}
+
 @media (max-width: 767px) {
   .post-toc ~ .post-content {
     font-size: 17px;
