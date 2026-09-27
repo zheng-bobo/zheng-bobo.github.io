@@ -66,17 +66,31 @@ This is why a stronger base model does not automatically become a genuine person
 
 The next major step for personal AI is therefore not intelligence alone. It is giving already capable reasoning systems a durable memory architecture that decides what deserves to be remembered, understands temporal validity, preserves sources and relationships, corrects errors, and lets the user move or delete memory.
 
-## 3. Base models become infrastructure
+The rest of this essay follows from that asymmetry:
 
-Base models may come to resemble operating-system kernels, database engines, or cloud infrastructure. A small number of organizations will train frontier models, open-weight communities will offer deployable alternatives, and users will choose a substrate according to capability, cost, latency, privacy, and compliance.
+```text
+Single-task intelligence becomes abundant and replaceable
+        ↓
+Long-term memory becomes the scarce capability
+        ↓
+Memory must connect to private personal and organizational data
+        ↓
+The private layer requires identity, permissions, tools, and evaluation
+        ↓
+Competition shifts from models to persistent cognitive systems
+```
+
+## 3. Inference one: abundant intelligence turns base models into infrastructure
+
+If many models become good enough at a broad range of single tasks, access to reasoning itself becomes purchasable and replaceable infrastructure. Base models may come to resemble operating-system kernels, database engines, or cloud platforms. A small number of organizations will train frontier models, open-weight communities will offer deployable alternatives, and users will choose a substrate according to capability, cost, latency, privacy, and compliance.
 
 “Open-weight” is often more precise than “open source,” because model licenses and training transparency vary. Regardless of terminology, cheaper inference, stronger local hardware, and efficient adaptation will make private deployment increasingly practical.
 
-The base model remains important, but it is no longer the complete product. Long-term value shifts toward accurate and portable memory, user-controlled data, reliable tools, revocable permissions, and continuous adaptation from feedback.
+The base model remains important, but once single-task intelligence is no longer the only bottleneck, it is no longer the complete product. Long-term value shifts toward accurate and portable memory, user-controlled data, reliable tools, revocable permissions, and continuous adaptation from feedback. Intelligence can come from the base model; continuity cannot come from the base model alone.
 
-## 4. Personal AI is more than a personal LoRA
+## 4. Inference two: a personal LoRA cannot close the memory gap by itself
 
-Training a personal LoRA and attaching it to a base model is an intuitive starting point, but it cannot carry an entire personal intelligence layer.
+If memory is the central gap, training a personal LoRA and attaching it to a base model is an intuitive response. It solves part of personalization, but it cannot carry an entire personal memory.
 
 [LoRA](https://arxiv.org/abs/2106.09685) freezes pretrained weights and learns small low-rank matrices for adaptation. It is well suited to stable patterns such as writing style, response preferences, domain terminology, and recurring decision frameworks. It is poorly suited to storing every changing personal fact.
 
@@ -107,11 +121,11 @@ Personal AI
   + Continuous Evaluation
 ```
 
-LoRA may implement one “personal matrix,” but a personal assistant is not a matrix file. It is closer to a cognitive operating system that continuously serves its owner.
+LoRA may implement one “personal matrix,” but a personal assistant is not a matrix file. **Parameters learn stable patterns, external memory stores changing experience, and permissions constrain how that memory may be used.** Together they form a cognitive system that continuously serves its owner.
 
-## 5. Personal data becomes an external cognitive layer
+## 5. Inference three: personal data becomes a portable cognitive layer
 
-Each person may accumulate an AI-readable but user-controlled collection of digital assets: documents, email, photos, conversations, notes, search and reading history, work products, decisions, health data, relationships, goals, risk preferences, and records of accepting or correcting AI output.
+Because public model parameters cannot create personal continuity by themselves, personal history must persist outside the model in a form the model can use. Each person may accumulate an AI-readable but user-controlled collection of digital assets: documents, email, photos, conversations, notes, search and reading history, work products, decisions, health data, relationships, goals, risk preferences, and records of accepting or correcting AI output.
 
 A useful assistant must know more than facts about its user. It must understand each fact's source, time range, confidence, and permitted use. It should answer:
 
@@ -121,11 +135,11 @@ A useful assistant must know more than facts about its user. It must understand 
 - Has the user corrected or revoked it?
 - May it inform an answer, or also authorize an action?
 
-The personal data layer therefore needs provenance, versioning, expiry, correction, and real deletion—not an ever-growing, opaque user profile.
+The personal data layer is therefore not merely a passive knowledge base; it is a systematic compensation for the model's memory limitations. It needs provenance, versioning, expiry, correction, and real deletion—not an ever-growing, opaque user profile.
 
-## 6. Enterprises build composable capability layers
+## 6. Inference four: enterprises need organizational memory, not only knowledge bases
 
-The same architecture applies to organizations. The general model performs language and reasoning, while private layers supply knowledge bases, product and customer data, operating procedures, terminology, project history, organizational roles, risk policies, and tools connected to internal systems.
+Organizations have the same memory gap. Their scarce knowledge often lies in why a decision was made, which earlier attempts failed, who has authority, and how a rule changed over time. Traditional knowledge bases store documents but rarely preserve a complete decision history. An enterprise AI layer must become organizational memory. The general model performs language and reasoning, while private layers supply knowledge bases, product and customer data, operating procedures, terminology, project history, organizational roles, risk policies, and tools connected to internal systems.
 
 Rather than one enormous company adapter, an enterprise may maintain modules loaded according to task and identity:
 
@@ -153,19 +167,19 @@ Base Model
 
 This is a stricter interpretation of “each company trains its own matrix.” Organizations will compress knowledge, behavior, and operational ability into loadable, composable, replaceable, and evaluated private modules. Only some of those modules will be parametric; many will live in retrieval, memory, policy, and tool systems.
 
-## 7. Personal assistants collaborate with company assistants
+## 7. Inference five: memory creates identity, and identity enables agent collaboration
 
-Software interaction may move from humans opening every application toward personal agents collaborating with enterprise agents and tools.
+Once a personal assistant has continuous personal memory and a company assistant has continuous organizational memory, they become more than temporary chat sessions: they can act as persistent representatives of a person and an organization. Software interaction may then move from humans opening every application toward personal agents collaborating with enterprise agents and tools.
 
 For travel planning, a personal assistant knows budget, diet, schedule, and risk preferences. Airline and hotel agents expose current inventory and policies. The personal agent searches, compares, and assembles options within its mandate, while payment or consequential commitments still require the user's confirmation.
 
 Inside a company, an employee assistant understands an individual's role, a team assistant maintains project state, and a company assistant understands policy and resources. Multiple constrained agents collaborate instead of one omnipotent assistant receiving all data and permissions.
 
-Future protocols will therefore need to carry more than natural language. They must convey identity, authorization, provenance, available actions, and responsibility boundaries.
+Future protocols will therefore need to carry more than natural language. They must convey identity, authorization, provenance, available actions, and responsibility boundaries. Without verifiable identity and memory provenance, agent-to-agent interaction cannot establish durable trust.
 
-## 8. The hardest problems are data, permissions, and portability
+## 8. The resulting bottlenecks: data, permissions, and portability
 
-Model intelligence matters, but this future depends on solving a deeper set of infrastructure problems.
+Following this argument, the bottleneck shifts from “Can the model answer?” to “Who owns the memory, can it be trusted, and how may it be used?” Model intelligence still matters, but this future depends on solving a deeper set of infrastructure problems.
 
 ### Ownership and portability
 
@@ -191,9 +205,9 @@ An incorrect long-term memory can distort future decisions repeatedly. Systems n
 
 Stacking personal, company, industry, and role adapters can create conflicts, regressions, or unpredictable behavior. Routing, precedence, conflict detection, safe merging, cross-model portability, and regression evaluation remain important technical problems.
 
-## 9. A new infrastructure market
+## 9. An infrastructure market built around the memory gap
 
-If this architecture matures, value will spread beyond the model itself:
+If single-task intelligence becomes standardized while memory, identity, and permissions remain scarce, value will spread beyond the model itself:
 
 1. **Personal Data Vaults** for storing and authorizing digital assets;
 2. **AI Memory Operating Systems** for writing, retrieving, correcting, forgetting, and moving memory;
@@ -208,21 +222,21 @@ The industry currently competes over who has the strongest model. A more consequ
 
 ## 10. A possible five-to-ten-year path
 
-This transition is likely to occur in stages.
+The main trajectory is not that models suddenly gain perfect memory; external systems progressively supply continuity. This transition is likely to occur in stages.
 
-**Stage one: context augmentation.** Personal and enterprise systems primarily use long context, RAG, tool connections, and simple memory. Data remains fragmented across applications.
+**Stage one: context temporarily compensates for memory.** Personal and enterprise systems primarily use long context, RAG, tool connections, and simple memory. Data remains fragmented across applications.
 
-**Stage two: persistent private layers.** Assistants gain cross-application memory, preference models, company knowledge, and explicit permissions. Open-weight models and local inference handle more sensitive work.
+**Stage two: temporary memory becomes a persistent private layer.** Assistants gain cross-application memory, preference models, company knowledge, and explicit permissions. Open-weight models and local inference handle more sensitive work.
 
-**Stage three: modularity and portability.** Capabilities become less dependent on one model. Runtimes choose a substrate, load modules, and route tasks dynamically.
+**Stage three: private memory becomes modular and portable.** Capabilities become less dependent on one model. Runtimes choose a substrate, load modules, and route tasks dynamically.
 
-**Stage four: agent-to-agent collaboration.** Personal, enterprise, and public-service agents interact through standard protocols. Users manage goals, boundaries, and confirmation points rather than every interface.
+**Stage four: persistent agent-to-agent collaboration.** Personal, enterprise, and public-service agents with continuous identities interact through standard protocols. Users manage goals, boundaries, and confirmation points rather than every interface.
 
 This is a directional thesis, not a guaranteed timetable. Closed ecosystems, fragmented formats, security failures, and regulation may slow progress substantially.
 
 ## Conclusion: intelligence from the model, identity from the private layer
 
-The thesis can be summarized as follows:
+The argument does not begin with “train one model for every person.” It begins with the observation that as single-task intelligence grows stronger, long-term memory becomes the critical constraint on personal and enterprise assistants. The resulting thesis is:
 
 > Future models will become general computing substrates onto which people and organizations attach their own data and capabilities. Their differences will be represented not by retraining complete models, but by portable adapters, memory, knowledge stores, permissions, and tools.
 
