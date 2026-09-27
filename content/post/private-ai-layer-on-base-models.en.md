@@ -40,7 +40,33 @@ The base model provides language, reasoning, coding, and broad world knowledge. 
 
 This is not merely a larger prompt. It is a persistent private intelligence system built around a replaceable general model.
 
-## 2. Base models become infrastructure
+## 2. A critical asymmetry: intelligence is advancing faster than memory
+
+Current models already match or exceed ordinary human performance on many measurable tasks in knowledge, reasoning, programming, and content generation. They can read large amounts of material, connect information across domains, and produce strong analyses within seconds. If intelligence is measured as “Can the system solve this task in one attempt?”, the frontier is rapidly approaching—and sometimes crossing—human performance.
+
+But this **task intelligence** is not the whole of human intelligence. One of the clearest remaining weaknesses is reliable, continuous, long-term memory.
+
+A person does not need to reread ten years of conversations at every meeting to remember who they are, how they relate to others, and why important decisions were made. Human memory is imperfect, but it is naturally connected to identity, time, context, and causality. Today's language-model systems are different:
+
+- the model does not naturally retain an experience after a conversation ends;
+- even a very large context window is temporary working space for one inference process;
+- retrieval systems can miss relevant information or surface facts that are no longer valid;
+- models struggle to distinguish consistently between explicit user statements, system inferences, and their own generated claims;
+- false memories often lack dependable provenance, confidence, correction, and forgetting mechanisms;
+- accumulated memory is rarely portable when the user changes models or platforms.
+
+The result is an asymmetric system:
+
+```text
+Single-task intelligence: rapidly approaching or exceeding humans
+Continuous long-term memory: still substantially behind humans
+```
+
+This is why a stronger base model does not automatically become a genuine personal assistant. A system may solve difficult mathematics yet remain a tool that has to “meet you again” whenever it cannot recover what you have been doing, why you did it, and which facts have changed.
+
+The next major step for personal AI is therefore not intelligence alone. It is giving already capable reasoning systems a durable memory architecture that decides what deserves to be remembered, understands temporal validity, preserves sources and relationships, corrects errors, and lets the user move or delete memory.
+
+## 3. Base models become infrastructure
 
 Base models may come to resemble operating-system kernels, database engines, or cloud infrastructure. A small number of organizations will train frontier models, open-weight communities will offer deployable alternatives, and users will choose a substrate according to capability, cost, latency, privacy, and compliance.
 
@@ -48,7 +74,7 @@ Base models may come to resemble operating-system kernels, database engines, or 
 
 The base model remains important, but it is no longer the complete product. Long-term value shifts toward accurate and portable memory, user-controlled data, reliable tools, revocable permissions, and continuous adaptation from feedback.
 
-## 3. Personal AI is more than a personal LoRA
+## 4. Personal AI is more than a personal LoRA
 
 Training a personal LoRA and attaching it to a base model is an intuitive starting point, but it cannot carry an entire personal intelligence layer.
 
@@ -83,7 +109,7 @@ Personal AI
 
 LoRA may implement one “personal matrix,” but a personal assistant is not a matrix file. It is closer to a cognitive operating system that continuously serves its owner.
 
-## 4. Personal data becomes an external cognitive layer
+## 5. Personal data becomes an external cognitive layer
 
 Each person may accumulate an AI-readable but user-controlled collection of digital assets: documents, email, photos, conversations, notes, search and reading history, work products, decisions, health data, relationships, goals, risk preferences, and records of accepting or correcting AI output.
 
@@ -97,7 +123,7 @@ A useful assistant must know more than facts about its user. It must understand 
 
 The personal data layer therefore needs provenance, versioning, expiry, correction, and real deletion—not an ever-growing, opaque user profile.
 
-## 5. Enterprises build composable capability layers
+## 6. Enterprises build composable capability layers
 
 The same architecture applies to organizations. The general model performs language and reasoning, while private layers supply knowledge bases, product and customer data, operating procedures, terminology, project history, organizational roles, risk policies, and tools connected to internal systems.
 
@@ -127,7 +153,7 @@ Base Model
 
 This is a stricter interpretation of “each company trains its own matrix.” Organizations will compress knowledge, behavior, and operational ability into loadable, composable, replaceable, and evaluated private modules. Only some of those modules will be parametric; many will live in retrieval, memory, policy, and tool systems.
 
-## 6. Personal assistants collaborate with company assistants
+## 7. Personal assistants collaborate with company assistants
 
 Software interaction may move from humans opening every application toward personal agents collaborating with enterprise agents and tools.
 
@@ -137,7 +163,7 @@ Inside a company, an employee assistant understands an individual's role, a team
 
 Future protocols will therefore need to carry more than natural language. They must convey identity, authorization, provenance, available actions, and responsibility boundaries.
 
-## 7. The hardest problems are data, permissions, and portability
+## 8. The hardest problems are data, permissions, and portability
 
 Model intelligence matters, but this future depends on solving a deeper set of infrastructure problems.
 
@@ -165,7 +191,7 @@ An incorrect long-term memory can distort future decisions repeatedly. Systems n
 
 Stacking personal, company, industry, and role adapters can create conflicts, regressions, or unpredictable behavior. Routing, precedence, conflict detection, safe merging, cross-model portability, and regression evaluation remain important technical problems.
 
-## 8. A new infrastructure market
+## 9. A new infrastructure market
 
 If this architecture matures, value will spread beyond the model itself:
 
@@ -180,7 +206,7 @@ If this architecture matures, value will spread beyond the model itself:
 
 The industry currently competes over who has the strongest model. A more consequential future competition may be over who manages a user's long-term memory, permissions, and digital identity.
 
-## 9. A possible five-to-ten-year path
+## 10. A possible five-to-ten-year path
 
 This transition is likely to occur in stages.
 

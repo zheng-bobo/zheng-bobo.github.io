@@ -59,7 +59,7 @@ The base model supplies general intelligence. Personal data supplies identity an
 
 <meta itemprop="datePublished" content="2026-09-27T11:27:00&#43;02:00" />
 <meta itemprop="dateModified" content="2026-09-27T11:27:00&#43;02:00" />
-<meta itemprop="wordCount" content="1716">
+<meta itemprop="wordCount" content="2054">
 
 
 
@@ -192,8 +192,8 @@ The base model supplies general intelligence. Personal data supplies identity an
         <div class="post-category">
             <a href="/en/categories/artificial-intelligence/"> Artificial Intelligence </a>
             </div>
-          <span class="more-meta"> 1716 words </span>
-          <span class="more-meta"> 9 mins read </span>
+          <span class="more-meta"> 2054 words </span>
+          <span class="more-meta"> 10 mins read </span>
         
       </div>
     </header>
@@ -206,12 +206,13 @@ The base model supplies general intelligence. Personal data supplies identity an
 <li>
 <ul>
 <li><a href="#1-from-one-model-for-everyone-to-layered-intelligence">1. From one model for everyone to layered intelligence</a></li>
-<li><a href="#2-base-models-become-infrastructure">2. Base models become infrastructure</a></li>
-<li><a href="#3-personal-ai-is-more-than-a-personal-lora">3. Personal AI is more than a personal LoRA</a></li>
-<li><a href="#4-personal-data-becomes-an-external-cognitive-layer">4. Personal data becomes an external cognitive layer</a></li>
-<li><a href="#5-enterprises-build-composable-capability-layers">5. Enterprises build composable capability layers</a></li>
-<li><a href="#6-personal-assistants-collaborate-with-company-assistants">6. Personal assistants collaborate with company assistants</a></li>
-<li><a href="#7-the-hardest-problems-are-data-permissions-and-portability">7. The hardest problems are data, permissions, and portability</a>
+<li><a href="#2-a-critical-asymmetry-intelligence-is-advancing-faster-than-memory">2. A critical asymmetry: intelligence is advancing faster than memory</a></li>
+<li><a href="#3-base-models-become-infrastructure">3. Base models become infrastructure</a></li>
+<li><a href="#4-personal-ai-is-more-than-a-personal-lora">4. Personal AI is more than a personal LoRA</a></li>
+<li><a href="#5-personal-data-becomes-an-external-cognitive-layer">5. Personal data becomes an external cognitive layer</a></li>
+<li><a href="#6-enterprises-build-composable-capability-layers">6. Enterprises build composable capability layers</a></li>
+<li><a href="#7-personal-assistants-collaborate-with-company-assistants">7. Personal assistants collaborate with company assistants</a></li>
+<li><a href="#8-the-hardest-problems-are-data-permissions-and-portability">8. The hardest problems are data, permissions, and portability</a>
 <ul>
 <li><a href="#ownership-and-portability">Ownership and portability</a></li>
 <li><a href="#privacy-and-minimum-exposure">Privacy and minimum exposure</a></li>
@@ -219,8 +220,8 @@ The base model supplies general intelligence. Personal data supplies identity an
 <li><a href="#memory-must-support-correction-and-forgetting">Memory must support correction and forgetting</a></li>
 <li><a href="#adapter-composition-is-not-automatically-safe">Adapter composition is not automatically safe</a></li>
 </ul></li>
-<li><a href="#8-a-new-infrastructure-market">8. A new infrastructure market</a></li>
-<li><a href="#9-a-possible-five-to-ten-year-path">9. A possible five-to-ten-year path</a></li>
+<li><a href="#9-a-new-infrastructure-market">9. A new infrastructure market</a></li>
+<li><a href="#10-a-possible-five-to-ten-year-path">10. A possible five-to-ten-year path</a></li>
 <li><a href="#conclusion-intelligence-from-the-model-identity-from-the-private-layer">Conclusion: intelligence from the model, identity from the private layer</a></li>
 <li><a href="#references">References</a></li>
 </ul></li>
@@ -272,7 +273,39 @@ The base model supplies general intelligence. Personal data supplies identity an
 
 <p>This is not merely a larger prompt. It is a persistent private intelligence system built around a replaceable general model.</p>
 
-<h2 id="2-base-models-become-infrastructure">2. Base models become infrastructure</h2>
+<h2 id="2-a-critical-asymmetry-intelligence-is-advancing-faster-than-memory">2. A critical asymmetry: intelligence is advancing faster than memory</h2>
+
+<p>Current models already match or exceed ordinary human performance on many measurable tasks in knowledge, reasoning, programming, and content generation. They can read large amounts of material, connect information across domains, and produce strong analyses within seconds. If intelligence is measured as “Can the system solve this task in one attempt?”, the frontier is rapidly approaching—and sometimes crossing—human performance.</p>
+
+<p>But this <strong>task intelligence</strong> is not the whole of human intelligence. One of the clearest remaining weaknesses is reliable, continuous, long-term memory.</p>
+
+<p>A person does not need to reread ten years of conversations at every meeting to remember who they are, how they relate to others, and why important decisions were made. Human memory is imperfect, but it is naturally connected to identity, time, context, and causality. Today&rsquo;s language-model systems are different:</p>
+
+<ul>
+<li>the model does not naturally retain an experience after a conversation ends;</li>
+<li>even a very large context window is temporary working space for one inference process;</li>
+<li>retrieval systems can miss relevant information or surface facts that are no longer valid;</li>
+<li>models struggle to distinguish consistently between explicit user statements, system inferences, and their own generated claims;</li>
+<li>false memories often lack dependable provenance, confidence, correction, and forgetting mechanisms;</li>
+<li>accumulated memory is rarely portable when the user changes models or platforms.</li>
+</ul>
+
+<p>The result is an asymmetric system:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Single-task intelligence: rapidly approaching or exceeding humans
+Continuous long-term memory: still substantially behind humans</code></pre></td></tr></table>
+</div>
+</div>
+<p>This is why a stronger base model does not automatically become a genuine personal assistant. A system may solve difficult mathematics yet remain a tool that has to “meet you again” whenever it cannot recover what you have been doing, why you did it, and which facts have changed.</p>
+
+<p>The next major step for personal AI is therefore not intelligence alone. It is giving already capable reasoning systems a durable memory architecture that decides what deserves to be remembered, understands temporal validity, preserves sources and relationships, corrects errors, and lets the user move or delete memory.</p>
+
+<h2 id="3-base-models-become-infrastructure">3. Base models become infrastructure</h2>
 
 <p>Base models may come to resemble operating-system kernels, database engines, or cloud infrastructure. A small number of organizations will train frontier models, open-weight communities will offer deployable alternatives, and users will choose a substrate according to capability, cost, latency, privacy, and compliance.</p>
 
@@ -280,7 +313,7 @@ The base model supplies general intelligence. Personal data supplies identity an
 
 <p>The base model remains important, but it is no longer the complete product. Long-term value shifts toward accurate and portable memory, user-controlled data, reliable tools, revocable permissions, and continuous adaptation from feedback.</p>
 
-<h2 id="3-personal-ai-is-more-than-a-personal-lora">3. Personal AI is more than a personal LoRA</h2>
+<h2 id="4-personal-ai-is-more-than-a-personal-lora">4. Personal AI is more than a personal LoRA</h2>
 
 <p>Training a personal LoRA and attaching it to a base model is an intuitive starting point, but it cannot carry an entire personal intelligence layer.</p>
 
@@ -361,7 +394,7 @@ The base model supplies general intelligence. Personal data supplies identity an
 </div>
 <p>LoRA may implement one “personal matrix,” but a personal assistant is not a matrix file. It is closer to a cognitive operating system that continuously serves its owner.</p>
 
-<h2 id="4-personal-data-becomes-an-external-cognitive-layer">4. Personal data becomes an external cognitive layer</h2>
+<h2 id="5-personal-data-becomes-an-external-cognitive-layer">5. Personal data becomes an external cognitive layer</h2>
 
 <p>Each person may accumulate an AI-readable but user-controlled collection of digital assets: documents, email, photos, conversations, notes, search and reading history, work products, decisions, health data, relationships, goals, risk preferences, and records of accepting or correcting AI output.</p>
 
@@ -377,7 +410,7 @@ The base model supplies general intelligence. Personal data supplies identity an
 
 <p>The personal data layer therefore needs provenance, versioning, expiry, correction, and real deletion—not an ever-growing, opaque user profile.</p>
 
-<h2 id="5-enterprises-build-composable-capability-layers">5. Enterprises build composable capability layers</h2>
+<h2 id="6-enterprises-build-composable-capability-layers">6. Enterprises build composable capability layers</h2>
 
 <p>The same architecture applies to organizations. The general model performs language and reasoning, while private layers supply knowledge bases, product and customer data, operating procedures, terminology, project history, organizational roles, risk policies, and tools connected to internal systems.</p>
 
@@ -425,7 +458,7 @@ The base model supplies general intelligence. Personal data supplies identity an
 </div>
 <p>This is a stricter interpretation of “each company trains its own matrix.” Organizations will compress knowledge, behavior, and operational ability into loadable, composable, replaceable, and evaluated private modules. Only some of those modules will be parametric; many will live in retrieval, memory, policy, and tool systems.</p>
 
-<h2 id="6-personal-assistants-collaborate-with-company-assistants">6. Personal assistants collaborate with company assistants</h2>
+<h2 id="7-personal-assistants-collaborate-with-company-assistants">7. Personal assistants collaborate with company assistants</h2>
 
 <p>Software interaction may move from humans opening every application toward personal agents collaborating with enterprise agents and tools.</p>
 
@@ -435,7 +468,7 @@ The base model supplies general intelligence. Personal data supplies identity an
 
 <p>Future protocols will therefore need to carry more than natural language. They must convey identity, authorization, provenance, available actions, and responsibility boundaries.</p>
 
-<h2 id="7-the-hardest-problems-are-data-permissions-and-portability">7. The hardest problems are data, permissions, and portability</h2>
+<h2 id="8-the-hardest-problems-are-data-permissions-and-portability">8. The hardest problems are data, permissions, and portability</h2>
 
 <p>Model intelligence matters, but this future depends on solving a deeper set of infrastructure problems.</p>
 
@@ -466,7 +499,7 @@ The base model supplies general intelligence. Personal data supplies identity an
 
 <p>Stacking personal, company, industry, and role adapters can create conflicts, regressions, or unpredictable behavior. Routing, precedence, conflict detection, safe merging, cross-model portability, and regression evaluation remain important technical problems.</p>
 
-<h2 id="8-a-new-infrastructure-market">8. A new infrastructure market</h2>
+<h2 id="9-a-new-infrastructure-market">9. A new infrastructure market</h2>
 
 <p>If this architecture matures, value will spread beyond the model itself:</p>
 
@@ -483,7 +516,7 @@ The base model supplies general intelligence. Personal data supplies identity an
 
 <p>The industry currently competes over who has the strongest model. A more consequential future competition may be over who manages a user&rsquo;s long-term memory, permissions, and digital identity.</p>
 
-<h2 id="9-a-possible-five-to-ten-year-path">9. A possible five-to-ten-year path</h2>
+<h2 id="10-a-possible-five-to-ten-year-path">10. A possible five-to-ten-year path</h2>
 
 <p>This transition is likely to occur in stages.</p>
 
