@@ -72,13 +72,6 @@
   </url>
   
   <url>
-    <loc>https://zheng-bobo.github.io/en/post/private-ai-layer-on-base-models/</loc>
-    <lastmod>2026-09-27T11:27:00+02:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
     <loc>https://zheng-bobo.github.io/en/tags/rag/</loc>
     <lastmod>2026-09-27T11:27:00+02:00</lastmod>
     <changefreq>weekly</changefreq>
@@ -87,6 +80,13 @@
   
   <url>
     <loc>https://zheng-bobo.github.io/en/tags/</loc>
+    <lastmod>2026-09-27T11:27:00+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/en/post/private-ai-layer-on-base-models/</loc>
     <lastmod>2026-09-27T11:27:00+02:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
@@ -408,14 +408,14 @@
   </url>
   
   <url>
-    <loc>https://zheng-bobo.github.io/en/categories/career-development/</loc>
+    <loc>https://zheng-bobo.github.io/en/tags/career-development/</loc>
     <lastmod>2026-03-23T12:22:13+01:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   
   <url>
-    <loc>https://zheng-bobo.github.io/en/tags/career-development/</loc>
+    <loc>https://zheng-bobo.github.io/en/categories/career-development/</loc>
     <lastmod>2026-03-23T12:22:13+01:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>

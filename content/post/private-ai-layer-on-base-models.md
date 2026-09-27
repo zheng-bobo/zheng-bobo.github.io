@@ -1,5 +1,5 @@
 ---
-title: "Base Model 之上的私人智能：个人与企业 AI 的下一层架构"
+title: "未来 5—10 年的 AI 架构推演：Base Model、个人智能与企业私有能力层"
 date: 2026-09-27 11:27:00 +0200
 slug: "private-ai-layer-on-base-models"
 categories: [人工智能]

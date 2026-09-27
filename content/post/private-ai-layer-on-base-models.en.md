@@ -1,5 +1,5 @@
 ---
-title: "Private Intelligence on Top of Base Models: The Next Architecture for Personal and Enterprise AI"
+title: "The Next 5–10 Years of AI: Base Models, Personal Intelligence, and Private Enterprise Layers"
 date: 2026-09-27 11:27:00 +0200
 slug: "private-ai-layer-on-base-models"
 categories: [Artificial Intelligence]
