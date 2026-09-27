@@ -512,6 +512,116 @@ article.post:has(> .post-toc) > .post-header .post-title {
   transform: translateX(3px);
 }
 
+.blog-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 34px;
+  padding: 24px 0 4px;
+  border-top: 1px solid var(--archive-rule);
+}
+
+.blog-pagination-pages,
+.blog-pagination-status,
+.blog-pagination-jump {
+  display: flex;
+  align-items: center;
+}
+
+.blog-pagination-pages {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.blog-pagination-direction,
+.blog-pagination-number,
+.blog-pagination-jump button {
+  display: inline-flex;
+  min-width: 38px;
+  height: 38px;
+  align-items: center;
+  justify-content: center;
+  color: #435667;
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1;
+  background: #fff;
+  border: 1px solid #d9dee2;
+  border-radius: 5px;
+  transition: color 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
+}
+
+.blog-pagination-direction {
+  gap: 5px;
+  padding: 0 12px;
+}
+
+.blog-pagination-direction span {
+  font-size: 21px;
+  font-weight: 400;
+}
+
+.blog-pagination-number:hover,
+.blog-pagination-direction:hover,
+.blog-pagination-jump button:hover {
+  color: var(--archive-accent);
+  border-color: #c99d96;
+}
+
+.blog-pagination-number.is-current {
+  color: #fff;
+  background: var(--archive-accent);
+  border-color: var(--archive-accent);
+}
+
+.blog-pagination-status {
+  flex-wrap: wrap;
+  gap: 12px;
+  color: var(--archive-muted);
+  font-size: 13.5px;
+}
+
+.blog-pagination-status strong {
+  color: var(--archive-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.blog-pagination-jump {
+  gap: 7px;
+}
+
+.blog-pagination-jump label {
+  white-space: nowrap;
+}
+
+.blog-pagination-jump input {
+  width: 50px;
+  height: 38px;
+  padding: 0 6px;
+  color: var(--archive-ink);
+  font: inherit;
+  text-align: center;
+  background: #fff;
+  border: 1px solid #d9dee2;
+  border-radius: 5px;
+}
+
+.blog-pagination-jump input:focus-visible,
+.blog-pagination-jump button:focus-visible,
+.blog-pagination-number:focus-visible,
+.blog-pagination-direction:focus-visible {
+  outline: 2px solid var(--archive-accent);
+  outline-offset: 2px;
+}
+
+.blog-pagination-jump button {
+  min-width: auto;
+  padding: 0 11px;
+  cursor: pointer;
+}
+
 @media (min-width: 1024px) {
   .container:has(.blog-archive-layout) {
     width: min(1180px, calc(100vw - 48px));
@@ -560,5 +670,23 @@ article.post:has(> .post-toc) > .post-header .post-title {
 
   .blog-summary-read-more {
     margin-top: 20px;
+  }
+
+  .blog-pagination {
+    display: block;
+    margin-top: 26px;
+    padding-top: 20px;
+  }
+
+  .blog-pagination-pages {
+    gap: 6px;
+  }
+
+  .blog-pagination-direction {
+    padding: 0 9px;
+  }
+
+  .blog-pagination-status {
+    margin-top: 16px;
   }
 }

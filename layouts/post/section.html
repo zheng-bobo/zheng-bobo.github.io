@@ -2,7 +2,8 @@
 
 {{- define "content" }}
 {{- $posts := .Data.Pages.ByDate.Reverse -}}
-{{- $recentPosts := first 5 $posts -}}
+{{- $paginator := .Paginate $posts 5 -}}
+{{- $recentPosts := $paginator.Pages -}}
 {{- $isChinese := eq .Site.Language.Lang "zh-cn" -}}
 {{- $archiveStylesHash := md5 (readFile "static/css/readability.css") -}}
 
@@ -101,6 +102,77 @@
           </a>
         </footer>
       </article>
+    {{- end }}
+
+    {{- if gt $paginator.TotalPages 1 }}
+      <nav class="blog-pagination" aria-label="{{ if $isChinese }}博客分页{{ else }}Blog pagination{{ end }}">
+        <div class="blog-pagination-pages">
+          {{- with $paginator.Prev }}
+            <a class="blog-pagination-direction" href="{{ .URL }}" rel="prev">
+              <span aria-hidden="true">‹</span>
+              {{ if $isChinese }}上一页{{ else }}Previous{{ end }}
+            </a>
+          {{- end }}
+
+          {{- range $paginator.Pagers }}
+            {{- if eq .PageNumber $paginator.PageNumber }}
+              <span class="blog-pagination-number is-current" aria-current="page" aria-label="{{ if $isChinese }}当前第 {{ .PageNumber }} 页{{ else }}Current page, page {{ .PageNumber }}{{ end }}">
+                {{ .PageNumber }}
+              </span>
+            {{- else }}
+              <a class="blog-pagination-number" href="{{ .URL }}" aria-label="{{ if $isChinese }}第 {{ .PageNumber }} 页{{ else }}Page {{ .PageNumber }}{{ end }}">
+                {{ .PageNumber }}
+              </a>
+            {{- end }}
+          {{- end }}
+
+          {{- with $paginator.Next }}
+            <a class="blog-pagination-direction" href="{{ .URL }}" rel="next">
+              {{ if $isChinese }}下一页{{ else }}Next{{ end }}
+              <span aria-hidden="true">›</span>
+            </a>
+          {{- end }}
+        </div>
+
+        <div class="blog-pagination-status">
+          <span>
+            {{- if $isChinese -}}
+              第 <strong>{{ $paginator.PageNumber }}</strong> / {{ $paginator.TotalPages }} 页
+            {{- else -}}
+              Page <strong>{{ $paginator.PageNumber }}</strong> of {{ $paginator.TotalPages }}
+            {{- end -}}
+          </span>
+
+          <form class="blog-pagination-jump" data-pagination-base="{{ .RelPermalink }}" data-total-pages="{{ $paginator.TotalPages }}">
+            <label for="blog-page-jump">
+              {{- if $isChinese }}跳至{{ else }}Go to{{ end -}}
+            </label>
+            <input id="blog-page-jump" name="page" type="number" min="1" max="{{ $paginator.TotalPages }}" value="{{ $paginator.PageNumber }}" inputmode="numeric">
+            <button type="submit">{{ if $isChinese }}跳转{{ else }}Go{{ end }}</button>
+          </form>
+        </div>
+      </nav>
+
+      <script>
+        (function () {
+          var form = document.querySelector('.blog-pagination-jump');
+          if (!form) return;
+
+          form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            var input = form.querySelector('input[name="page"]');
+            var target = Number(input.value);
+            var total = Number(form.getAttribute('data-total-pages'));
+            if (!Number.isInteger(target) || target < 1 || target > total) {
+              input.focus();
+              return;
+            }
+
+            var base = form.getAttribute('data-pagination-base');
+            window.location.href = target === 1 ? base : base + 'page/' + target + '/';
+          });
+        }());
+      </script>
     {{- end }}
   </div>
 </section>

@@ -316,249 +316,153 @@
   <div class="blog-recent-posts" aria-label="Recent posts">
       <article class="blog-summary-card">
         <header>
-          <h2><a href="/en/post/private-ai-layer-on-base-models/">The Next 5–10 Years of AI: Base Models, Personal Intelligence, and Private Enterprise Layers</a></h2>
+          <h2><a href="/en/post/understanding-random-and-sequential-io/">Understanding I/O: Random and Sequential Access</a></h2>
           <div class="blog-summary-meta">
-            <time datetime="2026-09-27">September 27, 2026</time>
+            <time datetime="2020-02-06">February 6, 2020</time>
             <span aria-hidden="true">·</span>
-            <span>12 mins read</span>
+            <span>15 mins read</span>
           </div>
         </header>
 
         <div class="blog-summary-excerpt post">
           <div class="post-content">
-            <div class="post-summary"><p>My central thesis for the next five to ten years is that we will not train a complete model for every person or company. Instead, individuals and organizations will attach a private cognitive layer to shared base models.</p>
-
-<p>The base model supplies general intelligence. Personal data supplies identity and continuity. Enterprise data supplies domain knowledge and operating rules. Agent systems turn those capabilities into action.</p></div>
+            <div class="post-summary">Transfer: https://blog.csdn.net/BaiWfg2/article/details/52885287
+&emsp;&emsp;Storage for DBAs: Ever been to one of those sushi restaurants where the food comes round in dishes on a conveyor belt? As each dish travels around the loop you eye it up and, as long as you can make your mind up in time, grab it. However, if you are as indecisive as me, there’s a chance it will be out of range before you come to your senses – in which case you have to wait for it to complete a further full revolution before getting another chance.</div>
           </div>
         </div>
 
         <footer class="blog-summary-footer">
-            <div class="blog-summary-tags" aria-label="Tags">
-              <span class="blog-summary-tags-label">Tags</span>
-              <ul>
-                  <li><a href="/en/tags/personal-ai/">Personal AI</a></li>
-                  <li><a href="/en/tags/base-model/">Base Model</a></li>
-                  <li><a href="/en/tags/lora/">LoRA</a></li>
-                  <li><a href="/en/tags/rag/">RAG</a></li>
-                  <li><a href="/en/tags/memory/">Memory</a></li>
-                  <li><a href="/en/tags/privacy/">Privacy</a></li>
-                  <li><a href="/en/tags/ai-agent/">AI Agent</a></li>
-              </ul>
-            </div>
-          <a class="blog-summary-read-more" href="/en/post/private-ai-layer-on-base-models/">Read more<span aria-hidden="true">→</span>
+          <a class="blog-summary-read-more" href="/en/post/understanding-random-and-sequential-io/">Read more<span aria-hidden="true">→</span>
           </a>
         </footer>
       </article>
       <article class="blog-summary-card">
         <header>
-          <h2><a href="/en/post/llm-agent-benchmarks-guide/">A Field Guide to LLM and AI Agent Benchmarks</a></h2>
+          <h2><a href="/en/post/use-a-mutex-or-a-channel/">Use a Mutex or a Channel?</a></h2>
           <div class="blog-summary-meta">
-            <time datetime="2026-09-26">September 26, 2026</time>
+            <time datetime="2020-01-16">January 16, 2020</time>
             <span aria-hidden="true">·</span>
-            <span>11 mins read</span>
+            <span>1 min read</span>
           </div>
         </header>
 
         <div class="blog-summary-excerpt post">
           <div class="post-content">
-            <div class="post-summary"><p>Model reports often list the Artificial Analysis Intelligence Index, LMArena, HELM, ARC-E, MMLU, GSM8K, SWE-bench, GAIA, WebArena, and OSWorld side by side. Their scores are not interchangeable: the list mixes composite indices and leaderboards with individual benchmarks, each using different tasks, tools, environments, inference budgets, and scoring rules.</p>
-
-<p>This guide maps common evaluations from static question answering to agents completing real tasks, and explains what each benchmark can—and cannot—tell us.</p></div>
+            <div class="post-summary">Use a sync.Mutex or a channel?
+ Gives us 3 channel usage scenarios respectively:
+ 1. Transfer ownership of data 2. Assign work units 3. Convey asynchronous results  Usage scenarios of 2 mutex:
+ 1. Cache 2. Status  Chapter 2 &ldquo;Go&rsquo;s Philosophy on Concurrency&rdquo; in the book &ldquo;Concurrency In Go&rdquo; also has a decision tree and detailed discussion
+Summary
+﻿Go implements the CSP communication model through channels, which are mainly used for message passing and event notification between goroutines.</div>
           </div>
         </div>
 
         <footer class="blog-summary-footer">
-            <div class="blog-summary-tags" aria-label="Tags">
-              <span class="blog-summary-tags-label">Tags</span>
-              <ul>
-                  <li><a href="/en/tags/llm/">LLM</a></li>
-                  <li><a href="/en/tags/ai-agent/">AI Agent</a></li>
-                  <li><a href="/en/tags/benchmark/">Benchmark</a></li>
-                  <li><a href="/en/tags/evaluation/">Evaluation</a></li>
-                  <li><a href="/en/tags/reasoning/">Reasoning</a></li>
-                  <li><a href="/en/tags/coding/">Coding</a></li>
-              </ul>
-            </div>
-          <a class="blog-summary-read-more" href="/en/post/llm-agent-benchmarks-guide/">Read more<span aria-hidden="true">→</span>
+          <a class="blog-summary-read-more" href="/en/post/use-a-mutex-or-a-channel/">Read more<span aria-hidden="true">→</span>
           </a>
         </footer>
       </article>
       <article class="blog-summary-card">
         <header>
-          <h2><a href="/en/post/nanochat-gpt-pretraining-from-source/">Reading nanochat Source: From Configuration to a Training Step</a></h2>
+          <h2><a href="/en/post/http-1-1-vs-http-2/">HTTP/1.1 vs. HTTP/2</a></h2>
           <div class="blog-summary-meta">
-            <time datetime="2026-09-26">September 26, 2026</time>
+            <time datetime="2020-01-16">January 16, 2020</time>
             <span aria-hidden="true">·</span>
-            <span>7 mins read</span>
+            <span>6 mins read</span>
           </div>
         </header>
 
         <div class="blog-summary-excerpt post">
           <div class="post-content">
-            <div class="post-summary"><p>This article follows the execution order of <code>scripts/base_train.py</code>: command-line arguments, random seeds, DDP setup, model construction, weight initialization, scaling laws, optimizers, data loading, gradient accumulation, and finally one complete training step.</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-text" data-lang="text">documents → tokenizer and sequence packing → inputs/targets
-          → GPT forward → cross-entropy loss
-          → backward and gradient accumulation → optimizer step
-          → evaluation, sampling, checkpointing, and resume</code></pre></td></tr></table>
-</div>
-</div>
-<p>The organization and code-reading path follow my nanochat Notion notes. The prose has been edited for clarity, while the source snippets and their original reading sequence are preserved.</p>
-
-<blockquote>
-<p><strong>Prerequisite:</strong> If token embeddings, causal self-attention, MLPs, residual connections, or next-token loss are still unfamiliar, start with <a href="https://zheng-bobo.github.io/en/post/transformer-architecture/">Transformer Architecture: From Token Embedding to the Training Loop</a> and then return to this source-level walkthrough.</p>
-</blockquote></div>
+            <div class="post-summary">HTTP 1.1 In January 1997, HTTP/1.1 version was released, only half a year later than version 1.0. It further improved the HTTP protocol and has been used to this day 20 years later, and is still the most popular version. Main optimization points:
+ Support long connection by default  HTTP/1.1 supports persistent connections and request pipelining. Persistent connections reuse established TCP connections and avoid repeating the RTT cost of the three-way handshake.</div>
           </div>
         </div>
 
         <footer class="blog-summary-footer">
-            <div class="blog-summary-tags" aria-label="Tags">
-              <span class="blog-summary-tags-label">Tags</span>
-              <ul>
-                  <li><a href="/en/tags/nanochat/">nanochat</a></li>
-                  <li><a href="/en/tags/gpt/">GPT</a></li>
-                  <li><a href="/en/tags/transformer/">Transformer</a></li>
-                  <li><a href="/en/tags/llm-training/">LLM Training</a></li>
-                  <li><a href="/en/tags/pytorch/">PyTorch</a></li>
-              </ul>
-            </div>
-          <a class="blog-summary-read-more" href="/en/post/nanochat-gpt-pretraining-from-source/">Read more<span aria-hidden="true">→</span>
+          <a class="blog-summary-read-more" href="/en/post/http-1-1-vs-http-2/">Read more<span aria-hidden="true">→</span>
           </a>
         </footer>
       </article>
       <article class="blog-summary-card">
         <header>
-          <h2><a href="/en/post/transformer-architecture/">Transformer Architecture: From Token Embeddings to the Training Loop</a></h2>
+          <h2><a href="/en/post/inside-go-channel-runtime/">Inside Go&#39;s Channel Runtime</a></h2>
           <div class="blog-summary-meta">
-            <time datetime="2026-09-14">September 14, 2026</time>
+            <time datetime="2020-01-05">January 5, 2020</time>
             <span aria-hidden="true">·</span>
-            <span>10 mins read</span>
+            <span>27 mins read</span>
           </div>
         </header>
 
         <div class="blog-summary-excerpt post">
           <div class="post-content">
-            <div class="post-summary"><p>Transformer appears to be made up of many components, but a GPT-style forward path can be summarized as:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-text" data-lang="text">Token IDs
-   ↓
-Token Embedding + Position Embedding
-   ↓
-[LayerNorm → Self-Attention → Residual]
-   ↓
-[LayerNorm → FFN → Residual]
-   ↓
-Repeat for multiple Transformer blocks
-   ↓
-Final LayerNorm → LM Head
-   ↓
-Next-token logits → Cross-Entropy Loss</code></pre></td></tr></table>
-</div>
-</div>
-<p>This article starts from a simple GPT implementation and explains the role and tensor shape of each step along the data flow. The complete source code is placed at the end of the article. After reading the previous principles, you can compare and understand it with the code.</p></div>
+            <div class="post-summary">Channel is a very important type in the Go language and is the first object in Go. Through channels, Go implements memory sharing through communication. Channel is an important means of transferring data and synchronizing between multiple goroutines.  Note: All source code analysis in this article is based on Go1.13.3. Different versions may have different implementations.
+channel syntax The syntax for declaring a channel is as follows:</div>
           </div>
         </div>
 
         <footer class="blog-summary-footer">
-            <div class="blog-summary-tags" aria-label="Tags">
-              <span class="blog-summary-tags-label">Tags</span>
-              <ul>
-                  <li><a href="/en/tags/transformer/">Transformer</a></li>
-                  <li><a href="/en/tags/gpt/">GPT</a></li>
-                  <li><a href="/en/tags/attention/">Attention</a></li>
-                  <li><a href="/en/tags/pytorch/">PyTorch</a></li>
-                  <li><a href="/en/tags/deep-learning/">Deep Learning</a></li>
-              </ul>
-            </div>
-          <a class="blog-summary-read-more" href="/en/post/transformer-architecture/">Read more<span aria-hidden="true">→</span>
+          <a class="blog-summary-read-more" href="/en/post/inside-go-channel-runtime/">Read more<span aria-hidden="true">→</span>
           </a>
         </footer>
       </article>
       <article class="blog-summary-card">
         <header>
-          <h2><a href="/en/post/anthropic-agent-evolution-1-from-workflows-to-agents/">Anthropic Agent Evolution I: From Workflows to Agents—and Why Harnesses Matter</a></h2>
+          <h2><a href="/en/post/implementing-raft-in-go-1/">Implementing the Raft Protocol in Go (1)</a></h2>
           <div class="blog-summary-meta">
-            <time datetime="2026-09-12">September 12, 2026</time>
+            <time datetime="2019-12-22">December 22, 2019</time>
             <span aria-hidden="true">·</span>
-            <span>4 mins read</span>
+            <span>20 mins read</span>
           </div>
         </header>
 
         <div class="blog-summary-excerpt post">
           <div class="post-content">
-            <div class="post-summary"><p>“Agent” is often used as a broad label for any system that calls tools or takes multiple steps. Anthropic&rsquo;s engineering work offers a more useful distinction: <strong>a workflow follows code paths defined in advance; an agent lets the model dynamically choose its process from environmental feedback.</strong></p>
-
-<p>This first article in the “Anthropic Agent Evolution” series establishes the vocabulary: augmented LLMs, fixed workflows, autonomous agents, and the harness that surrounds the model.</p></div>
+            <div class="post-summary">Introduction  The implementation idea comes from: MIT 6.824 course Lab 2: Raft
+ Before doing the experiment, you should read the raft paper carefully, here it is: raft paper raft translation
+Recommended reading: Students&rsquo; Guide to Raft Raft Understandable Distributed Consensus
+lab content  In this lab, you will implement most of the Raft design described in Extended Paper, including saving persistent state and reading it after a node fails and then restarts.</div>
           </div>
         </div>
 
         <footer class="blog-summary-footer">
-            <div class="blog-summary-tags" aria-label="Tags">
-              <span class="blog-summary-tags-label">Tags</span>
-              <ul>
-                  <li><a href="/en/tags/anthropic-agent-evolution/">Anthropic Agent Evolution</a></li>
-                  <li><a href="/en/tags/ai-agents/">AI Agents</a></li>
-                  <li><a href="/en/tags/agent-harness/">Agent Harness</a></li>
-                  <li><a href="/en/tags/workflow/">Workflow</a></li>
-                  <li><a href="/en/tags/aci/">ACI</a></li>
-              </ul>
-            </div>
-          <a class="blog-summary-read-more" href="/en/post/anthropic-agent-evolution-1-from-workflows-to-agents/">Read more<span aria-hidden="true">→</span>
+          <a class="blog-summary-read-more" href="/en/post/implementing-raft-in-go-1/">Read more<span aria-hidden="true">→</span>
           </a>
         </footer>
       </article>
       <nav class="blog-pagination" aria-label="Blog pagination">
         <div class="blog-pagination-pages">
-              <span class="blog-pagination-number is-current" aria-current="page" aria-label="Current page, page 1">
+            <a class="blog-pagination-direction" href="/en/post/page/3/" rel="prev">
+              <span aria-hidden="true">‹</span>
+              Previous
+            </a>
+              <a class="blog-pagination-number" href="/en/post/" aria-label="Page 1">
                 1
-              </span>
+              </a>
               <a class="blog-pagination-number" href="/en/post/page/2/" aria-label="Page 2">
                 2
               </a>
               <a class="blog-pagination-number" href="/en/post/page/3/" aria-label="Page 3">
                 3
               </a>
-              <a class="blog-pagination-number" href="/en/post/page/4/" aria-label="Page 4">
+              <span class="blog-pagination-number is-current" aria-current="page" aria-label="Current page, page 4">
                 4
-              </a>
+              </span>
               <a class="blog-pagination-number" href="/en/post/page/5/" aria-label="Page 5">
                 5
               </a>
-            <a class="blog-pagination-direction" href="/en/post/page/2/" rel="next">
+            <a class="blog-pagination-direction" href="/en/post/page/5/" rel="next">
               Next
               <span aria-hidden="true">›</span>
             </a>
         </div>
 
         <div class="blog-pagination-status">
-          <span>Page <strong>1</strong> of 5</span>
+          <span>Page <strong>4</strong> of 5</span>
 
           <form class="blog-pagination-jump" data-pagination-base="/en/post/" data-total-pages="5">
             <label for="blog-page-jump">Go to</label>
-            <input id="blog-page-jump" name="page" type="number" min="1" max="5" value="1" inputmode="numeric">
+            <input id="blog-page-jump" name="page" type="number" min="1" max="5" value="4" inputmode="numeric">
             <button type="submit">Go</button>
           </form>
         </div>
