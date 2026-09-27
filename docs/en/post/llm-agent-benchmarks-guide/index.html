@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="zhengxz" /><meta name="description" content="Model reports often list ARC-E, ARC-C, MMLU, GPQA, GSM8K, HumanEval, SWE-bench, GAIA, WebArena, and OSWorld side by side. Their scores are not interchangeable: each benchmark uses different tasks, tools, environments, inference budgets, and scoring rules.
+<meta name="author" content="zhengxz" /><meta name="description" content="Model reports often list the Artificial Analysis Intelligence Index, LMArena, HELM, ARC-E, MMLU, GSM8K, SWE-bench, GAIA, WebArena, and OSWorld side by side. Their scores are not interchangeable: the list mixes composite indices and leaderboards with individual benchmarks, each using different tasks, tools, environments, inference budgets, and scoring rules.
 This guide maps common evaluations from static question answering to agents completing real tasks, and explains what each benchmark can—and cannot—tell us.
 " /><meta name="keywords" content="Hugo, theme, even" />
 
@@ -44,7 +44,7 @@ This guide maps common evaluations from static question answering to agents comp
 
 
 <meta property="og:title" content="A Field Guide to LLM and AI Agent Benchmarks" />
-<meta property="og:description" content="Model reports often list ARC-E, ARC-C, MMLU, GPQA, GSM8K, HumanEval, SWE-bench, GAIA, WebArena, and OSWorld side by side. Their scores are not interchangeable: each benchmark uses different tasks, tools, environments, inference budgets, and scoring rules.
+<meta property="og:description" content="Model reports often list the Artificial Analysis Intelligence Index, LMArena, HELM, ARC-E, MMLU, GSM8K, SWE-bench, GAIA, WebArena, and OSWorld side by side. Their scores are not interchangeable: the list mixes composite indices and leaderboards with individual benchmarks, each using different tasks, tools, environments, inference budgets, and scoring rules.
 
 This guide maps common evaluations from static question answering to agents completing real tasks, and explains what each benchmark can—and cannot—tell us." />
 <meta property="og:type" content="article" />
@@ -52,21 +52,21 @@ This guide maps common evaluations from static question answering to agents comp
 <meta property="article:published_time" content="2026-09-26T23:00:00+02:00" />
 <meta property="article:modified_time" content="2026-09-26T23:00:00+02:00" /><meta property="og:site_name" content="Blowing in the wind" />
 <meta itemprop="name" content="A Field Guide to LLM and AI Agent Benchmarks">
-<meta itemprop="description" content="Model reports often list ARC-E, ARC-C, MMLU, GPQA, GSM8K, HumanEval, SWE-bench, GAIA, WebArena, and OSWorld side by side. Their scores are not interchangeable: each benchmark uses different tasks, tools, environments, inference budgets, and scoring rules.
+<meta itemprop="description" content="Model reports often list the Artificial Analysis Intelligence Index, LMArena, HELM, ARC-E, MMLU, GSM8K, SWE-bench, GAIA, WebArena, and OSWorld side by side. Their scores are not interchangeable: the list mixes composite indices and leaderboards with individual benchmarks, each using different tasks, tools, environments, inference budgets, and scoring rules.
 
 This guide maps common evaluations from static question answering to agents completing real tasks, and explains what each benchmark can—and cannot—tell us.">
 
 
 <meta itemprop="datePublished" content="2026-09-26T23:00:00&#43;02:00" />
 <meta itemprop="dateModified" content="2026-09-26T23:00:00&#43;02:00" />
-<meta itemprop="wordCount" content="1626">
+<meta itemprop="wordCount" content="2245">
 
 
 
 <meta itemprop="keywords" content="LLM,AI Agent,Benchmark,Evaluation,Reasoning,Coding," />
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="A Field Guide to LLM and AI Agent Benchmarks"/>
-<meta name="twitter:description" content="Model reports often list ARC-E, ARC-C, MMLU, GPQA, GSM8K, HumanEval, SWE-bench, GAIA, WebArena, and OSWorld side by side. Their scores are not interchangeable: each benchmark uses different tasks, tools, environments, inference budgets, and scoring rules.
+<meta name="twitter:description" content="Model reports often list the Artificial Analysis Intelligence Index, LMArena, HELM, ARC-E, MMLU, GSM8K, SWE-bench, GAIA, WebArena, and OSWorld side by side. Their scores are not interchangeable: the list mixes composite indices and leaderboards with individual benchmarks, each using different tasks, tools, environments, inference budgets, and scoring rules.
 
 This guide maps common evaluations from static question answering to agents completing real tasks, and explains what each benchmark can—and cannot—tell us."/>
 
@@ -104,27 +104,27 @@ This guide maps common evaluations from static question answering to agents comp
       </a>
   </ul>
 
-
+  
 
   <nav class="language-selector" aria-label="Language selector">
     <ul class="languages-list">
-
-
-
+      
+        
+        
         <li class="language-item ">
-
+          
             <a href="/post/llm-agent-benchmarks-guide/" lang="zh-cn" hreflang="zh-cn">中文</a>
-
+          
         </li>
-
-
-
+      
+        
+        
         <li class="language-item active">
-
+          
             <a href="/en/post/llm-agent-benchmarks-guide/" lang="en" hreflang="en">EN</a>
-
+          
         </li>
-
+      
     </ul>
   </nav>
 
@@ -141,23 +141,23 @@ This guide maps common evaluations from static question answering to agents comp
 
   <nav class="language-selector" aria-label="Language selector">
     <ul class="languages-list">
-
-
-
+      
+        
+        
         <li class="language-item ">
-
+          
             <a href="/post/llm-agent-benchmarks-guide/" lang="zh-cn" hreflang="zh-cn">中文</a>
-
+          
         </li>
-
-
-
+      
+        
+        
         <li class="language-item active">
-
+          
             <a href="/en/post/llm-agent-benchmarks-guide/" lang="en" hreflang="en">EN</a>
-
+          
         </li>
-
+      
     </ul>
   </nav>
 
@@ -183,7 +183,7 @@ This guide maps common evaluations from static question answering to agents comp
       <div class="content-wrapper">
         <div id="content" class="content">
           <article class="post">
-
+    
     <header class="post-header">
       <h1 class="post-title">A Field Guide to LLM and AI Agent Benchmarks</h1>
 
@@ -192,9 +192,9 @@ This guide maps common evaluations from static question answering to agents comp
         <div class="post-category">
             <a href="/en/categories/artificial-intelligence/"> Artificial Intelligence </a>
             </div>
-          <span class="more-meta"> 1626 words </span>
-          <span class="more-meta"> 8 mins read </span>
-
+          <span class="more-meta"> 2245 words </span>
+          <span class="more-meta"> 11 mins read </span>
+        
       </div>
     </header>
 
@@ -207,35 +207,42 @@ This guide maps common evaluations from static question answering to agents comp
 <ul>
 <li><a href="#1-are-we-evaluating-a-model-or-a-system">1. Are we evaluating a model or a system?</a></li>
 <li><a href="#2-quick-reference">2. Quick reference</a></li>
-<li><a href="#3-knowledge-commonsense-and-textual-reasoning">3. Knowledge, commonsense, and textual reasoning</a>
+<li><a href="#3-composite-indices-evaluation-suites-and-leaderboards">3. Composite indices, evaluation suites, and leaderboards</a>
+<ul>
+<li><a href="#artificial-analysis-intelligence-index">Artificial Analysis Intelligence Index</a></li>
+<li><a href="#lmarena-preference-rather-than-objective-correctness">LMArena: preference rather than objective correctness</a></li>
+<li><a href="#helm-a-transparent-evaluation-framework">HELM: a transparent evaluation framework</a></li>
+<li><a href="#livebench-and-the-open-llm-leaderboard">LiveBench and the Open LLM Leaderboard</a></li>
+</ul></li>
+<li><a href="#4-knowledge-commonsense-and-textual-reasoning">4. Knowledge, commonsense, and textual reasoning</a>
 <ul>
 <li><a href="#arc-e-and-arc-c">ARC-E and ARC-C</a></li>
 <li><a href="#hellaswag-and-winogrande">HellaSwag and WinoGrande</a></li>
 <li><a href="#mmlu-and-mmlu-pro">MMLU and MMLU-Pro</a></li>
 <li><a href="#gpqa">GPQA</a></li>
 </ul></li>
-<li><a href="#4-mathematical-reasoning">4. Mathematical reasoning</a>
+<li><a href="#5-mathematical-reasoning">5. Mathematical reasoning</a>
 <ul>
 <li><a href="#gsm8k">GSM8K</a></li>
 <li><a href="#math-math-500-and-aime">MATH, MATH-500, and AIME</a></li>
 </ul></li>
-<li><a href="#5-function-level-code-generation">5. Function-level code generation</a>
+<li><a href="#6-function-level-code-generation">6. Function-level code generation</a>
 <ul>
 <li><a href="#humaneval-and-mbpp">HumanEval and MBPP</a></li>
 <li><a href="#livecodebench">LiveCodeBench</a></li>
 </ul></li>
-<li><a href="#6-repository-level-engineering-swe-bench-and-swe-agent">6. Repository-level engineering: SWE-bench and SWE-agent</a>
+<li><a href="#7-repository-level-engineering-swe-bench-and-swe-agent">7. Repository-level engineering: SWE-bench and SWE-agent</a>
 <ul>
 <li><a href="#swe-bench">SWE-bench</a></li>
 <li><a href="#swe-agent">SWE-agent</a></li>
 </ul></li>
-<li><a href="#7-function-calling-and-tool-use">7. Function calling and tool use</a>
+<li><a href="#8-function-calling-and-tool-use">8. Function calling and tool use</a>
 <ul>
 <li><a href="#bfcl">BFCL</a></li>
 <li><a href="#toolbench">ToolBench</a></li>
 <li><a href="#τ-bench">τ-bench</a></li>
 </ul></li>
-<li><a href="#8-general-browser-and-computer-use-agents">8. General, browser, and computer-use agents</a>
+<li><a href="#9-general-browser-and-computer-use-agents">9. General, browser, and computer-use agents</a>
 <ul>
 <li><a href="#gaia">GAIA</a></li>
 <li><a href="#agentbench">AgentBench</a></li>
@@ -243,9 +250,9 @@ This guide maps common evaluations from static question answering to agents comp
 <li><a href="#osworld">OSWorld</a></li>
 <li><a href="#paperbench">PaperBench</a></li>
 </ul></li>
-<li><a href="#9-reading-the-metrics">9. Reading the metrics</a></li>
-<li><a href="#10-selecting-benchmarks-for-your-use-case">10. Selecting benchmarks for your use case</a></li>
-<li><a href="#11-why-high-benchmark-scores-do-not-guarantee-product-reliability">11. Why high benchmark scores do not guarantee product reliability</a></li>
+<li><a href="#10-reading-the-metrics">10. Reading the metrics</a></li>
+<li><a href="#11-selecting-benchmarks-for-your-use-case">11. Selecting benchmarks for your use case</a></li>
+<li><a href="#12-why-high-benchmark-scores-do-not-guarantee-product-reliability">12. Why high benchmark scores do not guarantee product reliability</a></li>
 <li><a href="#conclusion">Conclusion</a></li>
 <li><a href="#primary-references">Primary references</a></li>
 </ul></li>
@@ -254,7 +261,7 @@ This guide maps common evaluations from static question answering to agents comp
   </div>
 </div>
     <div class="post-content">
-      <p>Model reports often list ARC-E, ARC-C, MMLU, GPQA, GSM8K, HumanEval, SWE-bench, GAIA, WebArena, and OSWorld side by side. Their scores are not interchangeable: each benchmark uses different tasks, tools, environments, inference budgets, and scoring rules.</p>
+      <p>Model reports often list the Artificial Analysis Intelligence Index, LMArena, HELM, ARC-E, MMLU, GSM8K, SWE-bench, GAIA, WebArena, and OSWorld side by side. Their scores are not interchangeable: the list mixes composite indices and leaderboards with individual benchmarks, each using different tasks, tools, environments, inference budgets, and scoring rules.</p>
 
 <p>This guide maps common evaluations from static question answering to agents completing real tasks, and explains what each benchmark can—and cannot—tell us.</p>
 
@@ -465,10 +472,118 @@ This guide maps common evaluations from static question answering to agents comp
 <td>Reproduce an AI paper</td>
 <td>Rubric score</td>
 </tr>
+
+<tr>
+<td>Artificial Analysis Intelligence Index</td>
+<td>Aggregate frontier capability</td>
+<td>Weighted collection of evaluations</td>
+<td>Composite index</td>
+</tr>
+
+<tr>
+<td>LMArena</td>
+<td>Real-user preference</td>
+<td>Anonymous pairwise comparison</td>
+<td>Elo-style rating</td>
+</tr>
+
+<tr>
+<td>HELM</td>
+<td>Transparent multi-scenario evaluation</td>
+<td>Unified evaluation framework</td>
+<td>Per-scenario metrics</td>
+</tr>
+
+<tr>
+<td>LiveBench</td>
+<td>Continuously refreshed ability</td>
+<td>New, objectively graded tasks</td>
+<td>Category scores / average</td>
+</tr>
 </tbody>
 </table>
 
-<h2 id="3-knowledge-commonsense-and-textual-reasoning">3. Knowledge, commonsense, and textual reasoning</h2>
+<h2 id="3-composite-indices-evaluation-suites-and-leaderboards">3. Composite indices, evaluation suites, and leaderboards</h2>
+
+<p>Artificial Analysis, LMArena, and HELM often appear beside GSM8K or SWE-bench in model comparisons, but they are different evaluation objects.</p>
+
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>What it is</th>
+<th>Example</th>
+<th>Best question it answers</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Single benchmark</td>
+<td>Fixed tasks, data, and grader</td>
+<td>GSM8K, SWE-bench</td>
+<td>Can the system complete this kind of task?</td>
+</tr>
+
+<tr>
+<td>Composite index</td>
+<td>Several evaluations normalized and aggregated</td>
+<td>Artificial Analysis Intelligence Index</td>
+<td>Where is the model overall?</td>
+</tr>
+
+<tr>
+<td>Evaluation suite/framework</td>
+<td>Many scenarios run under a shared protocol</td>
+<td>HELM</td>
+<td>What is the model&rsquo;s multidimensional profile?</td>
+</tr>
+
+<tr>
+<td>Human-preference leaderboard</td>
+<td>Anonymous pairwise votes</td>
+<td>LMArena</td>
+<td>Which answer do users prefer?</td>
+</tr>
+
+<tr>
+<td>Living benchmark</td>
+<td>New tasks added over time</td>
+<td>LiveBench</td>
+<td>How does the model perform on recent, gradable tasks?</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="artificial-analysis-intelligence-index">Artificial Analysis Intelligence Index</h3>
+
+<p>The <a href="https://artificialanalysis.ai/articles/artificial-analysis-intelligence-index-v4-3">Artificial Analysis Intelligence Index</a> is a <strong>composite index</strong>, not a standalone dataset. Artificial Analysis runs multiple evaluations in a consistent setup, normalizes and weights them into a headline score, and presents intelligence alongside price, output speed, and latency to support capability-cost comparisons.</p>
+
+<p>As of this article&rsquo;s update on September 26, 2026, the published methodology is <strong>v4.3.2</strong>. It combines ten evaluations: AA-Briefcase v1.1, GDPval-AA v2.1, AutomationBench-AA, Terminal-Bench 4.0, SciCode, Humanity&rsquo;s Last Exam, GDP.pdf, CritPt, AA-Omniscience, and AA-LCR v1.1. The mix emphasizes agentic work, professional knowledge, scientific coding, terminal tasks, and long-context reasoning.</p>
+
+<p>It is useful for market-level orientation and initial model shortlisting. It is not a substitute for component scores or product-specific testing: an aggregate hides different capability profiles, and the tasks, weights, and normalization can change. Scores from v4.1, v4.2, and v4.3 should not be compared without accounting for the index version.</p>
+
+<h3 id="lmarena-preference-rather-than-objective-correctness">LMArena: preference rather than objective correctness</h3>
+
+<p><a href="https://lmarena.ai/">LMArena</a> presents two anonymous model answers to real users, reveals the identities after voting, and builds Elo-style rankings from pairwise preferences. It is valuable for conversational quality and perceived usefulness on open-ended prompts.</p>
+
+<p>Preference is not correctness. Fluent, confident, or verbose answers may win despite factual errors, while rankings depend on the user population, prompt mix, model versions, and vote volume. Arena results should be paired with verifiable tasks and private product evaluations.</p>
+
+<h3 id="helm-a-transparent-evaluation-framework">HELM: a transparent evaluation framework</h3>
+
+<p><a href="https://crfm.stanford.edu/helm/">Stanford HELM</a> is better understood as an evaluation framework and family of suites than as one universal score. It separates models, scenarios, adaptations, and metrics while exposing prompts and instance-level results for reproducibility and auditing. HELM Capabilities, HELM Instruct, Long Context, and MedHELM target different questions.</p>
+
+<p>A result should therefore name the HELM track, version, scenario, and metric. Its strength is transparent multidimensional evaluation; its results should not be collapsed carelessly into one number.</p>
+
+<h3 id="livebench-and-the-open-llm-leaderboard">LiveBench and the Open LLM Leaderboard</h3>
+
+<p><a href="https://livebench.github.io/">LiveBench</a> regularly introduces new, objectively graded tasks to reduce contamination and judge-model bias. Always record the release date, benchmark version, and category scores.</p>
+
+<p>The <a href="https://huggingface.co/docs/leaderboards/index">Hugging Face Open LLM Leaderboard</a> historically reran open models in a shared, reproducible environment. Its classic leaderboard has retired; Hugging Face now provides an entry point to purpose-specific, community-managed leaderboards. Old screenshots and aggregate rankings should not be treated as current evidence.</p>
+
+<p>Composite platforms are best used as maps. Individual benchmarks and private evaluations are better tools for concrete deployment decisions.</p>
+
+<h2 id="4-knowledge-commonsense-and-textual-reasoning">4. Knowledge, commonsense, and textual reasoning</h2>
 
 <h3 id="arc-e-and-arc-c">ARC-E and ARC-C</h3>
 
@@ -494,7 +609,7 @@ This guide maps common evaluations from static question answering to agents comp
 
 <p>It targets difficult scientific reasoning, but its small size creates uncertainty. Reports should identify the split, tool access, and inference budget.</p>
 
-<h2 id="4-mathematical-reasoning">4. Mathematical reasoning</h2>
+<h2 id="5-mathematical-reasoning">5. Mathematical reasoning</h2>
 
 <h3 id="gsm8k">GSM8K</h3>
 
@@ -508,7 +623,7 @@ This guide maps common evaluations from static question answering to agents comp
 
 <p>AIME problems are harder competition questions with integer answers from 000 to 999. Always report the year range, number of samples, and reasoning budget: pass@1 and best-of-64 measure very different compute regimes.</p>
 
-<h2 id="5-function-level-code-generation">5. Function-level code generation</h2>
+<h2 id="6-function-level-code-generation">6. Function-level code generation</h2>
 
 <h3 id="humaneval-and-mbpp">HumanEval and MBPP</h3>
 
@@ -522,7 +637,7 @@ This guide maps common evaluations from static question answering to agents comp
 
 <p>It better measures novel algorithmic coding than older static sets, but still differs from maintaining a real codebase.</p>
 
-<h2 id="6-repository-level-engineering-swe-bench-and-swe-agent">6. Repository-level engineering: SWE-bench and SWE-agent</h2>
+<h2 id="7-repository-level-engineering-swe-bench-and-swe-agent">7. Repository-level engineering: SWE-bench and SWE-agent</h2>
 
 <h3 id="swe-bench">SWE-bench</h3>
 
@@ -547,7 +662,7 @@ SWE-agent = the problem-solving framework
 LLM       = the model inside that framework</code></pre></td></tr></table>
 </div>
 </div>
-<h2 id="7-function-calling-and-tool-use">7. Function calling and tool use</h2>
+<h2 id="8-function-calling-and-tool-use">8. Function calling and tool use</h2>
 
 <h3 id="bfcl">BFCL</h3>
 
@@ -565,7 +680,7 @@ LLM       = the model inside that framework</code></pre></td></tr></table>
 
 <p>Strict <code>pass^k</code> asks whether the system succeeds repeatedly, making reliability visible rather than rewarding one lucky trajectory.</p>
 
-<h2 id="8-general-browser-and-computer-use-agents">8. General, browser, and computer-use agents</h2>
+<h2 id="9-general-browser-and-computer-use-agents">9. General, browser, and computer-use agents</h2>
 
 <h3 id="gaia">GAIA</h3>
 
@@ -587,7 +702,7 @@ LLM       = the model inside that framework</code></pre></td></tr></table>
 
 <p><a href="https://openai.com/index/paperbench/">PaperBench</a> asks agents to understand AI papers, implement experiments, run code, and reproduce results. Fine-grained rubrics score long-horizon research execution. It is realistic but expensive and judge-dependent.</p>
 
-<h2 id="9-reading-the-metrics">9. Reading the metrics</h2>
+<h2 id="10-reading-the-metrics">10. Reading the metrics</h2>
 
 <ul>
 <li><strong>Accuracy / exact match:</strong> simple and reproducible, but format-sensitive and blind to process quality.</li>
@@ -598,7 +713,7 @@ LLM       = the model inside that framework</code></pre></td></tr></table>
 <li><strong>Reliability:</strong> repeated-run averages, variance, and <code>pass^k</code> reveal stochastic failures hidden by a single run.</li>
 </ul>
 
-<h2 id="10-selecting-benchmarks-for-your-use-case">10. Selecting benchmarks for your use case</h2>
+<h2 id="11-selecting-benchmarks-for-your-use-case">11. Selecting benchmarks for your use case</h2>
 
 <table>
 <thead>
@@ -687,12 +802,30 @@ LLM       = the model inside that framework</code></pre></td></tr></table>
 <td>PaperBench</td>
 <td>Code-generation scores alone</td>
 </tr>
+
+<tr>
+<td>Market overview and shortlisting</td>
+<td>Artificial Analysis Index + component scores</td>
+<td>One aggregate score</td>
+</tr>
+
+<tr>
+<td>Open-ended conversational preference</td>
+<td>LMArena</td>
+<td>Treating preference as factual accuracy</td>
+</tr>
+
+<tr>
+<td>Transparent multidimensional research</td>
+<td>HELM, with track and version</td>
+<td>A vague “HELM score”</td>
+</tr>
 </tbody>
 </table>
 
 <p>A practical evaluation suite should combine a relevant static capability set, an end-to-end task benchmark, a private continuously refreshed regression set, and measurements of cost, latency, and repeated-run stability.</p>
 
-<h2 id="11-why-high-benchmark-scores-do-not-guarantee-product-reliability">11. Why high benchmark scores do not guarantee product reliability</h2>
+<h2 id="12-why-high-benchmark-scores-do-not-guarantee-product-reliability">12. Why high benchmark scores do not guarantee product reliability</h2>
 
 <ul>
 <li><strong>Contamination and saturation:</strong> public questions may appear in training data.</li>
@@ -744,6 +877,10 @@ long-horizon professional work
 <h2 id="primary-references">Primary references</h2>
 
 <ul>
+<li><a href="https://artificialanalysis.ai/articles/artificial-analysis-intelligence-index-v4-3">Artificial Analysis Intelligence Index v4.3</a></li>
+<li><a href="https://lmarena.ai/">LMArena</a> · <a href="https://forward-testing.lmarena.ai/faq">LMArena FAQ</a></li>
+<li><a href="https://crfm.stanford.edu/helm/">Stanford HELM</a> · <a href="https://crfm.stanford.edu/helm/capabilities/v1.2.0/">HELM Capabilities</a></li>
+<li><a href="https://livebench.github.io/">LiveBench</a> · <a href="https://huggingface.co/docs/leaderboards/index">Hugging Face Leaderboards and Evaluations</a></li>
 <li><a href="https://allenai.org/data/arc">AI2 ARC</a> · <a href="https://arxiv.org/abs/2009.03300">MMLU</a> · <a href="https://openreview.net/forum?id=Ti67584b98">GPQA</a></li>
 <li><a href="https://openai.com/index/solving-math-word-problems/">GSM8K</a> · <a href="https://github.com/openai/human-eval">HumanEval</a> · <a href="https://livecodebench.github.io/">LiveCodeBench</a></li>
 <li><a href="https://github.com/SWE-bench/SWE-bench">SWE-bench</a> · <a href="https://github.com/SWE-agent/SWE-agent">SWE-agent</a></li>
@@ -762,11 +899,11 @@ long-horizon professional work
     <span class="item-title">LastMod</span>
     <span class="item-content">
         2026-09-26
-
+        
     </span>
   </p>
-
-
+  
+  
 </div>
 <footer class="post-footer">
       <div class="post-tags">
@@ -778,7 +915,7 @@ long-horizon professional work
           <a href="/en/tags/coding/">Coding</a>
           </div>
       <nav class="post-nav">
-
+        
         <a class="next" href="/en/post/nanochat-gpt-pretraining-from-source/">
             <span class="next-text nav-default">Reading nanochat Source: From Configuration to a Training Step</span>
             <span class="next-text nav-mobile">Next</span>
@@ -788,11 +925,11 @@ long-horizon professional work
     </footer>
   </article>
         </div>
+        
 
+  
 
-
-
-
+  
 
       </div>
     </main>
@@ -808,15 +945,15 @@ long-horizon professional work
   </span>
   <span class="division">|</span>
   <span class="theme-info">
-    Theme -
+    Theme - 
     <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
   </span>
 
-
+  
 
   <span class="copyright-year">
-    &copy;
-    2019 -
+    &copy; 
+    2019 - 
     2026<span class="heart"><i class="iconfont icon-heart"></i></span><span>zhengxz</span>
   </span>
 </div>
@@ -827,7 +964,7 @@ long-horizon professional work
       <i class="iconfont icon-up"></i>
     </div>
   </div>
-
+  
   <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
