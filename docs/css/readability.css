@@ -340,6 +340,23 @@ article.post:has(> .post-toc) > .post-header .post-title {
   line-height: 1.55;
 }
 
+.blog-rss-subscribe {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 10px;
+  color: #b54b3a;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.blog-rss-subscribe:hover,
+.blog-rss-subscribe:focus-visible {
+  color: #8f3428;
+  text-decoration: underline;
+}
+
 .blog-archive-year {
   margin: 24px 0 8px;
   color: var(--archive-ink);
