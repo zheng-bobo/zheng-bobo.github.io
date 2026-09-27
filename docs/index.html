@@ -168,8 +168,10 @@
     <main id="main" class="main">
       <div class="content-wrapper">
         <div id="content" class="content">
-          <section id="posts" class="posts">
-    <article class="post">
+          <link rel="stylesheet" href="/css/readability.css?v=528cfd424d131ca4baae6b8965be9366">
+
+  <section id="posts" class="posts">
+      <article class="post">
   <header class="post-header">
     <h1 class="post-title"><a class="post-link" href="/post/private-ai-layer-on-base-models/">未来 5—10 年的 AI 架构推演：Base Model、个人智能与企业私有能力层</a></h1>
     <div class="post-meta">
@@ -194,7 +196,7 @@
   </div>
 </article>
 
-    <article class="post">
+      <article class="post">
   <header class="post-header">
     <h1 class="post-title"><a class="post-link" href="/post/llm-agent-benchmarks-guide/">大模型与 AI Agent Benchmark 全景指南：它们究竟在评估什么</a></h1>
     <div class="post-meta">
@@ -219,7 +221,7 @@
   </div>
 </article>
 
-    <article class="post">
+      <article class="post">
   <header class="post-header">
     <h1 class="post-title"><a class="post-link" href="/post/nanochat-gpt-pretraining-from-source/">nanochat 源码解读：从参数配置到单步训练</a></h1>
     <div class="post-meta">
@@ -248,7 +250,7 @@
   </div>
 </article>
 
-    <article class="post">
+      <article class="post">
   <header class="post-header">
     <h1 class="post-title"><a class="post-link" href="/post/transformer-architecture/">Transformer Architecture：从 Token Embedding 到训练循环</a></h1>
     <div class="post-meta">
@@ -304,7 +306,7 @@ Next-token logits → Cross-Entropy Loss</code></pre></td></tr></table>
   </div>
 </article>
 
-    <article class="post">
+      <article class="post">
   <header class="post-header">
     <h1 class="post-title"><a class="post-link" href="/post/anthropic-agent-evolution-1-from-workflows-to-agents/">Anthropic Agent 演进（一）：从 Workflow 到 Agent，为什么需要 Harness</a></h1>
     <div class="post-meta">
@@ -329,7 +331,7 @@ Next-token logits → Cross-Entropy Loss</code></pre></td></tr></table>
   </div>
 </article>
 
-    <article class="post">
+      <article class="post">
   <header class="post-header">
     <h1 class="post-title"><a class="post-link" href="/post/anthropic-agent-evolution-2-context-reset-and-handoff/">Anthropic Agent 演进（二）：Context Reset 与 Structured Handoff</a></h1>
     <div class="post-meta">
@@ -354,7 +356,7 @@ Next-token logits → Cross-Entropy Loss</code></pre></td></tr></table>
   </div>
 </article>
 
-    <article class="post">
+      <article class="post">
   <header class="post-header">
     <h1 class="post-title"><a class="post-link" href="/post/anthropic-agent-evolution-3-planner-generator-evaluator/">Anthropic Agent 演进（三）：Planner–Generator–Evaluator 质量闭环</a></h1>
     <div class="post-meta">
@@ -379,7 +381,7 @@ Next-token logits → Cross-Entropy Loss</code></pre></td></tr></table>
   </div>
 </article>
 
-    <article class="post">
+      <article class="post">
   <header class="post-header">
     <h1 class="post-title"><a class="post-link" href="/post/anthropic-agent-evolution-4-managed-agent-runtime/">Anthropic Agent 演进（四）：Managed Agent Runtime——Session、Harness 与 Sandbox</a></h1>
     <div class="post-meta">
@@ -404,15 +406,55 @@ Next-token logits → Cross-Entropy Loss</code></pre></td></tr></table>
   </div>
 </article>
 
-    </section>
-  
-  <nav class="pagination">
-    
-    <a class="next" href="/page/2/">
-        <span class="next-text">下一页</span>
-        <i class="iconfont icon-right"></i>
-      </a>
-  </nav>
+  </section>
+    <nav class="blog-pagination homepage-pagination" aria-label="首页分页">
+      <div class="blog-pagination-pages">
+            <span class="blog-pagination-number is-current" aria-current="page" aria-label="当前第 1 页">
+              1
+            </span>
+            <a class="blog-pagination-number" href="/page/2/" aria-label="第 2 页">
+              2
+            </a>
+            <a class="blog-pagination-number" href="/page/3/" aria-label="第 3 页">
+              3
+            </a>
+          <a class="blog-pagination-direction" href="/page/2/" rel="next">
+            下一页
+            <span aria-hidden="true">›</span>
+          </a>
+      </div>
+
+      <div class="blog-pagination-status">
+        <span>第 <strong>1</strong> / 3 页</span>
+
+        <form class="blog-pagination-jump" data-pagination-base="/" data-total-pages="3">
+          <label for="homepage-page-jump">跳至</label>
+          <input id="homepage-page-jump" name="page" type="number" min="1" max="3" value="1" inputmode="numeric">
+          <button type="submit">跳转</button>
+        </form>
+      </div>
+    </nav>
+
+    <script>
+      (function () {
+        var form = document.querySelector('.homepage-pagination .blog-pagination-jump');
+        if (!form) return;
+
+        form.addEventListener('submit', function (event) {
+          event.preventDefault();
+          var input = form.querySelector('input[name="page"]');
+          var target = Number(input.value);
+          var total = Number(form.getAttribute('data-total-pages'));
+          if (!Number.isInteger(target) || target < 1 || target > total) {
+            input.focus();
+            return;
+          }
+
+          var base = form.getAttribute('data-pagination-base');
+          window.location.href = target === 1 ? base : base + 'page/' + target + '/';
+        });
+      }());
+    </script>
         </div>
         
 

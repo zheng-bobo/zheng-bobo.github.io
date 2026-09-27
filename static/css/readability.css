@@ -513,6 +513,10 @@ article.post:has(> .post-toc) > .post-header .post-title {
 }
 
 .blog-pagination {
+  --archive-accent: #aa4f43;
+  --archive-ink: #263949;
+  --archive-muted: #71808c;
+  --archive-rule: #e6e9ec;
   display: flex;
   flex-wrap: wrap;
   gap: 16px 24px;
@@ -521,6 +525,10 @@ article.post:has(> .post-toc) > .post-header .post-title {
   margin-top: 34px;
   padding: 24px 0 4px;
   border-top: 1px solid var(--archive-rule);
+}
+
+.homepage-pagination {
+  margin: 34px 0 56px;
 }
 
 .blog-pagination-pages,
