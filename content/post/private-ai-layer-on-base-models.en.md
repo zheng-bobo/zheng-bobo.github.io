@@ -1,0 +1,216 @@
+---
+title: "Private Intelligence on Top of Base Models: The Next Architecture for Personal and Enterprise AI"
+date: 2026-09-27 11:27:00 +0200
+slug: "private-ai-layer-on-base-models"
+categories: [Artificial Intelligence]
+tags: [Personal AI, Base Model, LoRA, RAG, Memory, Privacy, AI Agent]
+mathjax: false
+---
+
+My central thesis for the next five to ten years is that we will not train a complete model for every person or company. Instead, individuals and organizations will attach a private cognitive layer to shared base models.
+
+The base model supplies general intelligence. Personal data supplies identity and continuity. Enterprise data supplies domain knowledge and operating rules. Agent systems turn those capabilities into action.
+
+<!--more-->
+
+## 1. From one model for everyone to layered intelligence
+
+Today's general models use one shared parameter set for nearly everyone. They can answer questions about public knowledge, but they do not naturally understand a particular person or organization:
+
+- a user's long-term goals, values, and communication style;
+- years of work history and the reasons behind past decisions;
+- private files, messages, photos, and behavioral data;
+- a company's internal language, permission structure, and tacit knowledge;
+- a stable identity that can be corrected across many interactions.
+
+A future AI system is more likely to be assembled from several layers:
+
+```text
+AI capability
+  = Base Model
+  + Personal Layer
+  + Domain / Company Layer
+  + Real-time Context
+  + Memory
+  + Tools
+  + Identity & Permission
+```
+
+The base model provides language, reasoning, coding, and broad world knowledge. The personal layer represents preferences, history, relationships, style, and goals. The domain layer adds industry methods, company knowledge, and operating rules. Context describes the current task; memory maintains continuity; tools act on external systems; identity and permission define whom the agent represents and what it may do.
+
+This is not merely a larger prompt. It is a persistent private intelligence system built around a replaceable general model.
+
+## 2. Base models become infrastructure
+
+Base models may come to resemble operating-system kernels, database engines, or cloud infrastructure. A small number of organizations will train frontier models, open-weight communities will offer deployable alternatives, and users will choose a substrate according to capability, cost, latency, privacy, and compliance.
+
+“Open-weight” is often more precise than “open source,” because model licenses and training transparency vary. Regardless of terminology, cheaper inference, stronger local hardware, and efficient adaptation will make private deployment increasingly practical.
+
+The base model remains important, but it is no longer the complete product. Long-term value shifts toward accurate and portable memory, user-controlled data, reliable tools, revocable permissions, and continuous adaptation from feedback.
+
+## 3. Personal AI is more than a personal LoRA
+
+Training a personal LoRA and attaching it to a base model is an intuitive starting point, but it cannot carry an entire personal intelligence layer.
+
+[LoRA](https://arxiv.org/abs/2106.09685) freezes pretrained weights and learns small low-rank matrices for adaptation. It is well suited to stable patterns such as writing style, response preferences, domain terminology, and recurring decision frameworks. It is poorly suited to storing every changing personal fact.
+
+When a user moves home, a company changes a price, or a project makes a new decision, retraining parameters is slow and makes provenance and deletion difficult. Non-parametric memory such as [RAG](https://papers.neurips.cc/paper/2020/hash/6b493230205f780e1bc26945df7481e5-Abstract.html) is better for mutable, attributable facts. Systems inspired by [MemGPT](https://arxiv.org/abs/2310.08560) show how information can move between external storage and a limited context window.
+
+Different information belongs in different substrates:
+
+| Information | Better substrate |
+|---|---|
+| Stable style and behavioral tendencies | LoRA / adapter / preference model |
+| Changing personal or company facts | RAG / database / file system |
+| Entities, relationships, and time | Knowledge graph / event store |
+| Current task state | Context window / working memory |
+| Long-term habits and feedback | Memory system / user model |
+| Business operations | Tools / APIs / workflows |
+| Authorization and compliance | Identity / policy engine |
+
+A more accurate formula is therefore:
+
+```text
+Personal AI
+  = Personal Adapter
+  + Long-term Memory
+  + Real-time Context
+  + User Model
+  + Tools
+  + Permission System
+  + Continuous Evaluation
+```
+
+LoRA may implement one “personal matrix,” but a personal assistant is not a matrix file. It is closer to a cognitive operating system that continuously serves its owner.
+
+## 4. Personal data becomes an external cognitive layer
+
+Each person may accumulate an AI-readable but user-controlled collection of digital assets: documents, email, photos, conversations, notes, search and reading history, work products, decisions, health data, relationships, goals, risk preferences, and records of accepting or correcting AI output.
+
+A useful assistant must know more than facts about its user. It must understand each fact's source, time range, confidence, and permitted use. It should answer:
+
+- Where did this memory come from?
+- Is it still valid?
+- Which application may use it?
+- Has the user corrected or revoked it?
+- May it inform an answer, or also authorize an action?
+
+The personal data layer therefore needs provenance, versioning, expiry, correction, and real deletion—not an ever-growing, opaque user profile.
+
+## 5. Enterprises build composable capability layers
+
+The same architecture applies to organizations. The general model performs language and reasoning, while private layers supply knowledge bases, product and customer data, operating procedures, terminology, project history, organizational roles, risk policies, and tools connected to internal systems.
+
+Rather than one enormous company adapter, an enterprise may maintain modules loaded according to task and identity:
+
+```text
+General Base Model
+├── Industry Adapter
+├── Company Knowledge Layer
+├── Legal & Compliance Policy
+├── Customer Service Adapter
+├── Software Engineering Tools
+├── Team Memory
+└── Personal Layer
+```
+
+At runtime, an employee's system might combine:
+
+```text
+Base Model
+  + Industry Capability
+  + Company Capability
+  + Role Capability
+  + Team Context
+  + Personal Capability
+```
+
+This is a stricter interpretation of “each company trains its own matrix.” Organizations will compress knowledge, behavior, and operational ability into loadable, composable, replaceable, and evaluated private modules. Only some of those modules will be parametric; many will live in retrieval, memory, policy, and tool systems.
+
+## 6. Personal assistants collaborate with company assistants
+
+Software interaction may move from humans opening every application toward personal agents collaborating with enterprise agents and tools.
+
+For travel planning, a personal assistant knows budget, diet, schedule, and risk preferences. Airline and hotel agents expose current inventory and policies. The personal agent searches, compares, and assembles options within its mandate, while payment or consequential commitments still require the user's confirmation.
+
+Inside a company, an employee assistant understands an individual's role, a team assistant maintains project state, and a company assistant understands policy and resources. Multiple constrained agents collaborate instead of one omnipotent assistant receiving all data and permissions.
+
+Future protocols will therefore need to carry more than natural language. They must convey identity, authorization, provenance, available actions, and responsibility boundaries.
+
+## 7. The hardest problems are data, permissions, and portability
+
+Model intelligence matters, but this future depends on solving a deeper set of infrastructure problems.
+
+### Ownership and portability
+
+Can a user move memory, preferences, and tool configurations when changing base models? If the private layer cannot leave one platform, personal AI becomes a powerful form of vendor lock-in.
+
+### Privacy and minimum exposure
+
+Centralizing a person's complete life history creates exceptional risk. Sensitive workloads will need local devices, home servers, or enterprise environments alongside encryption, data classification, trusted execution, federated learning, and differential privacy. These protections are not free: NIST's work on privacy-preserving federated learning emphasizes the performance and engineering trade-offs of stronger protection.
+
+### Reading, reasoning, and execution must be separate
+
+```text
+Read Permission ≠ Reasoning Permission ≠ Execution Permission
+```
+
+Access to a financial goal does not authorize sending it to a third party or transferring money. Authorization must specify scope, target, duration, revocability, and audit records.
+
+### Memory must support correction and forgetting
+
+An incorrect long-term memory can distort future decisions repeatedly. Systems need source visibility, confidence, user correction, expiry, and verifiable deletion.
+
+### Adapter composition is not automatically safe
+
+Stacking personal, company, industry, and role adapters can create conflicts, regressions, or unpredictable behavior. Routing, precedence, conflict detection, safe merging, cross-model portability, and regression evaluation remain important technical problems.
+
+## 8. A new infrastructure market
+
+If this architecture matures, value will spread beyond the model itself:
+
+1. **Personal Data Vaults** for storing and authorizing digital assets;
+2. **AI Memory Operating Systems** for writing, retrieving, correcting, forgetting, and moving memory;
+3. **Adapter registries and marketplaces** for domain capability modules;
+4. **Model routers** that select a model by capability, price, latency, and privacy;
+5. **Agent identity and permission systems** for mandates, expiry, and audits;
+6. **Personal evaluation systems** that measure fit for a particular user;
+7. **Private AI compute** on devices, home servers, and enterprise clouds;
+8. **Interoperability layers** for moving memory, adapters, tools, and identity across models.
+
+The industry currently competes over who has the strongest model. A more consequential future competition may be over who manages a user's long-term memory, permissions, and digital identity.
+
+## 9. A possible five-to-ten-year path
+
+This transition is likely to occur in stages.
+
+**Stage one: context augmentation.** Personal and enterprise systems primarily use long context, RAG, tool connections, and simple memory. Data remains fragmented across applications.
+
+**Stage two: persistent private layers.** Assistants gain cross-application memory, preference models, company knowledge, and explicit permissions. Open-weight models and local inference handle more sensitive work.
+
+**Stage three: modularity and portability.** Capabilities become less dependent on one model. Runtimes choose a substrate, load modules, and route tasks dynamically.
+
+**Stage four: agent-to-agent collaboration.** Personal, enterprise, and public-service agents interact through standard protocols. Users manage goals, boundaries, and confirmation points rather than every interface.
+
+This is a directional thesis, not a guaranteed timetable. Closed ecosystems, fragmented formats, security failures, and regulation may slow progress substantially.
+
+## Conclusion: intelligence from the model, identity from the private layer
+
+The thesis can be summarized as follows:
+
+> Future models will become general computing substrates onto which people and organizations attach their own data and capabilities. Their differences will be represented not by retraining complete models, but by portable adapters, memory, knowledge stores, permissions, and tools.
+
+Or more simply:
+
+> **The base model provides intelligence, private data provides identity, and the agent system provides agency.**
+
+Models may become increasingly replaceable. A private intelligence layer accumulated over years—one that understands its owner, connects to tools, and operates within explicit authority—will be much harder to replace. The strongest moat may not be model parameters, but a persistent digital self that users can own and carry.
+
+That is both the opportunity and the danger. A user-owned private layer can amplify individual capability. A platform-owned layer can become an unprecedented concentration of data and power.
+
+## References
+
+- [LoRA: Low-Rank Adaptation of Large Language Models](https://arxiv.org/abs/2106.09685)
+- [Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks](https://papers.neurips.cc/paper/2020/hash/6b493230205f780e1bc26945df7481e5-Abstract.html)
+- [MemGPT: Towards LLMs as Operating Systems](https://arxiv.org/abs/2310.08560)
+- [NIST: Protecting Model Updates in Privacy-Preserving Federated Learning](https://www.nist.gov/blogs/cybersecurity-insights/protecting-model-updates-privacy-preserving-federated-learning-part-two)

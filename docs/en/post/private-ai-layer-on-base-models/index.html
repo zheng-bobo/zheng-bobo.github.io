@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Private Intelligence on Top of Base Models: The Next Architecture for Personal and Enterprise AI - Blowing in the wind</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="zhengxz" /><meta name="description" content="My central thesis for the next five to ten years is that we will not train a complete model for every person or company. Instead, individuals and organizations will attach a private cognitive layer to shared base models.
+The base model supplies general intelligence. Personal data supplies identity and continuity. Enterprise data supplies domain knowledge and operating rules. Agent systems turn those capabilities into action.
+" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.59.1 with theme even" />
+
+
+<link rel="canonical" href="https://zheng-bobo.github.io/en/post/private-ai-layer-on-base-models/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.4747d1be8010357c5daf4cd103b0bc1cff65936180045419874ea97f32138102.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/readability.css">
+<link rel="stylesheet" href="/css/about.css">
+
+
+<meta property="og:title" content="Private Intelligence on Top of Base Models: The Next Architecture for Personal and Enterprise AI" />
+<meta property="og:description" content="My central thesis for the next five to ten years is that we will not train a complete model for every person or company. Instead, individuals and organizations will attach a private cognitive layer to shared base models.
+
+The base model supplies general intelligence. Personal data supplies identity and continuity. Enterprise data supplies domain knowledge and operating rules. Agent systems turn those capabilities into action." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zheng-bobo.github.io/en/post/private-ai-layer-on-base-models/" />
+<meta property="article:published_time" content="2026-09-27T11:27:00+02:00" />
+<meta property="article:modified_time" content="2026-09-27T11:27:00+02:00" /><meta property="og:site_name" content="Blowing in the wind" />
+<meta itemprop="name" content="Private Intelligence on Top of Base Models: The Next Architecture for Personal and Enterprise AI">
+<meta itemprop="description" content="My central thesis for the next five to ten years is that we will not train a complete model for every person or company. Instead, individuals and organizations will attach a private cognitive layer to shared base models.
+
+The base model supplies general intelligence. Personal data supplies identity and continuity. Enterprise data supplies domain knowledge and operating rules. Agent systems turn those capabilities into action.">
+
+
+<meta itemprop="datePublished" content="2026-09-27T11:27:00&#43;02:00" />
+<meta itemprop="dateModified" content="2026-09-27T11:27:00&#43;02:00" />
+<meta itemprop="wordCount" content="1716">
+
+
+
+<meta itemprop="keywords" content="Personal AI,Base Model,LoRA,RAG,Memory,Privacy,AI Agent," />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Private Intelligence on Top of Base Models: The Next Architecture for Personal and Enterprise AI"/>
+<meta name="twitter:description" content="My central thesis for the next five to ten years is that we will not train a complete model for every person or company. Instead, individuals and organizations will attach a private cognitive layer to shared base models.
+
+The base model supplies general intelligence. Personal data supplies identity and continuity. Enterprise data supplies domain knowledge and operating rules. Agent systems turn those capabilities into action."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/en/about/" class="logo">Bobo</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/en/">
+        <li class="mobile-menu-item">Blog</li>
+      </a><a href="/en/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/en/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/en/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+      
+        
+        
+        <li class="language-item ">
+          
+            <a href="/post/private-ai-layer-on-base-models/" lang="zh-cn" hreflang="zh-cn">中文</a>
+          
+        </li>
+      
+        
+        
+        <li class="language-item active">
+          
+            <a href="/en/post/private-ai-layer-on-base-models/" lang="en" hreflang="en">EN</a>
+          
+        </li>
+      
+    </ul>
+  </nav>
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/en/about/" class="logo">Bobo</a>
+</div>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+      
+        
+        
+        <li class="language-item ">
+          
+            <a href="/post/private-ai-layer-on-base-models/" lang="zh-cn" hreflang="zh-cn">中文</a>
+          
+        </li>
+      
+        
+        
+        <li class="language-item active">
+          
+            <a href="/en/post/private-ai-layer-on-base-models/" lang="en" hreflang="en">EN</a>
+          
+        </li>
+      
+    </ul>
+  </nav>
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/en/">Blog</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Private Intelligence on Top of Base Models: The Next Architecture for Personal and Enterprise AI</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2026-09-27 </span>
+        <div class="post-category">
+            <a href="/en/categories/artificial-intelligence/"> Artificial Intelligence </a>
+            </div>
+          <span class="more-meta"> 1716 words </span>
+          <span class="more-meta"> 9 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#1-from-one-model-for-everyone-to-layered-intelligence">1. From one model for everyone to layered intelligence</a></li>
+<li><a href="#2-base-models-become-infrastructure">2. Base models become infrastructure</a></li>
+<li><a href="#3-personal-ai-is-more-than-a-personal-lora">3. Personal AI is more than a personal LoRA</a></li>
+<li><a href="#4-personal-data-becomes-an-external-cognitive-layer">4. Personal data becomes an external cognitive layer</a></li>
+<li><a href="#5-enterprises-build-composable-capability-layers">5. Enterprises build composable capability layers</a></li>
+<li><a href="#6-personal-assistants-collaborate-with-company-assistants">6. Personal assistants collaborate with company assistants</a></li>
+<li><a href="#7-the-hardest-problems-are-data-permissions-and-portability">7. The hardest problems are data, permissions, and portability</a>
+<ul>
+<li><a href="#ownership-and-portability">Ownership and portability</a></li>
+<li><a href="#privacy-and-minimum-exposure">Privacy and minimum exposure</a></li>
+<li><a href="#reading-reasoning-and-execution-must-be-separate">Reading, reasoning, and execution must be separate</a></li>
+<li><a href="#memory-must-support-correction-and-forgetting">Memory must support correction and forgetting</a></li>
+<li><a href="#adapter-composition-is-not-automatically-safe">Adapter composition is not automatically safe</a></li>
+</ul></li>
+<li><a href="#8-a-new-infrastructure-market">8. A new infrastructure market</a></li>
+<li><a href="#9-a-possible-five-to-ten-year-path">9. A possible five-to-ten-year path</a></li>
+<li><a href="#conclusion-intelligence-from-the-model-identity-from-the-private-layer">Conclusion: intelligence from the model, identity from the private layer</a></li>
+<li><a href="#references">References</a></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>My central thesis for the next five to ten years is that we will not train a complete model for every person or company. Instead, individuals and organizations will attach a private cognitive layer to shared base models.</p>
+
+<p>The base model supplies general intelligence. Personal data supplies identity and continuity. Enterprise data supplies domain knowledge and operating rules. Agent systems turn those capabilities into action.</p>
+
+<h2 id="1-from-one-model-for-everyone-to-layered-intelligence">1. From one model for everyone to layered intelligence</h2>
+
+<p>Today&rsquo;s general models use one shared parameter set for nearly everyone. They can answer questions about public knowledge, but they do not naturally understand a particular person or organization:</p>
+
+<ul>
+<li>a user&rsquo;s long-term goals, values, and communication style;</li>
+<li>years of work history and the reasons behind past decisions;</li>
+<li>private files, messages, photos, and behavioral data;</li>
+<li>a company&rsquo;s internal language, permission structure, and tacit knowledge;</li>
+<li>a stable identity that can be corrected across many interactions.</li>
+</ul>
+
+<p>A future AI system is more likely to be assembled from several layers:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">AI capability
+  = Base Model
+  + Personal Layer
+  + Domain / Company Layer
+  + Real-time Context
+  + Memory
+  + Tools
+  + Identity &amp; Permission</code></pre></td></tr></table>
+</div>
+</div>
+<p>The base model provides language, reasoning, coding, and broad world knowledge. The personal layer represents preferences, history, relationships, style, and goals. The domain layer adds industry methods, company knowledge, and operating rules. Context describes the current task; memory maintains continuity; tools act on external systems; identity and permission define whom the agent represents and what it may do.</p>
+
+<p>This is not merely a larger prompt. It is a persistent private intelligence system built around a replaceable general model.</p>
+
+<h2 id="2-base-models-become-infrastructure">2. Base models become infrastructure</h2>
+
+<p>Base models may come to resemble operating-system kernels, database engines, or cloud infrastructure. A small number of organizations will train frontier models, open-weight communities will offer deployable alternatives, and users will choose a substrate according to capability, cost, latency, privacy, and compliance.</p>
+
+<p>“Open-weight” is often more precise than “open source,” because model licenses and training transparency vary. Regardless of terminology, cheaper inference, stronger local hardware, and efficient adaptation will make private deployment increasingly practical.</p>
+
+<p>The base model remains important, but it is no longer the complete product. Long-term value shifts toward accurate and portable memory, user-controlled data, reliable tools, revocable permissions, and continuous adaptation from feedback.</p>
+
+<h2 id="3-personal-ai-is-more-than-a-personal-lora">3. Personal AI is more than a personal LoRA</h2>
+
+<p>Training a personal LoRA and attaching it to a base model is an intuitive starting point, but it cannot carry an entire personal intelligence layer.</p>
+
+<p><a href="https://arxiv.org/abs/2106.09685">LoRA</a> freezes pretrained weights and learns small low-rank matrices for adaptation. It is well suited to stable patterns such as writing style, response preferences, domain terminology, and recurring decision frameworks. It is poorly suited to storing every changing personal fact.</p>
+
+<p>When a user moves home, a company changes a price, or a project makes a new decision, retraining parameters is slow and makes provenance and deletion difficult. Non-parametric memory such as <a href="https://papers.neurips.cc/paper/2020/hash/6b493230205f780e1bc26945df7481e5-Abstract.html">RAG</a> is better for mutable, attributable facts. Systems inspired by <a href="https://arxiv.org/abs/2310.08560">MemGPT</a> show how information can move between external storage and a limited context window.</p>
+
+<p>Different information belongs in different substrates:</p>
+
+<table>
+<thead>
+<tr>
+<th>Information</th>
+<th>Better substrate</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Stable style and behavioral tendencies</td>
+<td>LoRA / adapter / preference model</td>
+</tr>
+
+<tr>
+<td>Changing personal or company facts</td>
+<td>RAG / database / file system</td>
+</tr>
+
+<tr>
+<td>Entities, relationships, and time</td>
+<td>Knowledge graph / event store</td>
+</tr>
+
+<tr>
+<td>Current task state</td>
+<td>Context window / working memory</td>
+</tr>
+
+<tr>
+<td>Long-term habits and feedback</td>
+<td>Memory system / user model</td>
+</tr>
+
+<tr>
+<td>Business operations</td>
+<td>Tools / APIs / workflows</td>
+</tr>
+
+<tr>
+<td>Authorization and compliance</td>
+<td>Identity / policy engine</td>
+</tr>
+</tbody>
+</table>
+
+<p>A more accurate formula is therefore:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Personal AI
+  = Personal Adapter
+  + Long-term Memory
+  + Real-time Context
+  + User Model
+  + Tools
+  + Permission System
+  + Continuous Evaluation</code></pre></td></tr></table>
+</div>
+</div>
+<p>LoRA may implement one “personal matrix,” but a personal assistant is not a matrix file. It is closer to a cognitive operating system that continuously serves its owner.</p>
+
+<h2 id="4-personal-data-becomes-an-external-cognitive-layer">4. Personal data becomes an external cognitive layer</h2>
+
+<p>Each person may accumulate an AI-readable but user-controlled collection of digital assets: documents, email, photos, conversations, notes, search and reading history, work products, decisions, health data, relationships, goals, risk preferences, and records of accepting or correcting AI output.</p>
+
+<p>A useful assistant must know more than facts about its user. It must understand each fact&rsquo;s source, time range, confidence, and permitted use. It should answer:</p>
+
+<ul>
+<li>Where did this memory come from?</li>
+<li>Is it still valid?</li>
+<li>Which application may use it?</li>
+<li>Has the user corrected or revoked it?</li>
+<li>May it inform an answer, or also authorize an action?</li>
+</ul>
+
+<p>The personal data layer therefore needs provenance, versioning, expiry, correction, and real deletion—not an ever-growing, opaque user profile.</p>
+
+<h2 id="5-enterprises-build-composable-capability-layers">5. Enterprises build composable capability layers</h2>
+
+<p>The same architecture applies to organizations. The general model performs language and reasoning, while private layers supply knowledge bases, product and customer data, operating procedures, terminology, project history, organizational roles, risk policies, and tools connected to internal systems.</p>
+
+<p>Rather than one enormous company adapter, an enterprise may maintain modules loaded according to task and identity:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">General Base Model
+├── Industry Adapter
+├── Company Knowledge Layer
+├── Legal &amp; Compliance Policy
+├── Customer Service Adapter
+├── Software Engineering Tools
+├── Team Memory
+└── Personal Layer</code></pre></td></tr></table>
+</div>
+</div>
+<p>At runtime, an employee&rsquo;s system might combine:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Base Model
+  + Industry Capability
+  + Company Capability
+  + Role Capability
+  + Team Context
+  + Personal Capability</code></pre></td></tr></table>
+</div>
+</div>
+<p>This is a stricter interpretation of “each company trains its own matrix.” Organizations will compress knowledge, behavior, and operational ability into loadable, composable, replaceable, and evaluated private modules. Only some of those modules will be parametric; many will live in retrieval, memory, policy, and tool systems.</p>
+
+<h2 id="6-personal-assistants-collaborate-with-company-assistants">6. Personal assistants collaborate with company assistants</h2>
+
+<p>Software interaction may move from humans opening every application toward personal agents collaborating with enterprise agents and tools.</p>
+
+<p>For travel planning, a personal assistant knows budget, diet, schedule, and risk preferences. Airline and hotel agents expose current inventory and policies. The personal agent searches, compares, and assembles options within its mandate, while payment or consequential commitments still require the user&rsquo;s confirmation.</p>
+
+<p>Inside a company, an employee assistant understands an individual&rsquo;s role, a team assistant maintains project state, and a company assistant understands policy and resources. Multiple constrained agents collaborate instead of one omnipotent assistant receiving all data and permissions.</p>
+
+<p>Future protocols will therefore need to carry more than natural language. They must convey identity, authorization, provenance, available actions, and responsibility boundaries.</p>
+
+<h2 id="7-the-hardest-problems-are-data-permissions-and-portability">7. The hardest problems are data, permissions, and portability</h2>
+
+<p>Model intelligence matters, but this future depends on solving a deeper set of infrastructure problems.</p>
+
+<h3 id="ownership-and-portability">Ownership and portability</h3>
+
+<p>Can a user move memory, preferences, and tool configurations when changing base models? If the private layer cannot leave one platform, personal AI becomes a powerful form of vendor lock-in.</p>
+
+<h3 id="privacy-and-minimum-exposure">Privacy and minimum exposure</h3>
+
+<p>Centralizing a person&rsquo;s complete life history creates exceptional risk. Sensitive workloads will need local devices, home servers, or enterprise environments alongside encryption, data classification, trusted execution, federated learning, and differential privacy. These protections are not free: NIST&rsquo;s work on privacy-preserving federated learning emphasizes the performance and engineering trade-offs of stronger protection.</p>
+
+<h3 id="reading-reasoning-and-execution-must-be-separate">Reading, reasoning, and execution must be separate</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Read Permission ≠ Reasoning Permission ≠ Execution Permission</code></pre></td></tr></table>
+</div>
+</div>
+<p>Access to a financial goal does not authorize sending it to a third party or transferring money. Authorization must specify scope, target, duration, revocability, and audit records.</p>
+
+<h3 id="memory-must-support-correction-and-forgetting">Memory must support correction and forgetting</h3>
+
+<p>An incorrect long-term memory can distort future decisions repeatedly. Systems need source visibility, confidence, user correction, expiry, and verifiable deletion.</p>
+
+<h3 id="adapter-composition-is-not-automatically-safe">Adapter composition is not automatically safe</h3>
+
+<p>Stacking personal, company, industry, and role adapters can create conflicts, regressions, or unpredictable behavior. Routing, precedence, conflict detection, safe merging, cross-model portability, and regression evaluation remain important technical problems.</p>
+
+<h2 id="8-a-new-infrastructure-market">8. A new infrastructure market</h2>
+
+<p>If this architecture matures, value will spread beyond the model itself:</p>
+
+<ol>
+<li><strong>Personal Data Vaults</strong> for storing and authorizing digital assets;</li>
+<li><strong>AI Memory Operating Systems</strong> for writing, retrieving, correcting, forgetting, and moving memory;</li>
+<li><strong>Adapter registries and marketplaces</strong> for domain capability modules;</li>
+<li><strong>Model routers</strong> that select a model by capability, price, latency, and privacy;</li>
+<li><strong>Agent identity and permission systems</strong> for mandates, expiry, and audits;</li>
+<li><strong>Personal evaluation systems</strong> that measure fit for a particular user;</li>
+<li><strong>Private AI compute</strong> on devices, home servers, and enterprise clouds;</li>
+<li><strong>Interoperability layers</strong> for moving memory, adapters, tools, and identity across models.</li>
+</ol>
+
+<p>The industry currently competes over who has the strongest model. A more consequential future competition may be over who manages a user&rsquo;s long-term memory, permissions, and digital identity.</p>
+
+<h2 id="9-a-possible-five-to-ten-year-path">9. A possible five-to-ten-year path</h2>
+
+<p>This transition is likely to occur in stages.</p>
+
+<p><strong>Stage one: context augmentation.</strong> Personal and enterprise systems primarily use long context, RAG, tool connections, and simple memory. Data remains fragmented across applications.</p>
+
+<p><strong>Stage two: persistent private layers.</strong> Assistants gain cross-application memory, preference models, company knowledge, and explicit permissions. Open-weight models and local inference handle more sensitive work.</p>
+
+<p><strong>Stage three: modularity and portability.</strong> Capabilities become less dependent on one model. Runtimes choose a substrate, load modules, and route tasks dynamically.</p>
+
+<p><strong>Stage four: agent-to-agent collaboration.</strong> Personal, enterprise, and public-service agents interact through standard protocols. Users manage goals, boundaries, and confirmation points rather than every interface.</p>
+
+<p>This is a directional thesis, not a guaranteed timetable. Closed ecosystems, fragmented formats, security failures, and regulation may slow progress substantially.</p>
+
+<h2 id="conclusion-intelligence-from-the-model-identity-from-the-private-layer">Conclusion: intelligence from the model, identity from the private layer</h2>
+
+<p>The thesis can be summarized as follows:</p>
+
+<blockquote>
+<p>Future models will become general computing substrates onto which people and organizations attach their own data and capabilities. Their differences will be represented not by retraining complete models, but by portable adapters, memory, knowledge stores, permissions, and tools.</p>
+</blockquote>
+
+<p>Or more simply:</p>
+
+<blockquote>
+<p><strong>The base model provides intelligence, private data provides identity, and the agent system provides agency.</strong></p>
+</blockquote>
+
+<p>Models may become increasingly replaceable. A private intelligence layer accumulated over years—one that understands its owner, connects to tools, and operates within explicit authority—will be much harder to replace. The strongest moat may not be model parameters, but a persistent digital self that users can own and carry.</p>
+
+<p>That is both the opportunity and the danger. A user-owned private layer can amplify individual capability. A platform-owned layer can become an unprecedented concentration of data and power.</p>
+
+<h2 id="references">References</h2>
+
+<ul>
+<li><a href="https://arxiv.org/abs/2106.09685">LoRA: Low-Rank Adaptation of Large Language Models</a></li>
+<li><a href="https://papers.neurips.cc/paper/2020/hash/6b493230205f780e1bc26945df7481e5-Abstract.html">Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks</a></li>
+<li><a href="https://arxiv.org/abs/2310.08560">MemGPT: Towards LLMs as Operating Systems</a></li>
+<li><a href="https://www.nist.gov/blogs/cybersecurity-insights/protecting-model-updates-privacy-preserving-federated-learning-part-two">NIST: Protecting Model Updates in Privacy-Preserving Federated Learning</a></li>
+</ul>
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">zhengxz</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2026-09-27
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/en/tags/personal-ai/">Personal AI</a>
+          <a href="/en/tags/base-model/">Base Model</a>
+          <a href="/en/tags/lora/">LoRA</a>
+          <a href="/en/tags/rag/">RAG</a>
+          <a href="/en/tags/memory/">Memory</a>
+          <a href="/en/tags/privacy/">Privacy</a>
+          <a href="/en/tags/ai-agent/">AI Agent</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/en/post/llm-agent-benchmarks-guide/">
+            <span class="next-text nav-default">A Field Guide to LLM and AI Agent Benchmarks</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+  <a href="https://zheng-bobo.github.io/en/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2019 - 
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span>zhengxz</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

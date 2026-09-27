@@ -6,21 +6,32 @@
     <description>Recent content in AI Agent on Blowing in the wind</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Sat, 26 Sep 2026 23:00:00 +0200</lastBuildDate>
+    <lastBuildDate>Sun, 27 Sep 2026 11:27:00 +0200</lastBuildDate>
+    
+	<atom:link href="https://zheng-bobo.github.io/tags/ai-agent/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Base Model 之上的私人智能：个人与企业 AI 的下一层架构</title>
+      <link>https://zheng-bobo.github.io/post/private-ai-layer-on-base-models/</link>
+      <pubDate>Sun, 27 Sep 2026 11:27:00 +0200</pubDate>
+      
+      <guid>https://zheng-bobo.github.io/post/private-ai-layer-on-base-models/</guid>
+      <description>&lt;p&gt;我对未来 5—10 年 AI 的一个核心判断是：&lt;strong&gt;人们不会为每个人、每家公司重新训练一套完整模型，而会在共享的 Base Model 之上，挂载属于个人和组织的私有认知层。&lt;/strong&gt;&lt;/p&gt;
 
-  <atom:link href="https://zheng-bobo.github.io/tags/ai-agent/index.xml" rel="self" type="application/rss+xml" />
-
-
+&lt;p&gt;基础模型提供通用智力，个人数据提供身份与连续性，企业数据提供领域知识和业务规则，Agent 系统则把这些能力转化为行动。&lt;/p&gt;</description>
+    </item>
+    
     <item>
       <title>大模型与 AI Agent Benchmark 全景指南：它们究竟在评估什么</title>
       <link>https://zheng-bobo.github.io/post/llm-agent-benchmarks-guide/</link>
       <pubDate>Sat, 26 Sep 2026 23:00:00 +0200</pubDate>
-
+      
       <guid>https://zheng-bobo.github.io/post/llm-agent-benchmarks-guide/</guid>
-      <description>&lt;p&gt;看模型发布报告时，我们经常会遇到一长串名字：ARC-E、ARC-C、MMLU、GPQA、GSM8K、HumanEval、SWE-bench、GAIA、WebArena、OSWorld……它们的分数不能直接横向比较，因为每个 benchmark 测量的能力、输入形式、可用工具和评分方式都不同。&lt;/p&gt;
+      <description>&lt;p&gt;看模型发布报告时，我们经常会遇到一长串名字：Artificial Analysis Intelligence Index、LMArena、HELM、ARC-E、MMLU、GSM8K、SWE-bench、GAIA、WebArena、OSWorld……它们的分数不能直接横向比较，因为这里既有综合指数和排行榜，也有单项 benchmark；各自测量的能力、输入形式、可用工具和评分方式都不同。&lt;/p&gt;
 
 &lt;p&gt;本文整理一张从“大模型答题”到“Agent 完成真实任务”的评测地图，并解释每个常见 benchmark 究竟是什么、适合测什么，以及不能从分数中推出什么结论。&lt;/p&gt;</description>
     </item>
-
+    
   </channel>
 </rss>
