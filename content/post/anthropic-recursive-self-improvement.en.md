@@ -56,6 +56,10 @@ In Q2 2026, the typical engineer was merging roughly **8 times** as much code pe
 
 The deeper change is the engineer's unit of work. Instead of expressing an implementation line by line, people increasingly define goals, provide constraints, review outcomes, and steer multiple concurrent workstreams.
 
+![Code merged per active contributor per quarter at Anthropic, indexed to the pre-2025 average](/img/posts/anthropic-recursive-self-improvement/code-contributed-per-person-per-quarter.png)
+
+*Figure 1: Code contributed per person, per quarter. Each bar is the quarterly average of daily merged lines per active contributor, shown relative to the pre-2025 average. Q2 2026 is a partial quarter; dashed lines mark public model or product releases. Source: [Anthropic Institute](https://www.anthropic.com/institute/recursive-self-improvement).*
+
 ### 3.2 AI makes previously uneconomic work possible
 
 The uplift is not only faster completion of planned tasks. Anthropic reports that Claude performs exploratory tooling, deferred cleanup, and repairs spanning large amounts of unfamiliar context—work that often would not receive human priority.
@@ -72,6 +76,10 @@ This is a distinct form of agent value: not simply replacing expensive labor, bu
 2. Another engineer can understand, maintain, and extend it.
 
 Anthropic says the frequency with which staff correct, redirect, or take over from Claude has declined for a year, including on underspecified, open-ended tasks. The essay characterizes Claude-written code as somewhat worse than human code in late 2025 and roughly at parity in 2026, with further improvement expected.
+
+![Claude Code session success rates across four levels of task complexity inside Anthropic](/img/posts/anthropic-recursive-self-improvement/claude-code-session-success-rate.png)
+
+*Figure 2: Claude Code session success rate. The curves are weekly four-week trailing means, with an LLM judge determining whether a session completed its task without correction. The largest change is in open-ended problems, rising from roughly 10–25% in late 2025 to about 76% in May 2026; trivial and routine tasks entered high-success regimes earlier. Source: [Anthropic Institute](https://www.anthropic.com/institute/recursive-self-improvement).*
 
 Review has changed as well. Proposed changes are inspected by an automated Claude reviewer for bugs and security issues before merging. A retrospective analysis suggested that such review on every historical change could have caught roughly **one third** of the bugs behind past `claude.ai` incidents.
 

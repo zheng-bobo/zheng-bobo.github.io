@@ -64,7 +64,7 @@ This article organizes my notes around the Anthropic Institute essay When AI bui
 
 <meta itemprop="datePublished" content="2026-09-28T09:00:00&#43;02:00" />
 <meta itemprop="dateModified" content="2026-09-28T09:00:00&#43;02:00" />
-<meta itemprop="wordCount" content="2706">
+<meta itemprop="wordCount" content="2808">
 
 
 
@@ -199,8 +199,8 @@ This article organizes my notes around the Anthropic Institute essay When AI bui
         <div class="post-category">
             <a href="/en/categories/ai-agents/"> AI Agents </a>
             </div>
-          <span class="more-meta"> 2706 words </span>
-          <span class="more-meta"> 13 mins read </span>
+          <span class="more-meta"> 2808 words </span>
+          <span class="more-meta"> 14 mins read </span>
         
       </div>
     </header>
@@ -382,6 +382,10 @@ This article organizes my notes around the Anthropic Institute essay When AI bui
 
 <p>The deeper change is the engineer&rsquo;s unit of work. Instead of expressing an implementation line by line, people increasingly define goals, provide constraints, review outcomes, and steer multiple concurrent workstreams.</p>
 
+<p><img src="/img/posts/anthropic-recursive-self-improvement/code-contributed-per-person-per-quarter.png" alt="Code merged per active contributor per quarter at Anthropic, indexed to the pre-2025 average" /></p>
+
+<p><em>Figure 1: Code contributed per person, per quarter. Each bar is the quarterly average of daily merged lines per active contributor, shown relative to the pre-2025 average. Q2 2026 is a partial quarter; dashed lines mark public model or product releases. Source: <a href="https://www.anthropic.com/institute/recursive-self-improvement">Anthropic Institute</a>.</em></p>
+
 <h3 id="3-2-ai-makes-previously-uneconomic-work-possible">3.2 AI makes previously uneconomic work possible</h3>
 
 <p>The uplift is not only faster completion of planned tasks. Anthropic reports that Claude performs exploratory tooling, deferred cleanup, and repairs spanning large amounts of unfamiliar context—work that often would not receive human priority.</p>
@@ -400,6 +404,10 @@ This article organizes my notes around the Anthropic Institute essay When AI bui
 </ol>
 
 <p>Anthropic says the frequency with which staff correct, redirect, or take over from Claude has declined for a year, including on underspecified, open-ended tasks. The essay characterizes Claude-written code as somewhat worse than human code in late 2025 and roughly at parity in 2026, with further improvement expected.</p>
+
+<p><img src="/img/posts/anthropic-recursive-self-improvement/claude-code-session-success-rate.png" alt="Claude Code session success rates across four levels of task complexity inside Anthropic" /></p>
+
+<p><em>Figure 2: Claude Code session success rate. The curves are weekly four-week trailing means, with an LLM judge determining whether a session completed its task without correction. The largest change is in open-ended problems, rising from roughly 10–25% in late 2025 to about 76% in May 2026; trivial and routine tasks entered high-success regimes earlier. Source: <a href="https://www.anthropic.com/institute/recursive-self-improvement">Anthropic Institute</a>.</em></p>
 
 <p>Review has changed as well. Proposed changes are inspected by an automated Claude reviewer for bugs and security issues before merging. A retrospective analysis suggested that such review on every historical change could have caught roughly <strong>one third</strong> of the bugs behind past <code>claude.ai</code> incidents.</p>
 

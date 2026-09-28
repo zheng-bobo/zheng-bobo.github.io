@@ -56,6 +56,10 @@ Anthropic 披露，截至 2026 年 5 月，合并进内部代码库的代码中�
 
 这里最值得注意的不是“AI 写了多少行”，而是工程师的工作单位发生了变化：人不再逐行表达实现，而是定义目标、提供约束、检查结果，并同时引导更多工作流。
 
+![Anthropic 每位活跃贡献者每季度合并的代码量，以 2025 年前的平均值为 1×](/img/posts/anthropic-recursive-self-improvement/code-contributed-per-person-per-quarter.png)
+
+*图 1：Code contributed per person, per quarter。柱形表示每位活跃贡献者每天合并代码行数的季度平均值，并以 2025 年前平均水平为基准。2026 年 Q2 为尚未结束的季度；虚线标注模型或产品的公开发布节点。来源：[Anthropic Institute](https://www.anthropic.com/institute/recursive-self-improvement)。*
+
 ### 3.2 AI 开始完成原本不会被安排的工作
 
 生产率提升不只表现为更快完成计划内任务。Anthropic 还观察到 Claude 承担了大量过去不会获得人力优先级的工作，例如探索性工具、长期积压的清理和跨越大量陌生上下文的修复。
@@ -72,6 +76,10 @@ Anthropic 披露，截至 2026 年 5 月，合并进内部代码库的代码中�
 2. 其他工程师能够理解、维护和继续构建。
 
 Anthropic 的内部观察是：员工在任务中纠正、重定向或接管 Claude 的频率持续下降，即使是缺少清晰规格的开放任务也在改善。原文判断，Claude 编写的代码在 2025 年末仍略逊于人类，到 2026 年已经大致接近人类水平，并可能继续超过。
+
+![Anthropic 内部 Claude Code Session 在四种任务复杂度下的成功率变化](/img/posts/anthropic-recursive-self-improvement/claude-code-session-success-rate.png)
+
+*图 2：Claude Code session success rate。曲线采用每周统计的四周移动平均，并由 LLM Judge 判断 Session 是否在不需要人工纠正的情况下完成任务。最显著的变化来自开放问题：它从 2025 年下半年的约 10%–25%，提升到 2026 年 5 月约 76%；简单和常规任务则较早进入高成功率区间。来源：[Anthropic Institute](https://www.anthropic.com/institute/recursive-self-improvement)。*
 
 代码审查也因此改变。Anthropic 的变更在合并前会由自动 Claude Reviewer 检查缺陷和安全问题。回溯分析显示，如果历史变更都经过这类审查，大约可以提前发现导致 `claude.ai` 既往事故的 **三分之一** Bug。
 
