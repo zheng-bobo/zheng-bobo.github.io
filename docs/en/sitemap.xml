@@ -2,6 +2,83 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://zheng-bobo.github.io/en/categories/ai-agents/</loc>
+    <lastmod>2026-09-28T09:00:00+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/en/tags/ai-rd/</loc>
+    <lastmod>2026-09-28T09:00:00+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/en/tags/anthropic/</loc>
+    <lastmod>2026-09-28T09:00:00+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/en/tags/autonomous-agents/</loc>
+    <lastmod>2026-09-28T09:00:00+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/en/</loc>
+    <lastmod>2026-09-28T09:00:00+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/en/categories/</loc>
+    <lastmod>2026-09-28T09:00:00+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/en/tags/claude/</loc>
+    <lastmod>2026-09-28T09:00:00+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/en/post/</loc>
+    <lastmod>2026-09-28T09:00:00+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/en/tags/recursive-self-improvement/</loc>
+    <lastmod>2026-09-28T09:00:00+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/en/tags/</loc>
+    <lastmod>2026-09-28T09:00:00+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://zheng-bobo.github.io/en/post/anthropic-recursive-self-improvement/</loc>
+    <lastmod>2026-09-28T09:00:00+02:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://zheng-bobo.github.io/en/tags/ai-agent/</loc>
     <lastmod>2026-09-27T11:27:00+02:00</lastmod>
     <changefreq>weekly</changefreq>
@@ -17,20 +94,6 @@
   
   <url>
     <loc>https://zheng-bobo.github.io/en/tags/base-model/</loc>
-    <lastmod>2026-09-27T11:27:00+02:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
-    <loc>https://zheng-bobo.github.io/en/</loc>
-    <lastmod>2026-09-27T11:27:00+02:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
-    <loc>https://zheng-bobo.github.io/en/categories/</loc>
     <lastmod>2026-09-27T11:27:00+02:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
@@ -58,13 +121,6 @@
   </url>
   
   <url>
-    <loc>https://zheng-bobo.github.io/en/post/</loc>
-    <lastmod>2026-09-27T11:27:00+02:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
     <loc>https://zheng-bobo.github.io/en/tags/privacy/</loc>
     <lastmod>2026-09-27T11:27:00+02:00</lastmod>
     <changefreq>weekly</changefreq>
@@ -73,13 +129,6 @@
   
   <url>
     <loc>https://zheng-bobo.github.io/en/tags/rag/</loc>
-    <lastmod>2026-09-27T11:27:00+02:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
-    <loc>https://zheng-bobo.github.io/en/tags/</loc>
     <lastmod>2026-09-27T11:27:00+02:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
@@ -220,13 +269,6 @@
   
   <url>
     <loc>https://zheng-bobo.github.io/en/tags/ai-agents/</loc>
-    <lastmod>2026-09-12T21:08:45+02:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
-    <loc>https://zheng-bobo.github.io/en/categories/ai-agents/</loc>
     <lastmod>2026-09-12T21:08:45+02:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>

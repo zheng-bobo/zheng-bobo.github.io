@@ -1,0 +1,82 @@
+{{- $isZh := eq .Page.Site.Language.Lang "zh-cn" -}}
+<section class="rsi-evolution" data-rsi-evolution aria-label="{{ if $isZh }}AI 开发方式的五个演进阶段{{ else }}Five stages in the evolution of AI development{{ end }}">
+  <div class="rsi-evolution__line" aria-hidden="true"><span></span></div>
+  <ol class="rsi-evolution__stages">
+    <li class="rsi-stage" style="--stage-index: 0">
+      <div class="rsi-stage__node" aria-hidden="true"><span>⌨</span></div>
+      <time>2021–2023</time>
+      <h3>{{ if $isZh }}构建最初的 Claude{{ else }}Building the first Claude{{ end }}</h3>
+      <p>{{ if $isZh }}人类在笔记本电脑上编写代码和文档，AI 还是被开发的对象。{{ else }}People wrote code and documentation on laptops; AI was the object being built.{{ end }}</p>
+    </li>
+    <li class="rsi-stage" style="--stage-index: 1">
+      <div class="rsi-stage__node" aria-hidden="true"><span>💬</span></div>
+      <time>2023–2025</time>
+      <h3>{{ if $isZh }}Chatbot{{ else }}Chatbots{{ end }}</h3>
+      <p>{{ if $isZh }}模型生成局部代码片段，人类复制、粘贴并整合结果。{{ else }}Models generated local snippets; people copied, pasted, and integrated the output.{{ end }}</p>
+    </li>
+    <li class="rsi-stage" style="--stage-index: 2">
+      <div class="rsi-stage__node" aria-hidden="true"><span>⌘</span></div>
+      <time>2025–2026</time>
+      <h3>{{ if $isZh }}Coding Agent{{ else }}Coding agents{{ end }}</h3>
+      <p>{{ if $isZh }}Agent 可以直接读写代码库，从补全片段走向完成整个文件。{{ else }}Agents read and edited repositories directly, progressing from snippets to entire files.{{ end }}</p>
+    </li>
+    <li class="rsi-stage" style="--stage-index: 3">
+      <div class="rsi-stage__node" aria-hidden="true"><span>↻</span></div>
+      <time>{{ if $isZh }}今天{{ else }}Today{{ end }}</time>
+      <h3>{{ if $isZh }}自主 Agent{{ else }}Autonomous agents{{ end }}</h3>
+      <p>{{ if $isZh }}Agent 自己运行代码、观察结果，并把数小时工作委派给其他 Agent。{{ else }}Agents run code, observe results, and delegate hours of work to other agents.{{ end }}</p>
+    </li>
+    <li class="rsi-stage" style="--stage-index: 4">
+      <div class="rsi-stage__node" aria-hidden="true"><span>∞</span></div>
+      <time>20XX?</time>
+      <h3>{{ if $isZh }}闭合改进循环{{ else }}Closing the loop{{ end }}</h3>
+      <p>{{ if $isZh }}AI 设计实验、训练并评估继任模型，模型改进开始反过来加速模型改进。{{ else }}AI designs experiments, trains and evaluates successor models, allowing model progress to accelerate model progress.{{ end }}</p>
+    </li>
+  </ol>
+</section>
+
+<style>
+  .rsi-evolution { position: relative; margin: 2.3em -40px; padding: 42px max(28px, calc((100vw - 1160px) / 2)); overflow: hidden; color: #26394b; background: linear-gradient(135deg, #f4eee2 0%, #fbf8f2 52%, #edf2ed 100%); border-block: 1px solid rgba(38,57,75,.12); }
+  .rsi-evolution__stages { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 18px; margin: 0; padding: 0; list-style: none; }
+  .rsi-evolution__line { position: absolute; top: 77px; right: max(28px, calc((100vw - 1160px) / 2)); left: max(28px, calc((100vw - 1160px) / 2)); height: 3px; overflow: hidden; background: rgba(38,57,75,.16); }
+  .rsi-evolution__line span { display: block; width: 100%; height: 100%; background: linear-gradient(90deg,#c75b45,#d99151,#4f796b); transform: scaleX(0); transform-origin: left; transition: transform 1.5s cubic-bezier(.2,.75,.2,1); }
+  .rsi-evolution.is-visible .rsi-evolution__line span { transform: scaleX(1); }
+  .rsi-stage { min-width: 0; margin: 0; opacity: 0; transform: translateY(18px); transition: opacity .55s ease calc(var(--stage-index) * 160ms), transform .55s ease calc(var(--stage-index) * 160ms); }
+  .rsi-evolution.is-visible .rsi-stage { opacity: 1; transform: none; }
+  .rsi-stage__node { display: grid; place-items: center; width: 50px; height: 50px; margin-bottom: 22px; color: #fff; background: #26394b; border: 5px solid #f7f3ea; border-radius: 50%; box-shadow: 0 0 0 1px rgba(38,57,75,.18), 0 7px 18px rgba(38,57,75,.14); font: 700 21px/1 system-ui,sans-serif; }
+  .rsi-stage:last-child .rsi-stage__node { background: #b84c3a; }
+  .rsi-stage time { display: block; margin-bottom: 7px; color: #9b4a3b; font: 700 12px/1.2 system-ui,sans-serif; letter-spacing: .06em; text-transform: uppercase; }
+  .rsi-stage h3 { margin: 0 0 8px; color: #26394b; font-size: 18px; line-height: 1.25; }
+  .rsi-stage p { margin: 0; color: #526171; font-size: 14px; line-height: 1.65; }
+  @media (max-width: 760px) {
+    .rsi-evolution { margin-inline: -20px; padding: 32px 24px; }
+    .rsi-evolution__stages { grid-template-columns: 1fr; gap: 28px; }
+    .rsi-evolution__line { top: 32px; bottom: 32px; left: 48px; width: 3px; height: auto; }
+    .rsi-evolution__line span { width: 100%; height: 100%; transform: scaleY(0); transform-origin: top; }
+    .rsi-evolution.is-visible .rsi-evolution__line span { transform: scaleY(1); }
+    .rsi-stage { display: grid; grid-template-columns: 52px minmax(0,1fr); column-gap: 18px; }
+    .rsi-stage__node { grid-row: 1 / 4; margin: 0; }
+    .rsi-stage time, .rsi-stage h3, .rsi-stage p { grid-column: 2; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rsi-evolution__line span, .rsi-stage { transition: none; transform: none; opacity: 1; }
+  }
+</style>
+<script>
+  (function () {
+    var blocks = document.querySelectorAll('[data-rsi-evolution]');
+    if (!('IntersectionObserver' in window)) {
+      blocks.forEach(function (block) { block.classList.add('is-visible'); });
+      return;
+    }
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+    blocks.forEach(function (block) { observer.observe(block); });
+  }());
+</script>

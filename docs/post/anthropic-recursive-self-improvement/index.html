@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>当 AI 开始构建自己：Anthropic 内部实践与递归自我改进的未来 - Blowing in the wind</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="zhengxz" /><meta name="description" content="Anthropic 内部正在发生一个值得关注的变化：AI 不再只是被研究和开发的产品，也开始参与开发 AI 的过程。从补全代码，到自主修改代码库、运行实验、组织并行 Agent，Claude 正逐渐进入模型研发循环本身。
+如果这条路径继续延伸，终点可能是 Recursive Self-Improvement（递归自我改进，RSI）：一个 AI 系统能够自主设计、训练和评估自己的继任者，让“模型进步”本身成为下一轮模型进步的加速器。
+本文根据我的笔记与 Anthropic Institute 的文章 When AI builds itself 整理。重点不是断言 RSI 一定发生，而是理解：Anthropic 内部已经把哪些工作交给 Claude，距离真正闭环还缺什么，以及这条趋势可能把人类角色推向哪里。
+" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.59.1 with theme even" />
+
+
+<link rel="canonical" href="https://zheng-bobo.github.io/post/anthropic-recursive-self-improvement/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.4747d1be8010357c5daf4cd103b0bc1cff65936180045419874ea97f32138102.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/readability.css">
+<link rel="stylesheet" href="/css/about.css">
+
+
+<meta property="og:title" content="当 AI 开始构建自己：Anthropic 内部实践与递归自我改进的未来" />
+<meta property="og:description" content="Anthropic 内部正在发生一个值得关注的变化：AI 不再只是被研究和开发的产品，也开始参与开发 AI 的过程。从补全代码，到自主修改代码库、运行实验、组织并行 Agent，Claude 正逐渐进入模型研发循环本身。
+
+如果这条路径继续延伸，终点可能是 Recursive Self-Improvement（递归自我改进，RSI）：一个 AI 系统能够自主设计、训练和评估自己的继任者，让“模型进步”本身成为下一轮模型进步的加速器。
+
+本文根据我的笔记与 Anthropic Institute 的文章 When AI builds itself 整理。重点不是断言 RSI 一定发生，而是理解：Anthropic 内部已经把哪些工作交给 Claude，距离真正闭环还缺什么，以及这条趋势可能把人类角色推向哪里。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zheng-bobo.github.io/post/anthropic-recursive-self-improvement/" />
+<meta property="article:published_time" content="2026-09-28T09:00:00+02:00" />
+<meta property="article:modified_time" content="2026-09-28T09:00:00+02:00" /><meta property="og:site_name" content="Blowing in the wind" />
+<meta itemprop="name" content="当 AI 开始构建自己：Anthropic 内部实践与递归自我改进的未来">
+<meta itemprop="description" content="Anthropic 内部正在发生一个值得关注的变化：AI 不再只是被研究和开发的产品，也开始参与开发 AI 的过程。从补全代码，到自主修改代码库、运行实验、组织并行 Agent，Claude 正逐渐进入模型研发循环本身。
+
+如果这条路径继续延伸，终点可能是 Recursive Self-Improvement（递归自我改进，RSI）：一个 AI 系统能够自主设计、训练和评估自己的继任者，让“模型进步”本身成为下一轮模型进步的加速器。
+
+本文根据我的笔记与 Anthropic Institute 的文章 When AI builds itself 整理。重点不是断言 RSI 一定发生，而是理解：Anthropic 内部已经把哪些工作交给 Claude，距离真正闭环还缺什么，以及这条趋势可能把人类角色推向哪里。">
+
+
+<meta itemprop="datePublished" content="2026-09-28T09:00:00&#43;02:00" />
+<meta itemprop="dateModified" content="2026-09-28T09:00:00&#43;02:00" />
+<meta itemprop="wordCount" content="5337">
+
+
+
+<meta itemprop="keywords" content="Anthropic,Claude,Recursive Self-Improvement,Autonomous Agents,AI R&amp;D," />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="当 AI 开始构建自己：Anthropic 内部实践与递归自我改进的未来"/>
+<meta name="twitter:description" content="Anthropic 内部正在发生一个值得关注的变化：AI 不再只是被研究和开发的产品，也开始参与开发 AI 的过程。从补全代码，到自主修改代码库、运行实验、组织并行 Agent，Claude 正逐渐进入模型研发循环本身。
+
+如果这条路径继续延伸，终点可能是 Recursive Self-Improvement（递归自我改进，RSI）：一个 AI 系统能够自主设计、训练和评估自己的继任者，让“模型进步”本身成为下一轮模型进步的加速器。
+
+本文根据我的笔记与 Anthropic Institute 的文章 When AI builds itself 整理。重点不是断言 RSI 一定发生，而是理解：Anthropic 内部已经把哪些工作交给 Claude，距离真正闭环还缺什么，以及这条趋势可能把人类角色推向哪里。"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/about/" class="logo">Bobo</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Blog</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">归档</li>
+      </a><a href="/categories/">
+        <li class="mobile-menu-item">分类</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于我</li>
+      </a>
+  </ul>
+
+  
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+      
+        
+        
+        <li class="language-item active">
+          
+            <a href="/post/anthropic-recursive-self-improvement/" lang="zh-cn" hreflang="zh-cn">中文</a>
+          
+        </li>
+      
+        
+        
+        <li class="language-item ">
+          
+            <a href="/en/post/anthropic-recursive-self-improvement/" lang="en" hreflang="en">EN</a>
+          
+        </li>
+      
+    </ul>
+  </nav>
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/about/" class="logo">Bobo</a>
+</div>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+      
+        
+        
+        <li class="language-item active">
+          
+            <a href="/post/anthropic-recursive-self-improvement/" lang="zh-cn" hreflang="zh-cn">中文</a>
+          
+        </li>
+      
+        
+        
+        <li class="language-item ">
+          
+            <a href="/en/post/anthropic-recursive-self-improvement/" lang="en" hreflang="en">EN</a>
+          
+        </li>
+      
+    </ul>
+  </nav>
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Blog</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">归档</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/categories/">分类</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">关于我</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">当 AI 开始构建自己：Anthropic 内部实践与递归自我改进的未来</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2026-09-28 </span>
+        <div class="post-category">
+            <a href="/categories/ai-agents/"> AI Agents </a>
+            </div>
+          <span class="more-meta"> 约 5337 字 </span>
+          <span class="more-meta"> 预计阅读 11 分钟 </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">文章目录</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#1-从辅助工具到改进循环的一部分">1. 从辅助工具到改进循环的一部分</a></li>
+<li><a href="#2-外部趋势-agent-可以可靠完成的任务正在变长">2. 外部趋势：Agent 可以可靠完成的任务正在变长</a></li>
+<li><a href="#3-anthropic-内部-claude-已经参与了多少工作">3. Anthropic 内部：Claude 已经参与了多少工作？</a>
+<ul>
+<li><a href="#3-1-超过-80-的合并代码由-claude-编写">3.1 超过 80% 的合并代码由 Claude 编写</a></li>
+<li><a href="#3-2-ai-开始完成原本不会被安排的工作">3.2 AI 开始完成原本不会被安排的工作</a></li>
+<li><a href="#3-3-代码质量从可用走向接近人类">3.3 代码质量从可用走向接近人类</a></li>
+</ul></li>
+<li><a href="#4-从工程执行到研究执行">4. 从工程执行到研究执行</a>
+<ul>
+<li><a href="#4-1-在目标明确时-实验优化已表现出超人能力">4.1 在目标明确时，实验优化已表现出超人能力</a></li>
+<li><a href="#4-2-agent-已能自己设计一组实验-但问题仍由人选择">4.2 Agent 已能自己设计一组实验，但问题仍由人选择</a></li>
+</ul></li>
+<li><a href="#5-真正缺失的一环-research-taste">5. 真正缺失的一环：Research Taste</a></li>
+<li><a href="#6-工作方式将怎样改变">6. 工作方式将怎样改变？</a></li>
+<li><a href="#7-三种可能的未来">7. 三种可能的未来</a>
+<ul>
+<li><a href="#未来一-能力曲线进入平台期-但今天的能力广泛扩散">未来一：能力曲线进入平台期，但今天的能力广泛扩散</a></li>
+<li><a href="#未来二-持续复合加速-但人类保留方向权">未来二：持续复合加速，但人类保留方向权</a></li>
+<li><a href="#未来三-完整递归自我改进">未来三：完整递归自我改进</a></li>
+</ul></li>
+<li><a href="#8-我对这条趋势的进一步思考">8. 我对这条趋势的进一步思考</a>
+<ul>
+<li><a href="#8-1-rsi-更像系统能力-而不是单一模型能力">8.1 RSI 更像系统能力，而不是单一模型能力</a></li>
+<li><a href="#8-2-加速会先表现为并行化-而不是-一个超级研究员">8.2 加速会先表现为并行化，而不是“一个超级研究员”</a></li>
+<li><a href="#8-3-验证能力必须至少和生成能力同步增长">8.3 验证能力必须至少和生成能力同步增长</a></li>
+<li><a href="#8-4-人类角色会从生产者转向治理者">8.4 人类角色会从生产者转向治理者</a></li>
+</ul></li>
+<li><a href="#9-结语-我们尚未进入闭环-但已经进入反馈阶段">9. 结语：我们尚未进入闭环，但已经进入反馈阶段</a></li>
+<li><a href="#参考资料">参考资料</a></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>Anthropic 内部正在发生一个值得关注的变化：AI 不再只是被研究和开发的产品，也开始参与开发 AI 的过程。从补全代码，到自主修改代码库、运行实验、组织并行 Agent，Claude 正逐渐进入模型研发循环本身。</p>
+
+<p>如果这条路径继续延伸，终点可能是 <strong>Recursive Self-Improvement（递归自我改进，RSI）</strong>：一个 AI 系统能够自主设计、训练和评估自己的继任者，让“模型进步”本身成为下一轮模型进步的加速器。</p>
+
+<p>本文根据我的笔记与 Anthropic Institute 的文章 <a href="https://www.anthropic.com/institute/recursive-self-improvement">When AI builds itself</a> 整理。重点不是断言 RSI 一定发生，而是理解：Anthropic 内部已经把哪些工作交给 Claude，距离真正闭环还缺什么，以及这条趋势可能把人类角色推向哪里。</p>
+
+<h2 id="1-从辅助工具到改进循环的一部分">1. 从辅助工具到改进循环的一部分</h2>
+
+<p>Anthropic 把 AI 参与自身研发的过程划分为五个阶段。真正重要的变化，不只是模型生成了更多代码，而是它与环境之间的接口逐渐闭合：从只能给建议，发展为能够行动、观察结果、修正方案，再把工作委派给其他 Agent。</p>
+
+<section class="rsi-evolution" data-rsi-evolution aria-label="AI 开发方式的五个演进阶段">
+  <div class="rsi-evolution__line" aria-hidden="true"><span></span></div>
+  <ol class="rsi-evolution__stages">
+    <li class="rsi-stage" style="--stage-index: 0">
+      <div class="rsi-stage__node" aria-hidden="true"><span>⌨</span></div>
+      <time>2021–2023</time>
+      <h3>构建最初的 Claude</h3>
+      <p>人类在笔记本电脑上编写代码和文档，AI 还是被开发的对象。</p>
+    </li>
+    <li class="rsi-stage" style="--stage-index: 1">
+      <div class="rsi-stage__node" aria-hidden="true"><span>💬</span></div>
+      <time>2023–2025</time>
+      <h3>Chatbot</h3>
+      <p>模型生成局部代码片段，人类复制、粘贴并整合结果。</p>
+    </li>
+    <li class="rsi-stage" style="--stage-index: 2">
+      <div class="rsi-stage__node" aria-hidden="true"><span>⌘</span></div>
+      <time>2025–2026</time>
+      <h3>Coding Agent</h3>
+      <p>Agent 可以直接读写代码库，从补全片段走向完成整个文件。</p>
+    </li>
+    <li class="rsi-stage" style="--stage-index: 3">
+      <div class="rsi-stage__node" aria-hidden="true"><span>↻</span></div>
+      <time>今天</time>
+      <h3>自主 Agent</h3>
+      <p>Agent 自己运行代码、观察结果，并把数小时工作委派给其他 Agent。</p>
+    </li>
+    <li class="rsi-stage" style="--stage-index: 4">
+      <div class="rsi-stage__node" aria-hidden="true"><span>∞</span></div>
+      <time>20XX?</time>
+      <h3>闭合改进循环</h3>
+      <p>AI 设计实验、训练并评估继任模型，模型改进开始反过来加速模型改进。</p>
+    </li>
+  </ol>
+</section>
+
+<style>
+  .rsi-evolution { position: relative; margin: 2.3em -40px; padding: 42px max(28px, calc((100vw - 1160px) / 2)); overflow: hidden; color: #26394b; background: linear-gradient(135deg, #f4eee2 0%, #fbf8f2 52%, #edf2ed 100%); border-block: 1px solid rgba(38,57,75,.12); }
+  .rsi-evolution__stages { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 18px; margin: 0; padding: 0; list-style: none; }
+  .rsi-evolution__line { position: absolute; top: 77px; right: max(28px, calc((100vw - 1160px) / 2)); left: max(28px, calc((100vw - 1160px) / 2)); height: 3px; overflow: hidden; background: rgba(38,57,75,.16); }
+  .rsi-evolution__line span { display: block; width: 100%; height: 100%; background: linear-gradient(90deg,#c75b45,#d99151,#4f796b); transform: scaleX(0); transform-origin: left; transition: transform 1.5s cubic-bezier(.2,.75,.2,1); }
+  .rsi-evolution.is-visible .rsi-evolution__line span { transform: scaleX(1); }
+  .rsi-stage { min-width: 0; margin: 0; opacity: 0; transform: translateY(18px); transition: opacity .55s ease calc(var(--stage-index) * 160ms), transform .55s ease calc(var(--stage-index) * 160ms); }
+  .rsi-evolution.is-visible .rsi-stage { opacity: 1; transform: none; }
+  .rsi-stage__node { display: grid; place-items: center; width: 50px; height: 50px; margin-bottom: 22px; color: #fff; background: #26394b; border: 5px solid #f7f3ea; border-radius: 50%; box-shadow: 0 0 0 1px rgba(38,57,75,.18), 0 7px 18px rgba(38,57,75,.14); font: 700 21px/1 system-ui,sans-serif; }
+  .rsi-stage:last-child .rsi-stage__node { background: #b84c3a; }
+  .rsi-stage time { display: block; margin-bottom: 7px; color: #9b4a3b; font: 700 12px/1.2 system-ui,sans-serif; letter-spacing: .06em; text-transform: uppercase; }
+  .rsi-stage h3 { margin: 0 0 8px; color: #26394b; font-size: 18px; line-height: 1.25; }
+  .rsi-stage p { margin: 0; color: #526171; font-size: 14px; line-height: 1.65; }
+  @media (max-width: 760px) {
+    .rsi-evolution { margin-inline: -20px; padding: 32px 24px; }
+    .rsi-evolution__stages { grid-template-columns: 1fr; gap: 28px; }
+    .rsi-evolution__line { top: 32px; bottom: 32px; left: 48px; width: 3px; height: auto; }
+    .rsi-evolution__line span { width: 100%; height: 100%; transform: scaleY(0); transform-origin: top; }
+    .rsi-evolution.is-visible .rsi-evolution__line span { transform: scaleY(1); }
+    .rsi-stage { display: grid; grid-template-columns: 52px minmax(0,1fr); column-gap: 18px; }
+    .rsi-stage__node { grid-row: 1 / 4; margin: 0; }
+    .rsi-stage time, .rsi-stage h3, .rsi-stage p { grid-column: 2; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rsi-evolution__line span, .rsi-stage { transition: none; transform: none; opacity: 1; }
+  }
+</style>
+<script>
+  (function () {
+    var blocks = document.querySelectorAll('[data-rsi-evolution]');
+    if (!('IntersectionObserver' in window)) {
+      blocks.forEach(function (block) { block.classList.add('is-visible'); });
+      return;
+    }
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+    blocks.forEach(function (block) { observer.observe(block); });
+  }());
+</script>
+
+
+<p>这条时间线可以压缩成三个层次：</p>
+
+<ol>
+<li><strong>生成（Generation）</strong>：模型给出文本和代码，人类负责执行；</li>
+<li><strong>行动（Agency）</strong>：模型可以操作代码库、运行工具并根据反馈迭代；</li>
+<li><strong>闭环（Closing the loop）</strong>：模型不只执行研发任务，还参与选择实验、训练模型和改进下一代系统。</li>
+</ol>
+
+<p>Chatbot 到 Coding Agent 的跨越，来自“能否直接作用于环境”；Autonomous Agent 到 RSI 的跨越，则取决于“能否独立选择值得推进的方向”。前者主要是执行问题，后者涉及研究品味、判断、验证和治理。</p>
+
+<h2 id="2-外部趋势-agent-可以可靠完成的任务正在变长">2. 外部趋势：Agent 可以可靠完成的任务正在变长</h2>
+
+<p>Anthropic 引用了 <a href="https://metr.org/time-horizons/">METR 的任务时长研究</a>：AI 能够以给定可靠度独立完成的任务时长，近期大约每四个月翻一倍，快于此前约七个月翻一倍的趋势。</p>
+
+<p>任务时长比“单题正确率”更接近 Agent 的真实价值。一道题答对，并不等于可以在数小时里维护计划、处理失败、使用工具并交付可验证结果。时间范围变长，意味着 AI 开始从局部助手进入完整工作单元。</p>
+
+<p>类似趋势也出现在软件工程与研究复现基准：</p>
+
+<ul>
+<li><a href="https://www.swebench.com/">SWE-bench</a> 要求模型根据真实 GitHub Issue 修改真实代码库并通过项目测试；</li>
+<li><a href="https://arxiv.org/abs/2409.11363">CORE-Bench</a> 测试模型能否利用论文的代码和数据复现实验结果；</li>
+<li>许多基准迅速接近饱和，迫使评测转向更开放、更长时、验证成本更高的任务。</li>
+</ul>
+
+<p>但公开 Benchmark 只能证明模型“有能力做什么”，无法说明它已经怎样改变前沿实验室的生产过程。更有价值的证据来自 Anthropic 内部。</p>
+
+<h2 id="3-anthropic-内部-claude-已经参与了多少工作">3. Anthropic 内部：Claude 已经参与了多少工作？</h2>
+
+<h3 id="3-1-超过-80-的合并代码由-claude-编写">3.1 超过 80% 的合并代码由 Claude 编写</h3>
+
+<p>Anthropic 披露，截至 2026 年 5 月，合并进内部代码库的代码中，<strong>超过 80% 可归因于 Claude</strong>。Claude Code 在 2025 年 2 月发布研究预览之前，这个比例还只有低个位数。</p>
+
+<p>与此同时，2026 年第二季度，典型工程师每天合并的代码量约为 2024 年的 <strong>8 倍</strong>。代码行数并不等于生产率：更多代码可能意味着维护负担，统计归因也并不完整。但两个时间拐点仍然很明显：</p>
+
+<ul>
+<li>2025 年，Claude 从“建议代码”转向“运行并修改代码”；</li>
+<li>2026 年，模型开始在更长时间范围内自主完成任务。</li>
+</ul>
+
+<p>这里最值得注意的不是“AI 写了多少行”，而是工程师的工作单位发生了变化：人不再逐行表达实现，而是定义目标、提供约束、检查结果，并同时引导更多工作流。</p>
+
+<h3 id="3-2-ai-开始完成原本不会被安排的工作">3.2 AI 开始完成原本不会被安排的工作</h3>
+
+<p>生产率提升不只表现为更快完成计划内任务。Anthropic 还观察到 Claude 承担了大量过去不会获得人力优先级的工作，例如探索性工具、长期积压的清理和跨越大量陌生上下文的修复。</p>
+
+<p>一个典型案例发生在 2026 年 4 月：Claude 提交了 <strong>800 多项修复</strong>，让一类 API 错误下降约一千倍。负责监督的工程师估计，如果由人类完成，可能需要四年。</p>
+
+<p>这揭示了 Agent 的另一类价值：它不只是替代昂贵的人类时间，还可以让那些“单项价值不低、但过于零碎和痛苦”的工作第一次变得经济可行。</p>
+
+<h3 id="3-3-代码质量从可用走向接近人类">3.3 代码质量从可用走向接近人类</h3>
+
+<p>“代码好”至少包含两个条件：</p>
+
+<ol>
+<li>能正确运行并解决问题；</li>
+<li>其他工程师能够理解、维护和继续构建。</li>
+</ol>
+
+<p>Anthropic 的内部观察是：员工在任务中纠正、重定向或接管 Claude 的频率持续下降，即使是缺少清晰规格的开放任务也在改善。原文判断，Claude 编写的代码在 2025 年末仍略逊于人类，到 2026 年已经大致接近人类水平，并可能继续超过。</p>
+
+<p>代码审查也因此改变。Anthropic 的变更在合并前会由自动 Claude Reviewer 检查缺陷和安全问题。回溯分析显示，如果历史变更都经过这类审查，大约可以提前发现导致 <code>claude.ai</code> 既往事故的 <strong>三分之一</strong> Bug。</p>
+
+<p>这形成了一个早期闭环：Claude 写代码，Claude 审查代码，人类从逐行生产转向监督两套相互制约的模型流程。不过，“模型审模型”不能替代外部测试、权限隔离和独立评估，否则同源错误也可能被共同忽略。</p>
+
+<h2 id="4-从工程执行到研究执行">4. 从工程执行到研究执行</h2>
+
+<p>构建前沿模型大致包含两类工作：</p>
+
+<ul>
+<li><strong>Engineering</strong>：写代码、建设基础设施、运行并维护训练系统；</li>
+<li><strong>Research</strong>：选择问题、设计实验、解释结果并决定下一步。</li>
+</ul>
+
+<p>Claude 在工程执行上进展更快，但 Anthropic 的案例表明，它也正在进入实验循环。</p>
+
+<h3 id="4-1-在目标明确时-实验优化已表现出超人能力">4.1 在目标明确时，实验优化已表现出超人能力</h3>
+
+<p>Anthropic 在发布模型时会运行一个固定测试：给 Claude 一段训练小模型的代码，在保持正确性的前提下尽可能加速。模型需要反复重写、执行、计时、判断瓶颈，再进入下一轮。</p>
+
+<p>在同类设置中：</p>
+
+<ul>
+<li>2025 年 5 月，Claude Opus 4 平均把起始代码加速约 <strong>3 倍</strong>；</li>
+<li>2026 年 4 月，Claude Mythos Preview 达到约 <strong>52 倍</strong>；</li>
+<li>熟练人类研究员花 4–8 小时，通常达到约 <strong>4 倍</strong>。</li>
+</ul>
+
+<p>绝对倍数依赖起始代码有多少优化空间，不能直接理解为真实前沿训练整体加速 52 倍。更可靠的信号是：在目标和正确性检查都预先给定时，模型在一年内从“有帮助”走向了明显超过人类的搜索与执行能力。</p>
+
+<h3 id="4-2-agent-已能自己设计一组实验-但问题仍由人选择">4.2 Agent 已能自己设计一组实验，但问题仍由人选择</h3>
+
+<p>在一项弱模型监督强模型的开放研究中，Claude Agent 提出假设、并行实验、共享发现并迭代方案。两名人类研究者在一周左右恢复了理论性能差距的约 23%，Agent 使用约 800 小时累计运行时间和 1.8 万美元算力，恢复了约 97%。</p>
+
+<p>这个结果很强，但边界同样关键：</p>
+
+<ul>
+<li>人类选择了研究问题；</li>
+<li>人类定义了评分规则和成功边界；</li>
+<li>结果没有干净地迁移到生产规模模型；</li>
+<li>大量并行算力并不等价于更少的现实成本。</li>
+</ul>
+
+<p>因此，Claude 已经能够在“给定问题空间”中组织研究，却还没有证明自己可以稳定判断“哪个问题最值得研究”。</p>
+
+<h2 id="5-真正缺失的一环-research-taste">5. 真正缺失的一环：Research Taste</h2>
+
+<p>Anthropic 用员工成长路径解释当前边界：</p>
+
+<table>
+<thead>
+<tr>
+<th>工作层次</th>
+<th>示例</th>
+<th>Claude 当前位置</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>执行明确任务</td>
+<td>“修复导出按钮”</td>
+<td>已非常强</td>
+</tr>
+
+<tr>
+<td>根据目标设计方法</td>
+<td>“调查高负载下网络为何变慢”</td>
+<td>快速提升</td>
+</tr>
+
+<tr>
+<td>选择值得解决的问题</td>
+<td>“下季度应该构建什么？”</td>
+<td>人类仍有明显优势</td>
+</tr>
+</tbody>
+</table>
+
+<p>当写代码、运行实验和整理结果的边际人力成本接近零，稀缺资源就从执行转向方向：哪些结果可信？哪个异常值得追踪？何时应该放弃一条路线？一个技术上成功的实验是否回答了真正重要的问题？</p>
+
+<p>这就是 <strong>Research Taste（研究品味）</strong>。它不是一个静态 Benchmark 分数，而是对问题价值、证据质量、隐含假设和长期后果的综合判断。</p>
+
+<p>所以，今天更准确的人机分工是：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">人类：选择目标、定义约束、判断证据、承担责任
+  ↓
+AI：实现、运行、搜索、并行化、记录与初步评价
+  ↓
+人类：校验方向，决定是否进入下一轮</code></pre></td></tr></table>
+</div>
+</div>
+<p>RSI 真正发生的条件，不是 AI 会写训练代码，而是它能可靠接管这个循环最上层的方向选择，同时建立足以防止错误和目标偏移不断累积的验证机制。</p>
+
+<h2 id="6-工作方式将怎样改变">6. 工作方式将怎样改变？</h2>
+
+<p>如果 AI 与人类代码质量达到相当水平，人类首先会从编写转向审查。但 AI 生成速度远高于人类审查速度，审查很快又会成为瓶颈。下一步只能是让 AI 承担第一层审查，让人类集中在异常、高风险变更和系统级判断上。</p>
+
+<p>同样的变化会发生在研究中：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">过去：人提出一个想法 → 人实现一个实验 → 人等待结果 → 人分析
+
+现在：人提出方向 → 多个 Agent 并行实现与实验 → Evaluator 筛选 → 人判断
+
+未来：AI 生成候选方向 → AI 实验与交叉验证 → 人监督目标、风险与停止条件</code></pre></td></tr></table>
+</div>
+</div>
+<p>即使 AI 永远没有完全成熟的研究品味，组织仍可能获得复合加速：人类只处理个位数比例的方向性工作，每位研究者同时引导远多于过去的实验。但根据 Amdahl 定律，一个环节加速后，瓶颈会转移到尚未加速的环节——评测、算力、电力、数据、硬件生产、组织决策与安全审查都会成为新的上限。</p>
+
+<h2 id="7-三种可能的未来">7. 三种可能的未来</h2>
+
+<h3 id="未来一-能力曲线进入平台期-但今天的能力广泛扩散">未来一：能力曲线进入平台期，但今天的能力广泛扩散</h3>
+
+<p>当前趋势可能是 S 曲线的一部分。规模化收益减弱后，进一步突破可能需要 Transformer 之外的新架构或新的训练范式。</p>
+
+<p>即便模型能力停在今天，扩散仍足以改变大量知识工作。多数组织尚未完成流程重构，因此“现有能力被真正使用”本身仍有很长的生产率释放期。</p>
+
+<h3 id="未来二-持续复合加速-但人类保留方向权">未来二：持续复合加速，但人类保留方向权</h3>
+
+<p>AI 研发被大幅自动化，人类继续决定问题、评价结果并批准下一阶段。实验室会像一个由少量人类负责人监督的大规模虚拟研究组织，执行速度越来越接近算力速度。</p>
+
+<p>这可能是最保守、也最容易低估的情景。它不要求 AI 完全替代研究者，只要求每位研究者管理的有效 Agent 数量不断增加。</p>
+
+<h3 id="未来三-完整递归自我改进">未来三：完整递归自我改进</h3>
+
+<p>AI 可以设计继任模型、修改训练系统、运行训练、评价新模型，再决定下一轮改进。此时，AI 进步速度主要受制于算力、能源、芯片、数据与验证，而不是人类研究工时。</p>
+
+<p>这不意味着整个社会会立即以同样速度变化。智能可以加快药物设计，却不能压缩长期副作用观察所需的真实时间；可以改进政策分析，却不能让制度信任在一夜之间形成；可以优化机器人，却仍受工厂和供应链约束。</p>
+
+<p>因此未来可能出现强烈的不均匀性：上游“虚拟实验室”按计算速度迭代，下游世界仍按生物、物理、制度和关系的速度运行。</p>
+
+<h2 id="8-我对这条趋势的进一步思考">8. 我对这条趋势的进一步思考</h2>
+
+<h3 id="8-1-rsi-更像系统能力-而不是单一模型能力">8.1 RSI 更像系统能力，而不是单一模型能力</h3>
+
+<p>完整闭环需要模型之外的一整套基础设施：代码与实验环境、长期记忆、任务调度、独立 Evaluator、权限控制、可追溯日志、模型训练平台以及明确的停止机制。因此，RSI 不会只是某次模型发布中突然出现的一个能力开关，更可能是模型与 Harness、算力和组织流程共同跨过阈值。</p>
+
+<h3 id="8-2-加速会先表现为并行化-而不是-一个超级研究员">8.2 加速会先表现为并行化，而不是“一个超级研究员”</h3>
+
+<p>短期最现实的变化，是一个人同时监督几十或上百个持续工作的 Agent。它们搜索不同方向、复现实验、检查失败案例并维护基础设施。单个 Agent 不必拥有完美研究品味，只要并行候选足够多、筛选机制足够好，也能显著扩大搜索空间。</p>
+
+<h3 id="8-3-验证能力必须至少和生成能力同步增长">8.3 验证能力必须至少和生成能力同步增长</h3>
+
+<p>当实验和代码生成便宜后，错误结果也会变得更便宜、更大量。系统最危险的失败不是明显崩溃，而是一个看似合理的错误被下一代模型继承、放大并继续优化。</p>
+
+<p>所以未来最重要的 Agent 未必是 Generator，而可能是：</p>
+
+<ul>
+<li>能独立复现实验的 Verifier；</li>
+<li>主动寻找反例的 Red Team Agent；</li>
+<li>检查数据污染与评测泄漏的 Auditor；</li>
+<li>对训练过程和模型行为进行持续监控的 Safety Agent。</li>
+</ul>
+
+<h3 id="8-4-人类角色会从生产者转向治理者">8.4 人类角色会从生产者转向治理者</h3>
+
+<p>如果“做”越来越由 AI 完成，人类的核心价值会向目标设定、价值判断、责任承担和停止权迁移。问题不再只是“AI 能不能发现更好的模型”，而是：谁定义“更好”？谁有权启动下一轮训练？出现哪些信号必须暂停？不同实验室如何验证彼此确实遵守限制？</p>
+
+<p>技术闭环越完整，治理闭环就越不能缺席。</p>
+
+<h2 id="9-结语-我们尚未进入闭环-但已经进入反馈阶段">9. 结语：我们尚未进入闭环，但已经进入反馈阶段</h2>
+
+<p>Anthropic 的内部数据并不能证明递归自我改进必然发生，也不能直接外推到所有公司。代码行数、员工自评和内部 Judge 都有局限，公开材料也来自对这条趋势有直接利益关系的前沿实验室。</p>
+
+<p>但把所有证据放在一起，一个方向已经很清楚：</p>
+
+<blockquote>
+<p>AI 正从“帮助人类开发 AI”，走向“承担越来越完整的 AI 开发循环”。</p>
+</blockquote>
+
+<p>今天，人类仍然选择问题、设定成功标准并判断结果；Claude 已经大量承担实现、实验、修复、审查和局部方向建议。未来真正决定是否进入 RSI 的，不只是模型智力，而是研究判断能否被可靠自动化，以及验证、控制和协调机制能否赶上生成与执行的速度。</p>
+
+<p>我们还没有闭合循环，但反馈已经开始。</p>
+
+<h2 id="参考资料">参考资料</h2>
+
+<ul>
+<li><a href="https://www.anthropic.com/institute/recursive-self-improvement">Anthropic Institute: When AI builds itself</a></li>
+<li><a href="https://metr.org/time-horizons/">METR: Measuring AI ability to complete long tasks</a></li>
+<li><a href="https://www.swebench.com/">SWE-bench</a></li>
+<li><a href="https://arxiv.org/abs/2409.11363">CORE-Bench: Fostering the Credibility of Published Research Through a Computational Reproducibility Agent Benchmark</a></li>
+</ul>
+
+<blockquote>
+<p>数据说明：本文引用的 Anthropic 内部指标以原文披露时点为准；原文包含截至 2026 年 9 月 18 日的更新。内部统计与案例应被视为趋势证据，而不是对所有组织都成立的普遍生产率测量。</p>
+</blockquote>
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">文章作者</span>
+    <span class="item-content">zhengxz</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">上次更新</span>
+    <span class="item-content">
+        2026-09-28
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/anthropic/">Anthropic</a>
+          <a href="/tags/claude/">Claude</a>
+          <a href="/tags/recursive-self-improvement/">Recursive Self-Improvement</a>
+          <a href="/tags/autonomous-agents/">Autonomous Agents</a>
+          <a href="/tags/ai-rd/">AI R&amp;D</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/private-ai-layer-on-base-models/">
+            <span class="next-text nav-default">未来 5—10 年的 AI 架构推演：Base Model、个人智能与企业私有能力层</span>
+            <span class="next-text nav-mobile">下一篇</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+  <a href="https://zheng-bobo.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" href="https://gohugo.io">Hugo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2019 - 
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span>zhengxz</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

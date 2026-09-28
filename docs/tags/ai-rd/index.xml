@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>AI R&amp;D on Blowing in the wind</title>
+    <link>https://zheng-bobo.github.io/tags/ai-rd/</link>
+    <description>Recent content in AI R&amp;D on Blowing in the wind</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Mon, 28 Sep 2026 09:00:00 +0200</lastBuildDate>
+    
+	<atom:link href="https://zheng-bobo.github.io/tags/ai-rd/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>当 AI 开始构建自己：Anthropic 内部实践与递归自我改进的未来</title>
+      <link>https://zheng-bobo.github.io/post/anthropic-recursive-self-improvement/</link>
+      <pubDate>Mon, 28 Sep 2026 09:00:00 +0200</pubDate>
+      
+      <guid>https://zheng-bobo.github.io/post/anthropic-recursive-self-improvement/</guid>
+      <description>&lt;p&gt;Anthropic 内部正在发生一个值得关注的变化：AI 不再只是被研究和开发的产品，也开始参与开发 AI 的过程。从补全代码，到自主修改代码库、运行实验、组织并行 Agent，Claude 正逐渐进入模型研发循环本身。&lt;/p&gt;
+
+&lt;p&gt;如果这条路径继续延伸，终点可能是 &lt;strong&gt;Recursive Self-Improvement（递归自我改进，RSI）&lt;/strong&gt;：一个 AI 系统能够自主设计、训练和评估自己的继任者，让“模型进步”本身成为下一轮模型进步的加速器。&lt;/p&gt;
+
+&lt;p&gt;本文根据我的笔记与 Anthropic Institute 的文章 &lt;a href=&#34;https://www.anthropic.com/institute/recursive-self-improvement&#34;&gt;When AI builds itself&lt;/a&gt; 整理。重点不是断言 RSI 一定发生，而是理解：Anthropic 内部已经把哪些工作交给 Claude，距离真正闭环还缺什么，以及这条趋势可能把人类角色推向哪里。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

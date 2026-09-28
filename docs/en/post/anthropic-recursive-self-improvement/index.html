@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>When AI Starts Building Itself: Anthropic&#39;s Internal Practice and the Future of Recursive Self-Improvement - Blowing in the wind</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="zhengxz" /><meta name="description" content="Something important is happening inside Anthropic: AI is no longer only the product being researched and built. It is increasingly participating in the process of building AI itself. Claude has progressed from completing code to editing repositories, running experiments, reviewing changes, and coordinating parallel agents.
+If this path continues, its endpoint could be recursive self-improvement (RSI): an AI system capable of designing, training, and evaluating its own successors, turning model progress into an accelerator of further model progress.
+This article organizes my notes around the Anthropic Institute essay When AI builds itself. It does not assume that RSI is inevitable. Instead, it asks what Anthropic has already delegated to Claude, what is still missing from a closed loop, and where this trajectory could move the human role.
+" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.59.1 with theme even" />
+
+
+<link rel="canonical" href="https://zheng-bobo.github.io/en/post/anthropic-recursive-self-improvement/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.4747d1be8010357c5daf4cd103b0bc1cff65936180045419874ea97f32138102.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/readability.css">
+<link rel="stylesheet" href="/css/about.css">
+
+
+<meta property="og:title" content="When AI Starts Building Itself: Anthropic&#39;s Internal Practice and the Future of Recursive Self-Improvement" />
+<meta property="og:description" content="Something important is happening inside Anthropic: AI is no longer only the product being researched and built. It is increasingly participating in the process of building AI itself. Claude has progressed from completing code to editing repositories, running experiments, reviewing changes, and coordinating parallel agents.
+
+If this path continues, its endpoint could be recursive self-improvement (RSI): an AI system capable of designing, training, and evaluating its own successors, turning model progress into an accelerator of further model progress.
+
+This article organizes my notes around the Anthropic Institute essay When AI builds itself. It does not assume that RSI is inevitable. Instead, it asks what Anthropic has already delegated to Claude, what is still missing from a closed loop, and where this trajectory could move the human role." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zheng-bobo.github.io/en/post/anthropic-recursive-self-improvement/" />
+<meta property="article:published_time" content="2026-09-28T09:00:00+02:00" />
+<meta property="article:modified_time" content="2026-09-28T09:00:00+02:00" /><meta property="og:site_name" content="Blowing in the wind" />
+<meta itemprop="name" content="When AI Starts Building Itself: Anthropic&#39;s Internal Practice and the Future of Recursive Self-Improvement">
+<meta itemprop="description" content="Something important is happening inside Anthropic: AI is no longer only the product being researched and built. It is increasingly participating in the process of building AI itself. Claude has progressed from completing code to editing repositories, running experiments, reviewing changes, and coordinating parallel agents.
+
+If this path continues, its endpoint could be recursive self-improvement (RSI): an AI system capable of designing, training, and evaluating its own successors, turning model progress into an accelerator of further model progress.
+
+This article organizes my notes around the Anthropic Institute essay When AI builds itself. It does not assume that RSI is inevitable. Instead, it asks what Anthropic has already delegated to Claude, what is still missing from a closed loop, and where this trajectory could move the human role.">
+
+
+<meta itemprop="datePublished" content="2026-09-28T09:00:00&#43;02:00" />
+<meta itemprop="dateModified" content="2026-09-28T09:00:00&#43;02:00" />
+<meta itemprop="wordCount" content="2706">
+
+
+
+<meta itemprop="keywords" content="Anthropic,Claude,Recursive Self-Improvement,Autonomous Agents,AI R&amp;D," />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="When AI Starts Building Itself: Anthropic&#39;s Internal Practice and the Future of Recursive Self-Improvement"/>
+<meta name="twitter:description" content="Something important is happening inside Anthropic: AI is no longer only the product being researched and built. It is increasingly participating in the process of building AI itself. Claude has progressed from completing code to editing repositories, running experiments, reviewing changes, and coordinating parallel agents.
+
+If this path continues, its endpoint could be recursive self-improvement (RSI): an AI system capable of designing, training, and evaluating its own successors, turning model progress into an accelerator of further model progress.
+
+This article organizes my notes around the Anthropic Institute essay When AI builds itself. It does not assume that RSI is inevitable. Instead, it asks what Anthropic has already delegated to Claude, what is still missing from a closed loop, and where this trajectory could move the human role."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/en/about/" class="logo">Bobo</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/en/">
+        <li class="mobile-menu-item">Blog</li>
+      </a><a href="/en/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/en/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/en/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+      
+        
+        
+        <li class="language-item ">
+          
+            <a href="/post/anthropic-recursive-self-improvement/" lang="zh-cn" hreflang="zh-cn">中文</a>
+          
+        </li>
+      
+        
+        
+        <li class="language-item active">
+          
+            <a href="/en/post/anthropic-recursive-self-improvement/" lang="en" hreflang="en">EN</a>
+          
+        </li>
+      
+    </ul>
+  </nav>
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/en/about/" class="logo">Bobo</a>
+</div>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+      
+        
+        
+        <li class="language-item ">
+          
+            <a href="/post/anthropic-recursive-self-improvement/" lang="zh-cn" hreflang="zh-cn">中文</a>
+          
+        </li>
+      
+        
+        
+        <li class="language-item active">
+          
+            <a href="/en/post/anthropic-recursive-self-improvement/" lang="en" hreflang="en">EN</a>
+          
+        </li>
+      
+    </ul>
+  </nav>
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/en/">Blog</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">When AI Starts Building Itself: Anthropic&#39;s Internal Practice and the Future of Recursive Self-Improvement</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2026-09-28 </span>
+        <div class="post-category">
+            <a href="/en/categories/ai-agents/"> AI Agents </a>
+            </div>
+          <span class="more-meta"> 2706 words </span>
+          <span class="more-meta"> 13 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#1-from-assistant-to-part-of-the-improvement-loop">1. From assistant to part of the improvement loop</a></li>
+<li><a href="#2-the-external-trend-reliable-task-horizons-are-expanding">2. The external trend: reliable task horizons are expanding</a></li>
+<li><a href="#3-how-much-work-is-claude-already-doing-inside-anthropic">3. How much work is Claude already doing inside Anthropic?</a>
+<ul>
+<li><a href="#3-1-more-than-80-of-merged-code-is-authored-by-claude">3.1 More than 80% of merged code is authored by Claude</a></li>
+<li><a href="#3-2-ai-makes-previously-uneconomic-work-possible">3.2 AI makes previously uneconomic work possible</a></li>
+<li><a href="#3-3-code-quality-is-approaching-human-parity">3.3 Code quality is approaching human parity</a></li>
+</ul></li>
+<li><a href="#4-from-engineering-execution-to-research-execution">4. From engineering execution to research execution</a>
+<ul>
+<li><a href="#4-1-with-a-fixed-objective-experimental-optimization-is-already-superhuman">4.1 With a fixed objective, experimental optimization is already superhuman</a></li>
+<li><a href="#4-2-agents-can-design-experiments-inside-a-chosen-problem">4.2 Agents can design experiments inside a chosen problem</a></li>
+</ul></li>
+<li><a href="#5-the-missing-piece-research-taste">5. The missing piece: research taste</a></li>
+<li><a href="#6-how-work-could-change">6. How work could change</a></li>
+<li><a href="#7-three-possible-futures">7. Three possible futures</a>
+<ul>
+<li><a href="#future-one-capabilities-plateau-but-today-s-systems-diffuse">Future one: capabilities plateau, but today&rsquo;s systems diffuse</a></li>
+<li><a href="#future-two-compounding-acceleration-with-humans-retaining-direction">Future two: compounding acceleration with humans retaining direction</a></li>
+<li><a href="#future-three-full-recursive-self-improvement">Future three: full recursive self-improvement</a></li>
+</ul></li>
+<li><a href="#8-further-implications">8. Further implications</a>
+<ul>
+<li><a href="#8-1-rsi-is-a-system-capability-not-a-single-model-capability">8.1 RSI is a system capability, not a single-model capability</a></li>
+<li><a href="#8-2-acceleration-will-first-look-like-parallelism">8.2 Acceleration will first look like parallelism</a></li>
+<li><a href="#8-3-verification-must-scale-at-least-as-quickly-as-generation">8.3 Verification must scale at least as quickly as generation</a></li>
+<li><a href="#8-4-humans-move-from-producers-toward-governors">8.4 Humans move from producers toward governors</a></li>
+</ul></li>
+<li><a href="#9-conclusion-not-a-closed-loop-yet-but-already-a-feedback-loop">9. Conclusion: not a closed loop yet, but already a feedback loop</a></li>
+<li><a href="#references">References</a></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>Something important is happening inside Anthropic: AI is no longer only the product being researched and built. It is increasingly participating in the process of building AI itself. Claude has progressed from completing code to editing repositories, running experiments, reviewing changes, and coordinating parallel agents.</p>
+
+<p>If this path continues, its endpoint could be <strong>recursive self-improvement (RSI)</strong>: an AI system capable of designing, training, and evaluating its own successors, turning model progress into an accelerator of further model progress.</p>
+
+<p>This article organizes my notes around the Anthropic Institute essay <a href="https://www.anthropic.com/institute/recursive-self-improvement">When AI builds itself</a>. It does not assume that RSI is inevitable. Instead, it asks what Anthropic has already delegated to Claude, what is still missing from a closed loop, and where this trajectory could move the human role.</p>
+
+<h2 id="1-from-assistant-to-part-of-the-improvement-loop">1. From assistant to part of the improvement loop</h2>
+
+<p>Anthropic describes five stages in AI&rsquo;s involvement in its own development. The important change is not merely that models produce more code. The interface between the model and its environment is closing: systems move from giving suggestions to acting, observing results, revising plans, and delegating work to other agents.</p>
+
+<section class="rsi-evolution" data-rsi-evolution aria-label="Five stages in the evolution of AI development">
+  <div class="rsi-evolution__line" aria-hidden="true"><span></span></div>
+  <ol class="rsi-evolution__stages">
+    <li class="rsi-stage" style="--stage-index: 0">
+      <div class="rsi-stage__node" aria-hidden="true"><span>⌨</span></div>
+      <time>2021–2023</time>
+      <h3>Building the first Claude</h3>
+      <p>People wrote code and documentation on laptops; AI was the object being built.</p>
+    </li>
+    <li class="rsi-stage" style="--stage-index: 1">
+      <div class="rsi-stage__node" aria-hidden="true"><span>💬</span></div>
+      <time>2023–2025</time>
+      <h3>Chatbots</h3>
+      <p>Models generated local snippets; people copied, pasted, and integrated the output.</p>
+    </li>
+    <li class="rsi-stage" style="--stage-index: 2">
+      <div class="rsi-stage__node" aria-hidden="true"><span>⌘</span></div>
+      <time>2025–2026</time>
+      <h3>Coding agents</h3>
+      <p>Agents read and edited repositories directly, progressing from snippets to entire files.</p>
+    </li>
+    <li class="rsi-stage" style="--stage-index: 3">
+      <div class="rsi-stage__node" aria-hidden="true"><span>↻</span></div>
+      <time>Today</time>
+      <h3>Autonomous agents</h3>
+      <p>Agents run code, observe results, and delegate hours of work to other agents.</p>
+    </li>
+    <li class="rsi-stage" style="--stage-index: 4">
+      <div class="rsi-stage__node" aria-hidden="true"><span>∞</span></div>
+      <time>20XX?</time>
+      <h3>Closing the loop</h3>
+      <p>AI designs experiments, trains and evaluates successor models, allowing model progress to accelerate model progress.</p>
+    </li>
+  </ol>
+</section>
+
+<style>
+  .rsi-evolution { position: relative; margin: 2.3em -40px; padding: 42px max(28px, calc((100vw - 1160px) / 2)); overflow: hidden; color: #26394b; background: linear-gradient(135deg, #f4eee2 0%, #fbf8f2 52%, #edf2ed 100%); border-block: 1px solid rgba(38,57,75,.12); }
+  .rsi-evolution__stages { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 18px; margin: 0; padding: 0; list-style: none; }
+  .rsi-evolution__line { position: absolute; top: 77px; right: max(28px, calc((100vw - 1160px) / 2)); left: max(28px, calc((100vw - 1160px) / 2)); height: 3px; overflow: hidden; background: rgba(38,57,75,.16); }
+  .rsi-evolution__line span { display: block; width: 100%; height: 100%; background: linear-gradient(90deg,#c75b45,#d99151,#4f796b); transform: scaleX(0); transform-origin: left; transition: transform 1.5s cubic-bezier(.2,.75,.2,1); }
+  .rsi-evolution.is-visible .rsi-evolution__line span { transform: scaleX(1); }
+  .rsi-stage { min-width: 0; margin: 0; opacity: 0; transform: translateY(18px); transition: opacity .55s ease calc(var(--stage-index) * 160ms), transform .55s ease calc(var(--stage-index) * 160ms); }
+  .rsi-evolution.is-visible .rsi-stage { opacity: 1; transform: none; }
+  .rsi-stage__node { display: grid; place-items: center; width: 50px; height: 50px; margin-bottom: 22px; color: #fff; background: #26394b; border: 5px solid #f7f3ea; border-radius: 50%; box-shadow: 0 0 0 1px rgba(38,57,75,.18), 0 7px 18px rgba(38,57,75,.14); font: 700 21px/1 system-ui,sans-serif; }
+  .rsi-stage:last-child .rsi-stage__node { background: #b84c3a; }
+  .rsi-stage time { display: block; margin-bottom: 7px; color: #9b4a3b; font: 700 12px/1.2 system-ui,sans-serif; letter-spacing: .06em; text-transform: uppercase; }
+  .rsi-stage h3 { margin: 0 0 8px; color: #26394b; font-size: 18px; line-height: 1.25; }
+  .rsi-stage p { margin: 0; color: #526171; font-size: 14px; line-height: 1.65; }
+  @media (max-width: 760px) {
+    .rsi-evolution { margin-inline: -20px; padding: 32px 24px; }
+    .rsi-evolution__stages { grid-template-columns: 1fr; gap: 28px; }
+    .rsi-evolution__line { top: 32px; bottom: 32px; left: 48px; width: 3px; height: auto; }
+    .rsi-evolution__line span { width: 100%; height: 100%; transform: scaleY(0); transform-origin: top; }
+    .rsi-evolution.is-visible .rsi-evolution__line span { transform: scaleY(1); }
+    .rsi-stage { display: grid; grid-template-columns: 52px minmax(0,1fr); column-gap: 18px; }
+    .rsi-stage__node { grid-row: 1 / 4; margin: 0; }
+    .rsi-stage time, .rsi-stage h3, .rsi-stage p { grid-column: 2; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rsi-evolution__line span, .rsi-stage { transition: none; transform: none; opacity: 1; }
+  }
+</style>
+<script>
+  (function () {
+    var blocks = document.querySelectorAll('[data-rsi-evolution]');
+    if (!('IntersectionObserver' in window)) {
+      blocks.forEach(function (block) { block.classList.add('is-visible'); });
+      return;
+    }
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+    blocks.forEach(function (block) { observer.observe(block); });
+  }());
+</script>
+
+
+<p>The timeline can be compressed into three layers:</p>
+
+<ol>
+<li><strong>Generation</strong>: the model produces text or code; a person executes it.</li>
+<li><strong>Agency</strong>: the model operates tools and repositories and iterates on environmental feedback.</li>
+<li><strong>Closing the loop</strong>: the model helps select experiments, train systems, and improve the next generation.</li>
+</ol>
+
+<p>The jump from chatbot to coding agent is mainly about acting on the environment. The jump from autonomous agents to RSI depends on independently choosing directions worth pursuing. The first is largely an execution problem; the second requires research taste, judgment, verification, and governance.</p>
+
+<h2 id="2-the-external-trend-reliable-task-horizons-are-expanding">2. The external trend: reliable task horizons are expanding</h2>
+
+<p>Anthropic cites <a href="https://metr.org/time-horizons/">METR&rsquo;s task-horizon research</a>: the duration of tasks AI can complete independently at a specified reliability has recently doubled roughly every four months, faster than the earlier trend of about seven months.</p>
+
+<p>Task duration is closer to real agent value than single-question accuracy. Solving one problem is different from maintaining a plan for hours, recovering from failures, using tools, and delivering a verifiable result. Longer horizons move AI from local assistance toward complete units of work.</p>
+
+<p>The same direction appears in engineering and research-reproduction benchmarks:</p>
+
+<ul>
+<li><a href="https://www.swebench.com/">SWE-bench</a> asks systems to fix real GitHub issues in real repositories and pass project tests.</li>
+<li><a href="https://arxiv.org/abs/2409.11363">CORE-Bench</a> tests whether systems can reproduce published research from its code and data.</li>
+<li>Rapid saturation is pushing evaluation toward more open-ended, long-horizon tasks with expensive verification.</li>
+</ul>
+
+<p>Public benchmarks reveal what systems can do, but not how they are changing the production process at a frontier lab. Anthropic&rsquo;s internal evidence is therefore more revealing.</p>
+
+<h2 id="3-how-much-work-is-claude-already-doing-inside-anthropic">3. How much work is Claude already doing inside Anthropic?</h2>
+
+<h3 id="3-1-more-than-80-of-merged-code-is-authored-by-claude">3.1 More than 80% of merged code is authored by Claude</h3>
+
+<p>Anthropic reports that, as of May 2026, <strong>more than 80% of code merged into its codebase was attributable to Claude</strong>. Before Claude Code entered research preview in February 2025, the figure was in the low single digits.</p>
+
+<p>In Q2 2026, the typical engineer was merging roughly <strong>8 times</strong> as much code per day as in 2024. Lines of code are not productivity: more code can create maintenance costs, and attribution is imperfect. Still, the timing shows two clear inflection points:</p>
+
+<ul>
+<li>In 2025, Claude moved from suggesting code to running and changing it.</li>
+<li>In 2026, models began working autonomously over longer horizons.</li>
+</ul>
+
+<p>The deeper change is the engineer&rsquo;s unit of work. Instead of expressing an implementation line by line, people increasingly define goals, provide constraints, review outcomes, and steer multiple concurrent workstreams.</p>
+
+<h3 id="3-2-ai-makes-previously-uneconomic-work-possible">3.2 AI makes previously uneconomic work possible</h3>
+
+<p>The uplift is not only faster completion of planned tasks. Anthropic reports that Claude performs exploratory tooling, deferred cleanup, and repairs spanning large amounts of unfamiliar context—work that often would not receive human priority.</p>
+
+<p>In April 2026, Claude shipped <strong>more than 800 fixes</strong> that reduced one class of API errors by roughly a factor of one thousand. The supervising engineer estimated that the same cleanup could have taken a human four years.</p>
+
+<p>This is a distinct form of agent value: not simply replacing expensive labor, but making fragmented, tedious, individually valuable tasks economical for the first time.</p>
+
+<h3 id="3-3-code-quality-is-approaching-human-parity">3.3 Code quality is approaching human parity</h3>
+
+<p>“Good code” has at least two requirements:</p>
+
+<ol>
+<li>It works and solves the problem.</li>
+<li>Another engineer can understand, maintain, and extend it.</li>
+</ol>
+
+<p>Anthropic says the frequency with which staff correct, redirect, or take over from Claude has declined for a year, including on underspecified, open-ended tasks. The essay characterizes Claude-written code as somewhat worse than human code in late 2025 and roughly at parity in 2026, with further improvement expected.</p>
+
+<p>Review has changed as well. Proposed changes are inspected by an automated Claude reviewer for bugs and security issues before merging. A retrospective analysis suggested that such review on every historical change could have caught roughly <strong>one third</strong> of the bugs behind past <code>claude.ai</code> incidents.</p>
+
+<p>This is an early loop: Claude writes code, Claude reviews it, and humans move from line-by-line production toward supervising mutually constraining model workflows. Model-on-model review, however, cannot replace external tests, isolation, and independent evaluation; correlated errors may otherwise survive both stages.</p>
+
+<h2 id="4-from-engineering-execution-to-research-execution">4. From engineering execution to research execution</h2>
+
+<p>Frontier-model development contains two broad forms of work:</p>
+
+<ul>
+<li><strong>Engineering</strong>: code, infrastructure, training systems, and operations.</li>
+<li><strong>Research</strong>: selecting questions, designing experiments, interpreting evidence, and choosing what to try next.</li>
+</ul>
+
+<p>Claude has advanced faster in engineering execution, but Anthropic&rsquo;s examples show it entering the experimental loop as well.</p>
+
+<h3 id="4-1-with-a-fixed-objective-experimental-optimization-is-already-superhuman">4.1 With a fixed objective, experimental optimization is already superhuman</h3>
+
+<p>For each model release, Anthropic runs a fixed test: Claude receives code that trains a small model and must make it as fast as possible while preserving correctness. It repeatedly rewrites, runs, times, diagnoses, and tries again.</p>
+
+<p>In this comparable setup:</p>
+
+<ul>
+<li>Claude Opus 4 averaged about a <strong>3×</strong> speedup in May 2025.</li>
+<li>Claude Mythos Preview reached about <strong>52×</strong> in April 2026.</li>
+<li>A skilled human researcher typically reached around <strong>4×</strong> in four to eight hours.</li>
+</ul>
+
+<p>The absolute multiple depends on how much headroom exists in the starting code and should not be interpreted as a 52× acceleration of frontier training. The reliable signal is the like-for-like shift: with goals and correctness checks fixed in advance, the model moved from helpful to clearly beyond human search and execution within a year.</p>
+
+<h3 id="4-2-agents-can-design-experiments-inside-a-chosen-problem">4.2 Agents can design experiments inside a chosen problem</h3>
+
+<p>In an open weak-to-strong supervision project, Claude agents proposed hypotheses, ran parallel experiments, shared findings, and iterated. Two human researchers recovered roughly 23% of the theoretical performance gap in about a week; the agents recovered 97% over about 800 cumulative hours and $18,000 of compute.</p>
+
+<p>The boundaries matter as much as the result:</p>
+
+<ul>
+<li>Humans chose the research problem.</li>
+<li>Humans defined the scoring rubric and success bounds.</li>
+<li>The result did not transfer cleanly to production-scale models.</li>
+<li>Massive parallel compute is not the same as zero real-world cost.</li>
+</ul>
+
+<p>Claude can organize research inside a given problem space. It has not yet demonstrated consistently good judgment about which problem is most worth pursuing.</p>
+
+<h2 id="5-the-missing-piece-research-taste">5. The missing piece: research taste</h2>
+
+<p>Anthropic frames the current boundary through a career ladder:</p>
+
+<table>
+<thead>
+<tr>
+<th>Work level</th>
+<th>Example</th>
+<th>Claude today</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Execute a specified task</td>
+<td>“Fix the export button”</td>
+<td>Already very strong</td>
+</tr>
+
+<tr>
+<td>Design a method from a goal</td>
+<td>“Find why the network slows under load”</td>
+<td>Improving rapidly</td>
+</tr>
+
+<tr>
+<td>Choose the problem itself</td>
+<td>“What should we build next quarter?”</td>
+<td>Humans retain a clear advantage</td>
+</tr>
+</tbody>
+</table>
+
+<p>When implementation, experimentation, and reporting approach zero marginal human time, direction becomes scarce. Which result should be trusted? Which anomaly deserves investigation? When is a path a dead end? Did a technically successful experiment answer an important question?</p>
+
+<p>This is <strong>research taste</strong>. It is not a static benchmark score, but integrated judgment about problem value, evidence quality, hidden assumptions, and long-term consequences.</p>
+
+<p>Today&rsquo;s division of labor is therefore better represented as:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Humans: choose goals, define constraints, judge evidence, own responsibility
+  ↓
+AI: implement, run, search, parallelize, record, and perform first-pass evaluation
+  ↓
+Humans: validate direction and decide whether to continue</code></pre></td></tr></table>
+</div>
+</div>
+<p>RSI requires more than AI writing training code. It requires reliable control of the top of this loop—direction-setting—together with verification mechanisms that prevent errors and goal drift from compounding across generations.</p>
+
+<h2 id="6-how-work-could-change">6. How work could change</h2>
+
+<p>Once AI and human code quality reach parity, people first move from writing to reviewing. But AI can generate faster than people can inspect, making human review the next bottleneck. AI then performs first-line review, while people concentrate on anomalies, high-risk changes, and system-level judgment.</p>
+
+<p>Research follows the same pattern:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Past: human idea → human implementation → wait → human analysis
+
+Present: human direction → parallel agent experiments → evaluator filtering → human judgment
+
+Future: AI proposes directions → AI experiments and cross-validates → humans govern goals, risk, and stopping</code></pre></td></tr></table>
+</div>
+</div>
+<p>Even if AI never develops mature research taste, organizations can still see compounding acceleration: humans handle the single-digit fraction of direction-setting work while each researcher steers far more experiments. Under Amdahl&rsquo;s law, acceleration in one component merely moves the bottleneck elsewhere—evaluation, compute, electricity, data, hardware production, organizational decisions, and safety review all become limits.</p>
+
+<h2 id="7-three-possible-futures">7. Three possible futures</h2>
+
+<h3 id="future-one-capabilities-plateau-but-today-s-systems-diffuse">Future one: capabilities plateau, but today&rsquo;s systems diffuse</h3>
+
+<p>The current trajectory may be part of an S-curve. Diminishing scaling returns could make further progress depend on an architecture beyond Transformers or a new training paradigm.</p>
+
+<p>Even frozen capability would still transform knowledge work. Most organizations have not redesigned their processes around current systems, leaving a long runway for diffusion alone.</p>
+
+<h3 id="future-two-compounding-acceleration-with-humans-retaining-direction">Future two: compounding acceleration with humans retaining direction</h3>
+
+<p>AI development becomes substantially automated, but humans continue to select problems, judge results, and authorize the next stage. A lab starts to resemble a large virtual research organization supervised by a small number of human leads, with execution increasingly running at compute speed.</p>
+
+<p>This may be the conservative scenario most likely to be underestimated. AI need not fully replace researchers; each researcher only needs to steer a growing number of effective agents.</p>
+
+<h3 id="future-three-full-recursive-self-improvement">Future three: full recursive self-improvement</h3>
+
+<p>AI designs a successor, changes the training system, runs training, evaluates the new model, and selects the next improvement. Progress is then constrained primarily by compute, energy, chips, data, and verification—not by human research hours.</p>
+
+<p>Society would not necessarily accelerate uniformly. Intelligence may speed drug design but cannot compress years of safety observation; it may improve policy analysis but cannot create institutional trust overnight; it may optimize robots while remaining constrained by factories and supply chains.</p>
+
+<p>The future could therefore be sharply uneven: an upstream virtual lab iterates at computational speed while the downstream world still moves at biological, physical, institutional, and relational speed.</p>
+
+<h2 id="8-further-implications">8. Further implications</h2>
+
+<h3 id="8-1-rsi-is-a-system-capability-not-a-single-model-capability">8.1 RSI is a system capability, not a single-model capability</h3>
+
+<p>A closed loop requires code and experiment environments, long-term memory, orchestration, independent evaluators, permissions, traceable logs, a training platform, and explicit stopping mechanisms. RSI is unlikely to appear as a single switch in one model release; it is more likely to emerge when models, harnesses, compute, and organizational processes cross a threshold together.</p>
+
+<h3 id="8-2-acceleration-will-first-look-like-parallelism">8.2 Acceleration will first look like parallelism</h3>
+
+<p>The near-term change is one person supervising dozens or hundreds of persistent agents exploring alternatives, reproducing experiments, checking failures, and maintaining infrastructure. An individual agent does not need perfect research taste if enough candidates are explored and the selection system is strong.</p>
+
+<h3 id="8-3-verification-must-scale-at-least-as-quickly-as-generation">8.3 Verification must scale at least as quickly as generation</h3>
+
+<p>When code and experiments become cheap, wrong results become cheap and abundant too. The dangerous failure is not an obvious crash but a plausible mistake inherited, amplified, and optimized by a successor.</p>
+
+<p>Some of the most important agents may therefore be:</p>
+
+<ul>
+<li>Verifiers that independently reproduce experiments.</li>
+<li>Red-team agents that search for counterexamples.</li>
+<li>Auditors that detect contamination and evaluation leakage.</li>
+<li>Safety agents that continuously monitor training and behavior.</li>
+</ul>
+
+<h3 id="8-4-humans-move-from-producers-toward-governors">8.4 Humans move from producers toward governors</h3>
+
+<p>As AI performs more of the doing, the human role shifts toward objective-setting, value judgment, accountability, and the authority to stop. The central question becomes not only whether AI can discover a better model, but who defines “better,” who can begin the next training run, what signals require a pause, and how labs verify that others follow shared limits.</p>
+
+<p>The more complete the technical loop becomes, the less optional the governance loop is.</p>
+
+<h2 id="9-conclusion-not-a-closed-loop-yet-but-already-a-feedback-loop">9. Conclusion: not a closed loop yet, but already a feedback loop</h2>
+
+<p>Anthropic&rsquo;s internal data does not prove RSI is inevitable and cannot automatically generalize to every organization. Lines of code, employee estimates, and internal judges all have limitations, and the evidence comes from a frontier lab with a direct stake in the trajectory.</p>
+
+<p>Taken together, however, the direction is clear:</p>
+
+<blockquote>
+<p>AI is moving from helping humans develop AI toward owning increasingly complete portions of the AI-development cycle.</p>
+</blockquote>
+
+<p>Humans still choose problems, set success criteria, and judge results. Claude already performs much of the implementation, experimentation, repair, review, and local steering. Whether this becomes RSI will depend not only on model intelligence, but on whether research judgment can be automated reliably—and whether verification, control, and coordination can keep pace with generation and execution.</p>
+
+<p>The loop is not closed, but the feedback has begun.</p>
+
+<h2 id="references">References</h2>
+
+<ul>
+<li><a href="https://www.anthropic.com/institute/recursive-self-improvement">Anthropic Institute: When AI builds itself</a></li>
+<li><a href="https://metr.org/time-horizons/">METR: Measuring AI ability to complete long tasks</a></li>
+<li><a href="https://www.swebench.com/">SWE-bench</a></li>
+<li><a href="https://arxiv.org/abs/2409.11363">CORE-Bench: Fostering the Credibility of Published Research Through a Computational Reproducibility Agent Benchmark</a></li>
+</ul>
+
+<blockquote>
+<p>Data note: Anthropic&rsquo;s internal metrics are reported as of the dates stated in the source, which includes an update through September 18, 2026. They are evidence of a trend, not universal productivity measurements for every organization.</p>
+</blockquote>
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">zhengxz</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2026-09-28
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/en/tags/anthropic/">Anthropic</a>
+          <a href="/en/tags/claude/">Claude</a>
+          <a href="/en/tags/recursive-self-improvement/">Recursive Self-Improvement</a>
+          <a href="/en/tags/autonomous-agents/">Autonomous Agents</a>
+          <a href="/en/tags/ai-rd/">AI R&amp;D</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/en/post/private-ai-layer-on-base-models/">
+            <span class="next-text nav-default">The Next 5–10 Years of AI: Base Models, Personal Intelligence, and Private Enterprise Layers</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+  <a href="https://zheng-bobo.github.io/en/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2019 - 
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span>zhengxz</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

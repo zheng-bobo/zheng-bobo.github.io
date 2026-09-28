@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Autonomous Agents on Blowing in the wind</title>
+    <link>https://zheng-bobo.github.io/en/tags/autonomous-agents/</link>
+    <description>Recent content in Autonomous Agents on Blowing in the wind</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 28 Sep 2026 09:00:00 +0200</lastBuildDate>
+    
+	<atom:link href="https://zheng-bobo.github.io/en/tags/autonomous-agents/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>When AI Starts Building Itself: Anthropic&#39;s Internal Practice and the Future of Recursive Self-Improvement</title>
+      <link>https://zheng-bobo.github.io/en/post/anthropic-recursive-self-improvement/</link>
+      <pubDate>Mon, 28 Sep 2026 09:00:00 +0200</pubDate>
+      
+      <guid>https://zheng-bobo.github.io/en/post/anthropic-recursive-self-improvement/</guid>
+      <description>&lt;p&gt;Something important is happening inside Anthropic: AI is no longer only the product being researched and built. It is increasingly participating in the process of building AI itself. Claude has progressed from completing code to editing repositories, running experiments, reviewing changes, and coordinating parallel agents.&lt;/p&gt;
+
+&lt;p&gt;If this path continues, its endpoint could be &lt;strong&gt;recursive self-improvement (RSI)&lt;/strong&gt;: an AI system capable of designing, training, and evaluating its own successors, turning model progress into an accelerator of further model progress.&lt;/p&gt;
+
+&lt;p&gt;This article organizes my notes around the Anthropic Institute essay &lt;a href=&#34;https://www.anthropic.com/institute/recursive-self-improvement&#34;&gt;When AI builds itself&lt;/a&gt;. It does not assume that RSI is inevitable. Instead, it asks what Anthropic has already delegated to Claude, what is still missing from a closed loop, and where this trajectory could move the human role.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>
