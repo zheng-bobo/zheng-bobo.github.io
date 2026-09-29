@@ -1,7 +1,5 @@
 {{- define "content" -}}
   {{- $isChinese := eq .Site.Language.Lang "zh-cn" -}}
-  {{- $archiveStylesHash := md5 (readFile "static/css/readability.css") -}}
-  <link rel="stylesheet" href="{{ "css/readability.css" | relURL }}?v={{ $archiveStylesHash }}">
 
   <section id="posts" class="posts">
     {{- $paginator := .Paginate (where (where .Site.RegularPages "Type" "post") ".Params.hiddenfromhomepage" "!=" true) -}}

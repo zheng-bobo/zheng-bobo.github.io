@@ -5,12 +5,6 @@
 {{- $paginator := .Paginate $posts 5 -}}
 {{- $recentPosts := $paginator.Pages -}}
 {{- $isChinese := eq .Site.Language.Lang "zh-cn" -}}
-{{- $archiveStylesHash := md5 (readFile "static/css/readability.css") -}}
-
-{{/* The global custom stylesheet URL is stable and may still be cached after a deploy.
-     Reload it with a content hash on the archive page so this layout is never paired
-     with stale CSS. */}}
-<link rel="stylesheet" href="{{ "css/readability.css" | relURL }}?v={{ $archiveStylesHash }}">
 
 <style>
   /* Keep the requested sidebar layout inside narrower in-app browser panels. */
