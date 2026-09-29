@@ -53,7 +53,7 @@
 
 <meta itemprop="datePublished" content="2026-09-29T09:00:00&#43;02:00" />
 <meta itemprop="dateModified" content="2026-09-29T09:00:00&#43;02:00" />
-<meta itemprop="wordCount" content="6457">
+<meta itemprop="wordCount" content="6165">
 
 
 
@@ -184,7 +184,7 @@
         <div class="post-category">
             <a href="/categories/ai-agents/"> AI Agents </a>
             </div>
-          <span class="more-meta"> 约 6457 字 </span>
+          <span class="more-meta"> 约 6165 字 </span>
           <span class="more-meta"> 预计阅读 13 分钟 </span>
         
       </div>
@@ -197,7 +197,6 @@
 <ul>
 <li>
 <ul>
-<li><a href="#阅读地图-每种方法解决什么问题">阅读地图：每种方法解决什么问题？</a></li>
 <li><a href="#1-先定义边界-什么是-agentic-llm">1. 先定义边界：什么是 Agentic LLM？</a>
 <ul>
 <li><a href="#1-1-从训练模型到使用模型">1.1 从训练模型到使用模型</a></li>
@@ -264,91 +263,6 @@
 <p><strong>系列导航</strong>：<strong>（一）Reasoning</strong> · （二）Action（待续） · （三）Interaction（待续）</p>
 </blockquote>
 
-<h2 id="阅读地图-每种方法解决什么问题">阅读地图：每种方法解决什么问题？</h2>
-
-<p>这些方法并不是互相替代的“流派”。它们分别修补单次生成的不同弱点：</p>
-
-<table>
-<thead>
-<tr>
-<th>单次生成的弱点</th>
-<th>方法</th>
-<th>系统增加了什么</th>
-</tr>
-</thead>
-
-<tbody>
-<tr>
-<td>不清楚任务格式</td>
-<td>In-Context Learning</td>
-<td>在 Context 中加入示例</td>
-</tr>
-
-<tr>
-<td>直接跳到答案</td>
-<td>Chain of Thought</td>
-<td>显式生成中间步骤</td>
-</tr>
-
-<tr>
-<td>一条路径容易走偏</td>
-<td>Self-Consistency</td>
-<td>采样多条路径并投票</td>
-</tr>
-
-<tr>
-<td>自然语言计算不稳定</td>
-<td>PAL / Interpreter</td>
-<td>让程序负责精确执行</td>
-</tr>
-
-<tr>
-<td>错误路径无法回退</td>
-<td>Tree of Thoughts</td>
-<td>把推理变成可搜索的树</td>
-</tr>
-
-<tr>
-<td>失败后仍重复犯错</td>
-<td>Self-Reflection / Reflexion</td>
-<td>把反馈和经验写入下一轮</td>
-</tr>
-
-<tr>
-<td>知识不足或已经过期</td>
-<td>RAG</td>
-<td>按需获取外部证据</td>
-</tr>
-
-<tr>
-<td>好推理只存在于单次调用</td>
-<td>RLVR / GRPO</td>
-<td>用可验证结果训练策略</td>
-</tr>
-</tbody>
-</table>
-
-<p>如果只记住一条主线，可以记成：</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span><span class="lnt">6
-</span><span class="lnt">7
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-text" data-lang="text">一次回答
-→ 展开步骤
-→ 生成多条路径
-→ 验证或执行
-→ 搜索与回退
-→ 从失败中积累经验
-→ 用结果反过来训练模型</code></pre></td></tr></table>
-</div>
-</div>
 <h2 id="1-先定义边界-什么是-agentic-llm">1. 先定义边界：什么是 Agentic LLM？</h2>
 
 <p>可以把 Agentic LLM 定义为：</p>

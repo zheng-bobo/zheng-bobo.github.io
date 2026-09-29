@@ -26,33 +26,6 @@ This is the **first article in the Agentic Large Language Models series**. Rathe
 
 > **Series**: **(I) Reasoning** · (II) Action (coming next) · (III) Interaction (coming next)
 
-## Reading map: which problem does each method solve?
-
-These methods are not competing schools of thought. Each repairs a different weakness of one-shot generation:
-
-| Weakness | Method | What the system adds |
-| --- | --- | --- |
-| The task format is unclear | In-context learning | Examples in the context |
-| The model jumps straight to an answer | Chain of Thought | Explicit intermediate steps |
-| One path can easily go wrong | Self-Consistency | Multiple sampled paths and voting |
-| Natural-language calculation is unreliable | PAL / interpreter | Precise program execution |
-| A bad path cannot backtrack | Tree of Thoughts | A searchable reasoning tree |
-| The agent repeats the same failure | Self-reflection / Reflexion | Feedback and reusable lessons |
-| Knowledge is missing or stale | RAG | External evidence on demand |
-| Good reasoning disappears after one call | RLVR / GRPO | Training from verifiable outcomes |
-
-The full progression can be remembered as:
-
-```text
-one answer
-→ explicit steps
-→ multiple paths
-→ verification or execution
-→ search and backtracking
-→ learning from failure
-→ training from outcomes
-```
-
 ## 1. First define the boundary: what is an Agentic LLM?
 
 An Agentic LLM can be defined as:

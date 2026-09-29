@@ -53,7 +53,7 @@
 
 <meta itemprop="datePublished" content="2026-09-29T09:00:00&#43;02:00" />
 <meta itemprop="dateModified" content="2026-09-29T09:00:00&#43;02:00" />
-<meta itemprop="wordCount" content="3098">
+<meta itemprop="wordCount" content="2936">
 
 
 
@@ -184,8 +184,8 @@
         <div class="post-category">
             <a href="/en/categories/ai-agents/"> AI Agents </a>
             </div>
-          <span class="more-meta"> 3098 words </span>
-          <span class="more-meta"> 15 mins read </span>
+          <span class="more-meta"> 2936 words </span>
+          <span class="more-meta"> 14 mins read </span>
         
       </div>
     </header>
@@ -197,7 +197,6 @@
 <ul>
 <li>
 <ul>
-<li><a href="#reading-map-which-problem-does-each-method-solve">Reading map: which problem does each method solve?</a></li>
 <li><a href="#1-first-define-the-boundary-what-is-an-agentic-llm">1. First define the boundary: what is an Agentic LLM?</a>
 <ul>
 <li><a href="#1-1-from-training-a-model-to-using-it">1.1 From training a model to using it</a></li>
@@ -264,91 +263,6 @@
 <p><strong>Series</strong>: <strong>(I) Reasoning</strong> · (II) Action (coming next) · (III) Interaction (coming next)</p>
 </blockquote>
 
-<h2 id="reading-map-which-problem-does-each-method-solve">Reading map: which problem does each method solve?</h2>
-
-<p>These methods are not competing schools of thought. Each repairs a different weakness of one-shot generation:</p>
-
-<table>
-<thead>
-<tr>
-<th>Weakness</th>
-<th>Method</th>
-<th>What the system adds</th>
-</tr>
-</thead>
-
-<tbody>
-<tr>
-<td>The task format is unclear</td>
-<td>In-context learning</td>
-<td>Examples in the context</td>
-</tr>
-
-<tr>
-<td>The model jumps straight to an answer</td>
-<td>Chain of Thought</td>
-<td>Explicit intermediate steps</td>
-</tr>
-
-<tr>
-<td>One path can easily go wrong</td>
-<td>Self-Consistency</td>
-<td>Multiple sampled paths and voting</td>
-</tr>
-
-<tr>
-<td>Natural-language calculation is unreliable</td>
-<td>PAL / interpreter</td>
-<td>Precise program execution</td>
-</tr>
-
-<tr>
-<td>A bad path cannot backtrack</td>
-<td>Tree of Thoughts</td>
-<td>A searchable reasoning tree</td>
-</tr>
-
-<tr>
-<td>The agent repeats the same failure</td>
-<td>Self-reflection / Reflexion</td>
-<td>Feedback and reusable lessons</td>
-</tr>
-
-<tr>
-<td>Knowledge is missing or stale</td>
-<td>RAG</td>
-<td>External evidence on demand</td>
-</tr>
-
-<tr>
-<td>Good reasoning disappears after one call</td>
-<td>RLVR / GRPO</td>
-<td>Training from verifiable outcomes</td>
-</tr>
-</tbody>
-</table>
-
-<p>The full progression can be remembered as:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span><span class="lnt">6
-</span><span class="lnt">7
-</span></code></pre></td>
-<td class="lntd">
-<pre class="chroma"><code class="language-text" data-lang="text">one answer
-→ explicit steps
-→ multiple paths
-→ verification or execution
-→ search and backtracking
-→ learning from failure
-→ training from outcomes</code></pre></td></tr></table>
-</div>
-</div>
 <h2 id="1-first-define-the-boundary-what-is-an-agentic-llm">1. First define the boundary: what is an Agentic LLM?</h2>
 
 <p>An Agentic LLM can be defined as:</p>

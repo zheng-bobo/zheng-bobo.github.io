@@ -26,33 +26,6 @@ mathjaxEnableSingleDollar: true
 
 > **系列导航**：**（一）Reasoning** · （二）Action（待续） · （三）Interaction（待续）
 
-## 阅读地图：每种方法解决什么问题？
-
-这些方法并不是互相替代的“流派”。它们分别修补单次生成的不同弱点：
-
-| 单次生成的弱点 | 方法 | 系统增加了什么 |
-| --- | --- | --- |
-| 不清楚任务格式 | In-Context Learning | 在 Context 中加入示例 |
-| 直接跳到答案 | Chain of Thought | 显式生成中间步骤 |
-| 一条路径容易走偏 | Self-Consistency | 采样多条路径并投票 |
-| 自然语言计算不稳定 | PAL / Interpreter | 让程序负责精确执行 |
-| 错误路径无法回退 | Tree of Thoughts | 把推理变成可搜索的树 |
-| 失败后仍重复犯错 | Self-Reflection / Reflexion | 把反馈和经验写入下一轮 |
-| 知识不足或已经过期 | RAG | 按需获取外部证据 |
-| 好推理只存在于单次调用 | RLVR / GRPO | 用可验证结果训练策略 |
-
-如果只记住一条主线，可以记成：
-
-```text
-一次回答
-→ 展开步骤
-→ 生成多条路径
-→ 验证或执行
-→ 搜索与回退
-→ 从失败中积累经验
-→ 用结果反过来训练模型
-```
-
 ## 1. 先定义边界：什么是 Agentic LLM？
 
 可以把 Agentic LLM 定义为：
