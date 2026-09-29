@@ -1,7 +1,8 @@
 ---
-title: "Agentic Large Language Models（一）：Reasoning——从思维链到搜索、反思与可验证推理"
+title: "Agentic LLM Reasoning（一）：从 Chain of Thought 到搜索、反思与 RLVR"
 date: 2026-09-29 09:00:00 +0200
 slug: "agentic-llm-1-reasoning"
+description: "系统梳理 Agentic LLM 的推理能力：从 In-Context Learning、Chain of Thought 和 Self-Consistency，到 PAL、Tree of Thoughts、Self-Reflection、RAG、RLVR 与 GRPO。"
 categories: [AI Agents]
 tags: [Agentic LLM, Reasoning, Chain of Thought, Tree of Thoughts, Self-Reflection, RLVR, GRPO]
 toc: true
@@ -9,19 +10,50 @@ mathjax: true
 mathjaxEnableSingleDollar: true
 ---
 
-大语言模型最初擅长的是“根据已有文本继续生成文本”。Agentic LLM 则要求模型在一个持续变化的环境里理解目标、做出判断，并通过行动影响环境。要完成这种跨越，系统至少需要三类能力：
+模型能回答一个问题，不等于它能完成一项任务。
+
+普通 Chatbot 接收 Prompt，然后返回 Response；Agent 则要在不断变化的环境中决定下一步做什么，执行动作，读取结果，再判断应该继续、回退还是换一条路。这种能力首先依赖 **Reasoning（推理）**。
+
+一个完整的 Agent 系统至少需要三类能力：
 
 1. **Reasoning**：分析状态、拆解问题、比较候选路径并形成决策；
 2. **Action**：调用工具，把决策转化为对外部世界的操作；
 3. **Interaction**：读取行动结果，与环境或其他 Agent 持续交换信息并修正策略。
 
-本文是 **Agentic Large Language Models 系列的第一篇**，聚焦 Reasoning。后续两篇将分别讨论 Action 和 Interaction。
+本文是 **Agentic Large Language Models 系列的第一篇**。我不会把 Reasoning 当成一串孤立术语来罗列，而会沿着同一个问题展开：**当一次生成或一条推理链不够可靠时，系统还能增加什么？** 后续两篇将分别讨论 Action 和 Interaction。
 
 <!--more-->
 
 > **系列导航**：**（一）Reasoning** · （二）Action（待续） · （三）Interaction（待续）
 
-## 1. Introduction：什么是 Agentic LLM？
+## 阅读地图：每种方法解决什么问题？
+
+这些方法并不是互相替代的“流派”。它们分别修补单次生成的不同弱点：
+
+| 单次生成的弱点 | 方法 | 系统增加了什么 |
+| --- | --- | --- |
+| 不清楚任务格式 | In-Context Learning | 在 Context 中加入示例 |
+| 直接跳到答案 | Chain of Thought | 显式生成中间步骤 |
+| 一条路径容易走偏 | Self-Consistency | 采样多条路径并投票 |
+| 自然语言计算不稳定 | PAL / Interpreter | 让程序负责精确执行 |
+| 错误路径无法回退 | Tree of Thoughts | 把推理变成可搜索的树 |
+| 失败后仍重复犯错 | Self-Reflection / Reflexion | 把反馈和经验写入下一轮 |
+| 知识不足或已经过期 | RAG | 按需获取外部证据 |
+| 好推理只存在于单次调用 | RLVR / GRPO | 用可验证结果训练策略 |
+
+如果只记住一条主线，可以记成：
+
+```text
+一次回答
+→ 展开步骤
+→ 生成多条路径
+→ 验证或执行
+→ 搜索与回退
+→ 从失败中积累经验
+→ 用结果反过来训练模型
+```
+
+## 1. 先定义边界：什么是 Agentic LLM？
 
 可以把 Agentic LLM 定义为：
 
@@ -64,11 +96,13 @@ Goal + Environment State
 
 前六步主要改变模型参数；Agentic Reasoning 大量发生在最后一步——**不一定更新权重，而是在推理时给模型更多中间计算、候选路径、反馈和外部系统。**
 
-这也是理解本文的关键：Reasoning 不只是模型“内部会不会想”，还包括外部算法如何组织多次模型调用。
+这是理解全文的关键：Reasoning 不只是模型“内部会不会想”，也包括外部算法如何组织多次模型调用、保存状态并使用验证结果。
 
 ![Agentic LLM 中 Reasoning 方法的分类：从 Step-by-step Prompt、Ensemble、Search 到 Self-Reflection 与 Reinforcement Learning](/img/posts/agentic-llm-1-reasoning/reasoning-methods-taxonomy.webp)
 
-## 2. 为什么单次生成不够？
+*上图把 Reasoning 方法分为逐步提示、集成、搜索、自我反思、检索增强与强化学习。后文会沿着这条路线逐层展开。*
+
+## 2. 为什么模型“知道”，却不一定“做得出”？
 
 以 GSM8K 中常见的数学文字题为例：
 
@@ -90,7 +124,7 @@ Goal + Environment State
 - 执行每一步计算；
 - 避免早期错误向后传播。
 
-Reasoning 方法的核心，就是把这些隐式过程变成更长、更可控制的计算路径。
+问题并不一定是模型完全不会算，而是它要在一次连续生成中同时找事实、列约束、决定步骤、执行计算，还要避免早期错误继续传播。Reasoning 方法的作用，就是把这些隐式过程变成更长、更可观察、也更容易验证的计算路径。
 
 从概率角度看，直接生成仍然是自回归分解：
 
@@ -100,9 +134,9 @@ p_{\theta}(y\mid x)=\prod_{t=1}^{T}p_{\theta}\!\left(y_t\mid x,y_{1:t-1}\right)
 \]
 </div>
 
-Reasoning 方法没有改变这一基本生成形式，而是把中间步骤、候选路径、验证结果或外部观察也写入条件，使后续 Token 能基于更丰富的状态继续生成。
+这些方法没有改变自回归生成的基本形式。它们改变的是模型下一步生成时能够看到的条件：中间步骤、候选路径、验证结果和环境观察，都可以成为新的上下文。
 
-## 3. In-Context Learning：先用示例限定问题空间
+## 3. 先给示例，再问新问题：In-Context Learning
 
 In-Context Learning（ICL）把示例和问题一起放进 Context Window。模型不更新参数，只通过当前 Prompt 推断任务模式。
 
@@ -128,7 +162,9 @@ Few-shot 示例的作用不只是展示输出格式，还会把模型引向更�
 
 ![Few-shot Prompting、Few-shot CoT、Zero-shot CoT 与 PAL 的输入输出差异](/img/posts/agentic-llm-1-reasoning/cot-prompting-methods.webp)
 
-## 4. Chain of Thought：让中间步骤成为计算空间
+*同一个问题可以通过普通 Few-shot、Few-shot CoT、Zero-shot CoT 或 PAL 进入完全不同的计算路径。*
+
+## 4. 把“过程”写出来：Chain of Thought
 
 [Chain-of-Thought Prompting](https://arxiv.org/abs/2201.11903) 的核心非常简单：不要只要求最终答案，而是让模型生成一系列中间推理步骤。
 
@@ -148,7 +184,9 @@ Final Answer
 
 ![标准 Prompt 直接回答错误，而带中间步骤的 Chain-of-Thought Prompt 得到正确答案](/img/posts/agentic-llm-1-reasoning/standard-vs-chain-of-thought.webp)
 
-## 5. 从“生成一条路径”到“验证多条路径”
+*普通 Prompt 容易直接猜答案；CoT 示例则要求模型先展开计算，再给出结论。*
+
+## 5. 不要相信第一条推理链：验证与多路径投票
 
 ### 5.1 Self-Verification
 
@@ -193,9 +231,11 @@ Question ────┼─ Reasoning Path B ─→ 42
 
 ![Self-Consistency 对多条 Chain-of-Thought 路径的最终答案进行多数投票](/img/posts/agentic-llm-1-reasoning/self-consistency.webp)
 
+*正确路径往往在最终答案上收敛，错误路径更容易彼此分散。Self-Consistency 利用的正是这个差异。*
+
 这说明推理能力不仅是模型参数的属性，也可以通过 **inference-time compute** 换取。
 
-## 6. 从自然语言切换到形式语言
+## 6. 让程序负责精确执行：PAL、Interpreter 与 Debugger
 
 自然语言灵活，但存在歧义，并且不擅长可靠执行精确计算。一个实用策略是：让 LLM 负责理解与分解，让解释器负责执行。
 
@@ -223,6 +263,8 @@ PAL 的分工可以简化为：模型生成程序 $g_{\theta}(x)$，执行器负
 
 ![Program-Aided Language Models：LLM 生成 Python 程序，由解释器执行并返回答案](/img/posts/agentic-llm-1-reasoning/program-aided-language-models.webp)
 
+*LLM 负责把自然语言问题翻译成程序；解释器负责可靠执行。*
+
 ### 6.2 Interpreter、Debugger 与 Self-Debugging
 
 生成代码后，系统还可以执行代码，把报错、测试失败或运行结果反馈给模型：
@@ -237,7 +279,9 @@ Generate → Execute → Observe Error → Explain → Repair → Execute Again
 
 ![同一个 Blocks World 问题的 PDDL 形式化表示与自然语言表示](/img/posts/agentic-llm-1-reasoning/pddl-vs-natural-language.webp)
 
-## 7. Search-based Reasoning：从一条链扩展为一棵树
+*自然语言更容易阅读，PDDL 等形式语言则更适合严格表达状态、动作与约束。*
+
+## 7. 从一条链走向可回退的搜索树
 
 CoT 本质上是一条单路径：每个 Thought 只有一个后继。Search-based 方法则在每一步生成多个候选，形成一个可以回溯的状态空间。
 
@@ -279,19 +323,27 @@ S_{t+1}=\operatorname{TopB}_{b}\left\{V_{\theta}(s_{t+1})\right\}
 
 ![普通输入输出、Chain of Thought、Self-Consistency 与 Tree of Thoughts 的结构对比](/img/posts/agentic-llm-1-reasoning/reasoning-structures.webp)
 
+*CoT 只展开一条链；Self-Consistency 独立采样多条链；ToT 会在中间状态处分支、评分和剪枝。*
+
 ![Tree of Thoughts 的 BFS 与 DFS 搜索算法](/img/posts/agentic-llm-1-reasoning/tree-of-thoughts-algorithms.webp)
+
+*BFS 保留每一层最有希望的状态，DFS 则沿一条分支深入并在失败后回溯。*
 
 ![Tree of Thoughts 在 Game of 24 中生成候选、评分并选择分支的 Prompt 结构](/img/posts/agentic-llm-1-reasoning/tree-of-thoughts-game24.webp)
 
+*在 Game of 24 中，LLM 既用于提出候选步骤，也用于判断哪些中间结果值得继续搜索。*
+
 ToT 的优点是路径可观察、可回退、易于加入约束。它的限制是扩展策略通常由人预先固定：每层生成多少节点、保留多少分支、何时停止都需要配置。学习型策略可以根据状态动态决定下一步探索哪里，但会引入训练、稳定性和调试复杂度。
 
-## 8. Self-Reflection：让失败成为下一次尝试的输入
+## 8. 失败不是结束：Self-Reflection 与长期经验
 
 当 LLM 被分别调用为 Actor、Critic 或 Evaluator，并根据反馈生成新的 Prompt 或策略时，系统表现出一种工程意义上的 Self-Reflection。
 
 需要强调：反思通常不是模型在一次调用中神秘地“自我意识”，而是 **外部控制算法多次调用模型、保存轨迹并重组上下文**。
 
 ![强化学习中的 Agent—Environment 闭环：状态、动作与奖励持续反馈](/img/posts/agentic-llm-1-reasoning/agent-environment-loop.webp)
+
+*Agent 的动作改变环境，环境再把新状态与奖励返回给下一轮决策。*
 
 ### 8.1 Self-Refine
 
@@ -304,6 +356,8 @@ Initial Output → Feedback → Refined Output → Feedback → ...
 同一个模型可以同时生成答案、批评答案并据此改写。它不需要更新模型权重，适合能够用语言描述质量标准的任务。
 
 ![Self-Refine 通过 Feedback 与 Refine 循环改进模型输出](/img/posts/agentic-llm-1-reasoning/self-refine.webp)
+
+*Self-Refine 不更新权重，而是在生成、反馈和改写之间循环。*
 
 ### 8.2 ReAct：Reasoning 走向 Action 的桥梁
 
@@ -318,6 +372,8 @@ CoT 只能基于模型已有上下文继续思考；ReAct 可以主动检索 Wik
 ReAct 已经跨过 Reasoning 与 Action 的边界，因此会成为本系列第二篇的起点。
 
 ![ReAct 的 Thought—Action—Observation 循环以及 LLM、工具与环境之间的关系](/img/posts/agentic-llm-1-reasoning/react-loop.webp)
+
+*ReAct 把外部观察重新写回推理链，让模型不必只依赖参数中的旧知识。*
 
 ### 8.3 Reflexion：从一次轨迹中提炼长期经验
 
@@ -356,7 +412,11 @@ Long-term Memory：保存这条规则，供后续任务检索。
 
 ![Reflexion 架构：Actor、Evaluator、Self-reflection、短期轨迹与长期经验共同工作](/img/posts/agentic-llm-1-reasoning/reflexion-architecture.webp)
 
+*Actor 负责尝试，Evaluator 判断成败，Reflector 再把失败压缩为可复用经验。*
+
 ![Reflexion 与强化学习 Agent—Environment 结构的对应关系](/img/posts/agentic-llm-1-reasoning/reflexion-close-up.webp)
+
+*Reflexion 的关键不是“再想一次”，而是区分当前轨迹与跨尝试保留的长期经验。*
 
 ### 8.4 Buffer of Thoughts
 
@@ -371,6 +431,8 @@ New Problem → Retrieve Template → Instantiated Reasoning
 它试图让 Agent 不必每次从零推理，而是积累类似“先识别约束、再枚举候选、最后验证”的通用认知模式。
 
 ![Buffer of Thoughts：从历史问题中提炼 Thought Template，并从 Meta-Buffer 检索后实例化推理](/img/posts/agentic-llm-1-reasoning/buffer-of-thoughts.webp)
+
+*Buffer of Thoughts 保存的是可迁移的解题模板，而不是每个历史问题的全部细节。*
 
 ### 8.5 其他 Prompt 改进循环
 
@@ -387,7 +449,7 @@ Self-Reflection 方法有两个共同难点：
 
 因此，反思必须与摘要、记忆选择、Context Reset 和外部状态存储结合。
 
-## 9. Retrieval Augmentation：在需要时获取证据
+## 9. 推理也需要查资料：Retrieval Augmentation
 
 Reasoning 不应该只在参数记忆中闭门运行。RAG 把非结构化文档、数据库或知识图谱接入推理过程：
 
@@ -401,7 +463,7 @@ Question → Query Rewrite / Decomposition → Retrieval
 
 它与 Self-Reflection 的关系很紧密：Evaluator 发现证据不足或内容过期后，可以触发新检索；检索结果又成为下一轮推理的 Observation。由此，Reasoning 开始变成“思考—取证—验证”的动态过程。
 
-## 10. 从推理轨迹反过来训练模型：RLVR 与 GRPO
+## 10. 把好的推理轨迹写回模型：RLVR 与 GRPO
 
 前面的多数方法发生在推理阶段，不修改参数。但高质量 Reasoning Trace 也可以反过来用于训练。
 
@@ -454,7 +516,7 @@ Stronger reasoning policy
 Better inference-time exploration
 ```
 
-## 11. 更广的视角：Connectionist 与 Symbolic 的结合
+## 11. 统一视角：模型生成候选，系统提供结构与反馈
 
 LLM 属于 Connectionist AI：知识与能力分布在神经网络参数中，通过数据学习模式。搜索、逻辑、规划、解释器和状态机则更接近 Symbolic AI：知识和操作规则被显式表达。
 
@@ -484,7 +546,7 @@ Slow: 17 × 6
 
 但这个类比不能过度解释。LLM 仍然通过 Next-token Prediction 运行；“慢思考”更准确的工程描述是：系统为模型提供了更多串行 Token、并行候选、外部状态和可验证反馈。
 
-## 12. 从 Reasoning 走向 Action 与 Interaction
+## 12. Reasoning 之后：Action 与 Interaction
 
 到这里，我们得到一条从普通生成到 Agentic Reasoning 的完整路径：
 

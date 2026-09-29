@@ -169,7 +169,7 @@
       <div class="content-wrapper">
         <div id="content" class="content">
           
-<link rel="stylesheet" href="/css/readability.css?v=9f993e220d6d189d349a7bbda793f46e">
+<link rel="stylesheet" href="/css/readability.css?v=ba428625f2328de616923e0a87cb8800">
 
 <style>
    
@@ -217,7 +217,7 @@
           <h2 class="blog-archive-year" id="year-2026">2026</h2>
         <a class="blog-archive-index-item" href="/post/agentic-llm-1-reasoning/">
           <time datetime="2026-09-29">09-29</time>
-          <span>Agentic Large Language Models（一）：Reasoning——从思维链到搜索、反思与可验证推理</span>
+          <span>Agentic LLM Reasoning（一）：从 Chain of Thought 到搜索、反思与 RLVR</span>
         </a>
         <a class="blog-archive-index-item" href="/post/anthropic-recursive-self-improvement/">
           <time datetime="2026-09-28">09-28</time>
@@ -328,17 +328,21 @@
   <div class="blog-recent-posts" aria-label="最近文章">
       <article class="blog-summary-card">
         <header>
-          <h2><a href="/post/agentic-llm-1-reasoning/">Agentic Large Language Models（一）：Reasoning——从思维链到搜索、反思与可验证推理</a></h2>
+          <h2><a href="/post/agentic-llm-1-reasoning/">Agentic LLM Reasoning（一）：从 Chain of Thought 到搜索、反思与 RLVR</a></h2>
           <div class="blog-summary-meta">
             <time datetime="2026-09-29">2026年09月29日</time>
             <span aria-hidden="true">·</span>
-            <span>预计阅读 11 分钟</span>
+            <span>预计阅读 13 分钟</span>
           </div>
         </header>
 
         <div class="blog-summary-excerpt post">
           <div class="post-content">
-            <div class="post-summary"><p>大语言模型最初擅长的是“根据已有文本继续生成文本”。Agentic LLM 则要求模型在一个持续变化的环境里理解目标、做出判断，并通过行动影响环境。要完成这种跨越，系统至少需要三类能力：</p>
+            <div class="post-summary"><p>模型能回答一个问题，不等于它能完成一项任务。</p>
+
+<p>普通 Chatbot 接收 Prompt，然后返回 Response；Agent 则要在不断变化的环境中决定下一步做什么，执行动作，读取结果，再判断应该继续、回退还是换一条路。这种能力首先依赖 <strong>Reasoning（推理）</strong>。</p>
+
+<p>一个完整的 Agent 系统至少需要三类能力：</p>
 
 <ol>
 <li><strong>Reasoning</strong>：分析状态、拆解问题、比较候选路径并形成决策；</li>
@@ -346,7 +350,7 @@
 <li><strong>Interaction</strong>：读取行动结果，与环境或其他 Agent 持续交换信息并修正策略。</li>
 </ol>
 
-<p>本文是 <strong>Agentic Large Language Models 系列的第一篇</strong>，聚焦 Reasoning。后续两篇将分别讨论 Action 和 Interaction。</p></div>
+<p>本文是 <strong>Agentic Large Language Models 系列的第一篇</strong>。我不会把 Reasoning 当成一串孤立术语来罗列，而会沿着同一个问题展开：<strong>当一次生成或一条推理链不够可靠时，系统还能增加什么？</strong> 后续两篇将分别讨论 Action 和 Interaction。</p></div>
           </div>
         </div>
 

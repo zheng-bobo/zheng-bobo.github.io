@@ -12,12 +12,16 @@
     
     
     <item>
-      <title>Agentic Large Language Models (I): Reasoning—from Chain of Thought to Search, Reflection, and Verification</title>
+      <title>Agentic LLM Reasoning (I): From Chain of Thought to Search, Reflection, and RLVR</title>
       <link>https://zheng-bobo.github.io/en/post/agentic-llm-1-reasoning/</link>
       <pubDate>Tue, 29 Sep 2026 09:00:00 +0200</pubDate>
       
       <guid>https://zheng-bobo.github.io/en/post/agentic-llm-1-reasoning/</guid>
-      <description>&lt;p&gt;Large language models began as systems that continue text from existing text. An Agentic LLM must instead understand goals in a changing environment, make decisions, and affect that environment through action. This transition requires at least three capabilities:&lt;/p&gt;
+      <description>&lt;p&gt;A model that can answer a question is not necessarily able to complete a task.&lt;/p&gt;
+
+&lt;p&gt;A conventional chatbot receives a prompt and returns a response. An agent must decide what to do next in a changing environment, act, inspect the result, and choose whether to continue, backtrack, or try another path. That transition begins with &lt;strong&gt;reasoning&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;A complete agent system needs at least three capabilities:&lt;/p&gt;
 
 &lt;ol&gt;
 &lt;li&gt;&lt;strong&gt;Reasoning&lt;/strong&gt;: analyze state, decompose problems, compare paths, and form decisions.&lt;/li&gt;
@@ -25,7 +29,7 @@
 &lt;li&gt;&lt;strong&gt;Interaction&lt;/strong&gt;: observe outcomes, exchange information with the environment or other agents, and revise the strategy.&lt;/li&gt;
 &lt;/ol&gt;
 
-&lt;p&gt;This is the &lt;strong&gt;first article in the Agentic Large Language Models series&lt;/strong&gt;, focused on Reasoning. The next two articles will cover Action and Interaction.&lt;/p&gt;</description>
+&lt;p&gt;This is the &lt;strong&gt;first article in the Agentic Large Language Models series&lt;/strong&gt;. Rather than listing reasoning terms in isolation, it follows one question: &lt;strong&gt;when one generation or one reasoning path is unreliable, what can the system add?&lt;/strong&gt; The next two articles will cover Action and Interaction.&lt;/p&gt;</description>
     </item>
     
     <item>

@@ -12,12 +12,16 @@
     
     
     <item>
-      <title>Agentic Large Language Models（一）：Reasoning——从思维链到搜索、反思与可验证推理</title>
+      <title>Agentic LLM Reasoning（一）：从 Chain of Thought 到搜索、反思与 RLVR</title>
       <link>https://zheng-bobo.github.io/post/agentic-llm-1-reasoning/</link>
       <pubDate>Tue, 29 Sep 2026 09:00:00 +0200</pubDate>
       
       <guid>https://zheng-bobo.github.io/post/agentic-llm-1-reasoning/</guid>
-      <description>&lt;p&gt;大语言模型最初擅长的是“根据已有文本继续生成文本”。Agentic LLM 则要求模型在一个持续变化的环境里理解目标、做出判断，并通过行动影响环境。要完成这种跨越，系统至少需要三类能力：&lt;/p&gt;
+      <description>&lt;p&gt;模型能回答一个问题，不等于它能完成一项任务。&lt;/p&gt;
+
+&lt;p&gt;普通 Chatbot 接收 Prompt，然后返回 Response；Agent 则要在不断变化的环境中决定下一步做什么，执行动作，读取结果，再判断应该继续、回退还是换一条路。这种能力首先依赖 &lt;strong&gt;Reasoning（推理）&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;一个完整的 Agent 系统至少需要三类能力：&lt;/p&gt;
 
 &lt;ol&gt;
 &lt;li&gt;&lt;strong&gt;Reasoning&lt;/strong&gt;：分析状态、拆解问题、比较候选路径并形成决策；&lt;/li&gt;
@@ -25,7 +29,7 @@
 &lt;li&gt;&lt;strong&gt;Interaction&lt;/strong&gt;：读取行动结果，与环境或其他 Agent 持续交换信息并修正策略。&lt;/li&gt;
 &lt;/ol&gt;
 
-&lt;p&gt;本文是 &lt;strong&gt;Agentic Large Language Models 系列的第一篇&lt;/strong&gt;，聚焦 Reasoning。后续两篇将分别讨论 Action 和 Interaction。&lt;/p&gt;</description>
+&lt;p&gt;本文是 &lt;strong&gt;Agentic Large Language Models 系列的第一篇&lt;/strong&gt;。我不会把 Reasoning 当成一串孤立术语来罗列，而会沿着同一个问题展开：&lt;strong&gt;当一次生成或一条推理链不够可靠时，系统还能增加什么？&lt;/strong&gt; 后续两篇将分别讨论 Action 和 Interaction。&lt;/p&gt;</description>
     </item>
     
   </channel>
