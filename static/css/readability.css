@@ -54,7 +54,7 @@ body {
     Arial, sans-serif;
 }
 
-.post-toc ~ .post-content {
+article.post > .post-content {
   color: var(--reading-text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans CJK SC",
     "Source Han Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
@@ -64,7 +64,7 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-article.post:has(> .post-toc) > .post-header .post-title {
+article.post > .post-header .post-title {
   color: #24384a;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans CJK SC",
     "Source Han Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
@@ -75,9 +75,9 @@ article.post:has(> .post-toc) > .post-header .post-title {
   text-wrap: balance;
 }
 
-.post-toc ~ .post-content h2,
-.post-toc ~ .post-content h3,
-.post-toc ~ .post-content h4 {
+article.post > .post-content h2,
+article.post > .post-content h3,
+article.post > .post-content h4 {
   color: #24384a;
   font-family: inherit;
   font-weight: 650;
@@ -85,44 +85,52 @@ article.post:has(> .post-toc) > .post-header .post-title {
   text-wrap: pretty;
 }
 
-.post-toc ~ .post-content h2 {
+article.post > .post-content h2 {
   margin: 2.5em 0 0.8em;
 }
 
-.post-toc ~ .post-content h3 {
+article.post > .post-content h3 {
   margin: 2em 0 0.7em;
 }
 
-.post-toc ~ .post-content h4 {
+article.post > .post-content h4 {
   margin: 1.75em 0 0.65em;
 }
 
-.post-toc ~ .post-content p {
+article.post > .post-content p {
   margin: 1.05em 0 1.25em;
   text-wrap: pretty;
 }
 
-.post-toc ~ .post-content ul,
-.post-toc ~ .post-content ol {
+article.post > .post-content ul,
+article.post > .post-content ol {
   margin: 1em 0 1.35em;
   padding-left: 1.55em;
 }
 
-.post-toc ~ .post-content li + li {
+article.post > .post-content li + li {
   margin-top: 0.32em;
 }
 
-.post-toc ~ .post-content li > p {
+article.post > .post-content li > p {
   margin: 0.4em 0;
 }
 
-.post-toc ~ .post-content hr {
+article.post > .post-content hr {
   margin: 2.75em 0;
   border-color: var(--reading-rule);
 }
 
-.post-toc ~ .post-content .highlight > .chroma,
-.post-toc ~ .post-content figure.highlight {
+article.post > .post-content mjx-container[jax="CHTML"][display="true"] {
+  max-width: 100%;
+  padding-bottom: 0.2em;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+article.post > .post-content .highlight > .chroma,
+article.post > .post-content figure.highlight {
   max-width: 100%;
   margin: 1.5em 0 1.85em;
   overflow-x: auto;
@@ -135,20 +143,20 @@ article.post:has(> .post-toc) > .post-header .post-title {
   overscroll-behavior-inline: contain;
 }
 
-.post-toc ~ .post-content .highlight table,
-.post-toc ~ .post-content .highlight pre,
-.post-toc ~ .post-content .highlight code {
+article.post > .post-content .highlight table,
+article.post > .post-content .highlight pre,
+article.post > .post-content .highlight code {
   background: transparent;
 }
 
-.post-toc ~ .post-content .highlight table {
+article.post > .post-content .highlight table {
   width: max-content;
   min-width: 100%;
   border-collapse: collapse;
 }
 
-.post-toc ~ .post-content .highlight table::after,
-.post-toc ~ .post-content figure.highlight table::after {
+article.post > .post-content .highlight table::after,
+article.post > .post-content figure.highlight table::after {
   padding: 7px 14px 6px;
   color: #758391;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -161,8 +169,8 @@ article.post:has(> .post-toc) > .post-header .post-title {
   border-bottom: 1px solid var(--reading-code-rule);
 }
 
-.post-toc ~ .post-content .highlight code,
-.post-toc ~ .post-content .highlight pre {
+article.post > .post-content .highlight code,
+article.post > .post-content .highlight pre {
   color: var(--reading-code-ink);
   font-family: ui-monospace, "SFMono-Regular", "Cascadia Code", "Roboto Mono",
     Menlo, Monaco, Consolas, "Liberation Mono", monospace;
@@ -175,30 +183,30 @@ article.post:has(> .post-toc) > .post-header .post-title {
   -webkit-font-smoothing: antialiased;
 }
 
-.post-toc ~ .post-content .highlight .lntd {
+article.post > .post-content .highlight .lntd {
   line-height: 1.72;
   vertical-align: top;
 }
 
-.post-toc ~ .post-content .highlight .lntd:first-child {
+article.post > .post-content .highlight .lntd:first-child {
   width: 1%;
   color: var(--reading-code-muted);
   border-right: 1px solid var(--reading-code-rule);
   user-select: none;
 }
 
-.post-toc ~ .post-content .highlight .lntd:first-child pre {
+article.post > .post-content .highlight .lntd:first-child pre {
   min-width: 2.15em;
   padding: 34px 10px 14px 12px;
   color: var(--reading-code-muted);
   text-align: right;
 }
 
-.post-toc ~ .post-content .highlight .lntd:last-child pre {
+article.post > .post-content .highlight .lntd:last-child pre {
   padding: 34px 16px 14px;
 }
 
-.post-toc ~ .post-content :not(pre) > code {
+article.post > .post-content :not(pre) > code {
   padding: 0.15em 0.35em;
   font-size: 0.88em;
 }
@@ -262,19 +270,19 @@ article.post:has(> .post-toc) > .post-header .post-title {
   }
 }
 
-.post-toc ~ .post-content a {
+article.post > .post-content a {
   color: var(--reading-accent);
   text-decoration-thickness: 1px;
   text-underline-offset: 0.15em;
 }
 
-.post-toc ~ .post-content a:focus-visible {
+article.post > .post-content a:focus-visible {
   outline: 2px solid var(--reading-accent);
   outline-offset: 3px;
   border-radius: 2px;
 }
 
-.post-toc ~ .post-content blockquote {
+article.post > .post-content blockquote {
   margin: 1.75em 0 2em;
   padding: 0.9em 1.15em;
   color: #4b5c69;
@@ -284,19 +292,19 @@ article.post:has(> .post-toc) > .post-header .post-title {
   box-shadow: none;
 }
 
-.post-toc ~ .post-content blockquote p {
+article.post > .post-content blockquote p {
   margin: 0;
 }
 
-.post-toc ~ .post-content p:has(> img:only-child),
-.post-toc ~ .post-content p:has(> a.fancybox:only-child) {
+article.post > .post-content p:has(> img:only-child),
+article.post > .post-content p:has(> a.fancybox:only-child) {
   margin: 1.75em 0 2em;
   text-align: center;
 }
 
-.post-toc ~ .post-content p > img:only-child,
-.post-toc ~ .post-content p > a.fancybox:only-child > img,
-.post-toc ~ .post-content figure img {
+article.post > .post-content p > img:only-child,
+article.post > .post-content p > a.fancybox:only-child > img,
+article.post > .post-content figure img {
   display: block;
   width: auto;
   height: auto;
@@ -304,26 +312,28 @@ article.post:has(> .post-toc) > .post-header .post-title {
   border-radius: 6px;
 }
 
-.post-toc ~ .post-content p > a.fancybox:only-child {
+article.post > .post-content p > a.fancybox:only-child {
   display: block;
   border: 0;
 }
 
-.post-toc ~ .post-content .table-wrapper {
+article.post > .post-content .table-wrapper {
   margin: 1.75em 0 2em;
   border: 1px solid var(--reading-rule);
   border-radius: 7px;
 }
 
-.post-toc ~ .post-content .table-wrapper > table {
+article.post > .post-content .table-wrapper > table {
+  width: 100%;
+  min-width: 100%;
   margin: 0;
   font-size: 0.92em;
   line-height: 1.55;
   box-shadow: none;
 }
 
-.post-toc ~ .post-content .table-wrapper > table th,
-.post-toc ~ .post-content .table-wrapper > table td {
+article.post > .post-content .table-wrapper > table th,
+article.post > .post-content .table-wrapper > table td {
   padding: 0.65em 0.8em;
   border-color: var(--reading-rule);
 }
@@ -335,19 +345,19 @@ article.post:has(> .post-toc) > .post-header .post-title {
 }
 
 @media (max-width: 767px) {
-  .post-toc ~ .post-content {
+  article.post > .post-content {
     font-size: 17px;
     line-height: 1.78;
   }
 
-  .post-toc ~ .post-content .highlight > .chroma,
-  .post-toc ~ .post-content figure.highlight {
+  article.post > .post-content .highlight > .chroma,
+  article.post > .post-content figure.highlight {
     margin-right: -8px;
     margin-left: -8px;
   }
 
-  .post-toc ~ .post-content .highlight code,
-  .post-toc ~ .post-content .highlight pre {
+  article.post > .post-content .highlight code,
+  article.post > .post-content .highlight pre {
     font-size: 13px;
     line-height: 1.7;
   }
