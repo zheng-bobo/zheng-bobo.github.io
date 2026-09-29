@@ -39,6 +39,29 @@
   font-weight: 650;
 }
 
+@media (min-width: 801px) {
+  .header > .language-selector {
+    height: 34px;
+    margin-top: 16px;
+  }
+
+  .header > .language-selector .languages-list,
+  .header > .language-selector .language-item,
+  .header > .language-selector .language-item a {
+    height: 34px;
+  }
+
+  .header > .language-selector .language-item {
+    display: flex;
+    align-items: center;
+  }
+
+  .header > .language-selector .language-item a {
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
 @media (max-width: 800px) {
   .mobile-menu .language-selector {
     margin: 24px 20px 0;
