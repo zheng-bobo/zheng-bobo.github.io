@@ -216,6 +216,53 @@
   line-height: 1.65;
 }
 
+[data-theme="dark"] .about-page {
+  --about-ink: #d7e0e7;
+  --about-muted: #94a2ae;
+  --about-accent: #e18476;
+  --about-line: #303b46;
+  --about-soft: #19222b;
+}
+
+[data-theme="dark"] .about-header h1,
+[data-theme="dark"] .about-content h2,
+[data-theme="dark"] .about-work-item h3,
+[data-theme="dark"] .about-timeline-item h3 {
+  color: #e4ecf2;
+}
+
+[data-theme="dark"] .about-portrait,
+[data-theme="dark"] .about-work-item {
+  border-color: #303b46;
+}
+
+[data-theme="dark"] .about-work-item p:last-child,
+[data-theme="dark"] .about-timeline-item p {
+  color: #b7c2cb;
+}
+
+[data-theme="dark"] .about-content .about-action {
+  color: #d4dde5;
+  border-color: #46535e;
+}
+
+[data-theme="dark"] .about-content .about-action:hover {
+  color: var(--about-accent);
+  border-color: #9c6a63;
+}
+
+[data-theme="dark"] .about-content .about-action-primary {
+  color: #fff;
+  background: #354d60;
+  border-color: #354d60;
+}
+
+[data-theme="dark"] .about-content .about-action-primary:hover {
+  color: #fff;
+  background: #405d72;
+  border-color: #405d72;
+}
+
 @media (max-width: 767px) {
   .about-page {
     margin: 0 auto 24px;

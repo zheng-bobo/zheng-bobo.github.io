@@ -10,7 +10,22 @@
 <meta http-equiv="Cache-Control" content="no-transform" />
 <meta http-equiv="Cache-Control" content="no-siteapp" />
 
-<meta name="theme-color" content="#f8f5ec" />
+<script>
+  (function () {
+    var root = document.documentElement;
+    var theme = "light";
+    try {
+      var saved = localStorage.getItem("bobo-color-theme");
+      theme = saved || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    } catch (error) {
+      theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+    root.dataset.theme = theme;
+    root.style.colorScheme = theme;
+  }());
+</script>
+
+<meta id="theme-color-meta" name="theme-color" content="#f8f5ec" />
 <meta name="msapplication-navbutton-color" content="#f8f5ec">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
@@ -39,8 +54,9 @@
 
 <link href="/sass/main.min.4747d1be8010357c5daf4cd103b0bc1cff65936180045419874ea97f32138102.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
-<link rel="stylesheet" href="/css/readability.css?v=ffb6e52167c8d807a7a26286b951ac43">
-<link rel="stylesheet" href="/css/about.css">
+<link rel="stylesheet" href="/css/readability.css?v=bfeb33fadd116c97199d68356314e543">
+<link rel="stylesheet" href="/css/about.css?v=76d177e0491eafe3abfaf10894def06e">
+<script defer src="/js/theme-toggle.js?v=e6b67a9d5a41159eafd507738e4646c2"></script>
 
 
 <meta property="og:title" content="Translation" />

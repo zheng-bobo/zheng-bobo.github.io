@@ -4,7 +4,22 @@
 <meta http-equiv="Cache-Control" content="no-transform" />
 <meta http-equiv="Cache-Control" content="no-siteapp" />
 
-<meta name="theme-color" content="#f8f5ec" />
+<script>
+  (function () {
+    var root = document.documentElement;
+    var theme = "light";
+    try {
+      var saved = localStorage.getItem("bobo-color-theme");
+      theme = saved || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    } catch (error) {
+      theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+    root.dataset.theme = theme;
+    root.style.colorScheme = theme;
+  }());
+</script>
+
+<meta id="theme-color-meta" name="theme-color" content="#f8f5ec" />
 <meta name="msapplication-navbutton-color" content="#f8f5ec">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
@@ -75,6 +90,10 @@
 {{- $customCSSHash := md5 (readFile $customCSSPath) -}}
 <link rel="stylesheet" href="{{ "/css/" | relURL }}{{ . }}?v={{ $customCSSHash }}">
 {{ end }}
+
+{{- $themeTogglePath := "static/js/theme-toggle.js" -}}
+{{- $themeToggleHash := md5 (readFile $themeTogglePath) -}}
+<script defer src="{{ "/js/theme-toggle.js" | relURL }}?v={{ $themeToggleHash }}"></script>
 
 {{/* NOTE: These Hugo Internal Templates can be found starting at https://github.com/spf13/hugo/blob/master/tpl/tplimpl/template_embedded.go#L158 */}}
 {{- template "_internal/opengraph.html" . -}}
