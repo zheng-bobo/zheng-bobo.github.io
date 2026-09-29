@@ -6,6 +6,11 @@
   --reading-accent: #aa4f43;
   --reading-rule: #e6e9ec;
   --reading-surface: #f7f6f2;
+  --reading-code-surface: #f6f8fa;
+  --reading-code-header: #edf1f4;
+  --reading-code-ink: #34495a;
+  --reading-code-muted: #98a4af;
+  --reading-code-rule: #dfe5ea;
 }
 
 .language-selector .languages-list {
@@ -121,22 +126,76 @@ article.post:has(> .post-toc) > .post-header .post-title {
   max-width: 100%;
   margin: 1.5em 0 1.85em;
   overflow-x: auto;
-  border: 1px solid #e5e1d7;
-  border-radius: 8px;
-  box-shadow: none;
+  color: var(--reading-code-ink);
+  background: var(--reading-code-surface);
+  border: 1px solid var(--reading-code-rule);
+  border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(37, 55, 70, 0.04);
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-inline: contain;
 }
 
+.post-toc ~ .post-content .highlight table,
+.post-toc ~ .post-content .highlight pre,
+.post-toc ~ .post-content .highlight code {
+  background: transparent;
+}
+
+.post-toc ~ .post-content .highlight table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+}
+
+.post-toc ~ .post-content .highlight table::after,
+.post-toc ~ .post-content figure.highlight table::after {
+  padding: 7px 14px 6px;
+  color: #758391;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--reading-code-header);
+  border-bottom: 1px solid var(--reading-code-rule);
+}
+
 .post-toc ~ .post-content .highlight code,
 .post-toc ~ .post-content .highlight pre {
-  font-size: 14.5px;
-  line-height: 1.65;
+  color: var(--reading-code-ink);
+  font-family: ui-monospace, "SFMono-Regular", "Cascadia Code", "Roboto Mono",
+    Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 14px;
+  font-variant-ligatures: none;
+  font-weight: 400;
+  line-height: 1.72;
+  letter-spacing: -0.005em;
   tab-size: 2;
+  -webkit-font-smoothing: antialiased;
 }
 
 .post-toc ~ .post-content .highlight .lntd {
-  line-height: 1.65;
+  line-height: 1.72;
+  vertical-align: top;
+}
+
+.post-toc ~ .post-content .highlight .lntd:first-child {
+  width: 1%;
+  color: var(--reading-code-muted);
+  border-right: 1px solid var(--reading-code-rule);
+  user-select: none;
+}
+
+.post-toc ~ .post-content .highlight .lntd:first-child pre {
+  min-width: 2.15em;
+  padding: 34px 10px 14px 12px;
+  color: var(--reading-code-muted);
+  text-align: right;
+}
+
+.post-toc ~ .post-content .highlight .lntd:last-child pre {
+  padding: 34px 16px 14px;
 }
 
 .post-toc ~ .post-content :not(pre) > code {
@@ -288,7 +347,8 @@ article.post:has(> .post-toc) > .post-header .post-title {
 
   .post-toc ~ .post-content .highlight code,
   .post-toc ~ .post-content .highlight pre {
-    font-size: 14px;
+    font-size: 13px;
+    line-height: 1.7;
   }
 }
 
