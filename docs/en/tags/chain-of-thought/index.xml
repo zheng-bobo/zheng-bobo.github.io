@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Chain of Thought on Blowing in the wind</title>
+    <link>https://zheng-bobo.github.io/en/tags/chain-of-thought/</link>
+    <description>Recent content in Chain of Thought on Blowing in the wind</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Tue, 29 Sep 2026 09:00:00 +0200</lastBuildDate>
+    
+	<atom:link href="https://zheng-bobo.github.io/en/tags/chain-of-thought/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Agentic Large Language Models (I): Reasoning—from Chain of Thought to Search, Reflection, and Verification</title>
+      <link>https://zheng-bobo.github.io/en/post/agentic-llm-1-reasoning/</link>
+      <pubDate>Tue, 29 Sep 2026 09:00:00 +0200</pubDate>
+      
+      <guid>https://zheng-bobo.github.io/en/post/agentic-llm-1-reasoning/</guid>
+      <description>&lt;p&gt;Large language models began as systems that continue text from existing text. An Agentic LLM must instead understand goals in a changing environment, make decisions, and affect that environment through action. This transition requires at least three capabilities:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Reasoning&lt;/strong&gt;: analyze state, decompose problems, compare paths, and form decisions.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Action&lt;/strong&gt;: call tools and translate decisions into external operations.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Interaction&lt;/strong&gt;: observe outcomes, exchange information with the environment or other agents, and revise the strategy.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;This is the &lt;strong&gt;first article in the Agentic Large Language Models series&lt;/strong&gt;, focused on Reasoning. The next two articles will cover Action and Interaction.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

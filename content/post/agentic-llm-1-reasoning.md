@@ -1,0 +1,440 @@
+---
+title: "Agentic Large Language Models（一）：Reasoning——从思维链到搜索、反思与可验证推理"
+date: 2026-09-29 09:00:00 +0200
+slug: "agentic-llm-1-reasoning"
+categories: [AI Agents]
+tags: [Agentic LLM, Reasoning, Chain of Thought, Tree of Thoughts, Self-Reflection, RLVR, GRPO]
+toc: true
+---
+
+大语言模型最初擅长的是“根据已有文本继续生成文本”。Agentic LLM 则要求模型在一个持续变化的环境里理解目标、做出判断，并通过行动影响环境。要完成这种跨越，系统至少需要三类能力：
+
+1. **Reasoning**：分析状态、拆解问题、比较候选路径并形成决策；
+2. **Action**：调用工具，把决策转化为对外部世界的操作；
+3. **Interaction**：读取行动结果，与环境或其他 Agent 持续交换信息并修正策略。
+
+本文是 **Agentic Large Language Models 系列的第一篇**，聚焦 Reasoning。后续两篇将分别讨论 Action 和 Interaction。
+
+<!--more-->
+
+> **系列导航**：**（一）Reasoning** · （二）Action（待续） · （三）Interaction（待续）
+
+## 1. Introduction：什么是 Agentic LLM？
+
+可以把 Agentic LLM 定义为：
+
+> 从环境接收自然语言或多模态输入，通过推理做出决策，并自主采取行动影响环境，以完成特定目标的智能体。
+
+普通 Chatbot 的典型过程是：
+
+```text
+Prompt → LLM → Response
+```
+
+Agentic LLM 的过程则是一个循环：
+
+```text
+Goal + Environment State
+          ↓
+       Reason
+          ↓
+        Action
+          ↓
+   Environment Feedback
+          └────────→ 下一轮 Reasoning
+```
+
+因此，Agent 的能力不只取决于 Base Model。它还取决于推理策略、工具、外部记忆、状态管理、环境反馈以及包裹模型的 Harness。
+
+### 1.1 从训练模型到使用模型
+
+一个现代 LLM 通常经历以下阶段：
+
+| 阶段 | 目标 |
+| --- | --- |
+| 获取通用语料 | 建立大规模无标签训练集 |
+| Pretraining | 通过自监督目标学习语言、知识和模式 |
+| Supervised Fine-Tuning | 使用标注的指令—答案数据适配任务 |
+| Instruction Tuning | 提升遵循自然语言指令的能力 |
+| Preference Alignment | 通过 RLHF、DPO、RLVR 等方法对齐偏好或可验证目标 |
+| 训练与部署优化 | 使用 LoRA、混合精度、蒸馏等降低成本 |
+| Inference | 通过 Prompt、Context、Tools 和解码策略解决具体问题 |
+
+前六步主要改变模型参数；Agentic Reasoning 大量发生在最后一步——**不一定更新权重，而是在推理时给模型更多中间计算、候选路径、反馈和外部系统。**
+
+这也是理解本文的关键：Reasoning 不只是模型“内部会不会想”，还包括外部算法如何组织多次模型调用。
+
+## 2. 为什么单次生成不够？
+
+以 GSM8K 中常见的数学文字题为例：
+
+> Romeo 一周烤 4 盘 Cookie，每盘包含 2 打。如果平均分给 16 个人，每人得到多少？
+
+人类会把问题写成：
+
+```text
+4 × 2 × 12 ÷ 16 = 6
+```
+
+但早期 GPT-3 175B 在 GSM8K 上只有约 15% 的准确率。模型可能知道乘除法，也理解每个词，却无法稳定组织多步计算。
+
+问题在于，自回归模型每次只预测下一个 Token。直接回答时，模型需要在一次连续生成中隐式完成：
+
+- 找到相关事实；
+- 识别变量和约束；
+- 决定步骤顺序；
+- 执行每一步计算；
+- 避免早期错误向后传播。
+
+Reasoning 方法的核心，就是把这些隐式过程变成更长、更可控制的计算路径。
+
+## 3. In-Context Learning：先用示例限定问题空间
+
+In-Context Learning（ICL）把示例和问题一起放进 Context Window。模型不更新参数，只通过当前 Prompt 推断任务模式。
+
+### Zero-shot
+
+只给指令与问题：
+
+```text
+请解决下面的数学题，并给出答案。
+```
+
+### Few-shot
+
+先提供少量相似例子：
+
+```text
+Question A → Answer A
+Question B → Answer B
+Question C → ?
+```
+
+Few-shot 示例的作用不只是展示输出格式，还会把模型引向更合适的知识与解题模式。但普通 ICL 仍然常把“过程”压缩在一次前向生成里。下一步自然是：把中间步骤也作为输出的一部分。
+
+## 4. Chain of Thought：让中间步骤成为计算空间
+
+[Chain-of-Thought Prompting](https://arxiv.org/abs/2201.11903) 的核心非常简单：不要只要求最终答案，而是让模型生成一系列中间推理步骤。
+
+```text
+Question
+   ↓
+Thought 1 → Thought 2 → Thought 3
+   ↓
+Final Answer
+```
+
+在 Few-shot CoT 中，Prompt 给出带推理过程的示例；在 Zero-shot CoT 中，一句类似 “Let’s think step by step” 的指令也可能明显改善表现。原始 CoT 工作中，GSM8K 的示例结果从约 16% 提升到约 47%。
+
+一种直观解释是：每个中间 Token 都会重新进入后续预测的上下文。模型因此获得了更多串行计算步骤，能够逐渐缩小最终答案的概率空间。
+
+但 CoT 也引入了新问题：**链条越长，错误累积的机会越多。**如果第一步选错假设，后续步骤可能非常连贯地把错误推到结论。
+
+## 5. 从“生成一条路径”到“验证多条路径”
+
+### 5.1 Self-Verification
+
+Self-Verification 不直接相信第一次得到的结论，而是把结论作为条件，反向检查它是否与原问题一致。
+
+```text
+原问题：5 个苹果，又得到 3 个
+             ↓
+       候选答案：8 / 9
+             ↓
+反向验证：8 - 5 = 3；9 - 5 = 4
+             ↓
+        选择满足原条件的 8
+```
+
+这里，同一个 LLM 可以扮演生成者和验证者，也可以使用独立模型评价。关键不是“模型再想一次”，而是改变验证问题的形式，让错误暴露在新的约束下。
+
+### 5.2 Self-Consistency
+
+[Self-Consistency](https://arxiv.org/abs/2203.11171) 不只生成一条 CoT，而是采样多条不同的推理路径，再用最终答案的一致性进行聚合：
+
+```text
+             ┌─ Reasoning Path A ─→ 42
+Question ────┼─ Reasoning Path B ─→ 42
+             ├─ Reasoning Path C ─→ 37
+             └─ Reasoning Path D ─→ 42
+                              ↓
+                     Majority Vote: 42
+```
+
+复杂问题往往存在多条通向正确答案的路径，而错误路径更容易彼此分散。因此，多数投票可以降低某一次采样走偏的影响。
+
+原论文报告 Self-Consistency 在 GSM8K 上相对 CoT 提升 17.9 个百分点，在多个算术与常识推理基准上也有明显收益。代价是推理成本：采样 20 条路径通常意味着远高于单次生成的 Token 与延迟。
+
+这说明推理能力不仅是模型参数的属性，也可以通过 **inference-time compute** 换取。
+
+## 6. 从自然语言切换到形式语言
+
+自然语言灵活，但存在歧义，并且不擅长可靠执行精确计算。一个实用策略是：让 LLM 负责理解与分解，让解释器负责执行。
+
+### 6.1 Program-Aided Language Models
+
+[PAL](https://arxiv.org/abs/2211.10435) 让模型把问题翻译为 Python 等可执行程序，再把求值交给解释器：
+
+```text
+Natural-language Problem
+          ↓ LLM
+Executable Program
+          ↓ Interpreter
+Verified Result
+```
+
+模型擅长把问题拆成程序结构；Python 擅长精确维护变量、循环与状态。PAL 使用 Codex 在 GSM8K 上报告了约 72% 的准确率，并在多类符号任务上超过了仅使用自然语言 CoT 的更大模型。
+
+### 6.2 Interpreter、Debugger 与 Self-Debugging
+
+生成代码后，系统还可以执行代码，把报错、测试失败或运行结果反馈给模型：
+
+```text
+Generate → Execute → Observe Error → Explain → Repair → Execute Again
+```
+
+[Self-Debugging](https://arxiv.org/abs/2304.05128) 说明 LLM 可以通过检查执行结果和解释自己的代码定位错误。这里的 Ground Truth 不来自“模型觉得自己对了”，而来自编译器、解释器和测试。
+
+这种组合也缓解了 **Knowing–Doing Gap**：模型可能能够用文字描述正确算法，却无法在 Token 序列中可靠维护每一次状态变化。让传统程序执行算法，往往比让 LLM 模拟执行更准确、更便宜。
+
+## 7. Search-based Reasoning：从一条链扩展为一棵树
+
+CoT 本质上是一条单路径：每个 Thought 只有一个后继。Search-based 方法则在每一步生成多个候选，形成一个可以回溯的状态空间。
+
+### 7.1 Tree of Thoughts
+
+[Tree of Thoughts（ToT）](https://arxiv.org/abs/2305.10601) 把语言模型的中间推理视为搜索节点：
+
+```text
+                         Thought A1 ──→ ...
+                       ↗
+Problem ─→ Thought A ──→ Thought A2 ──→ ...
+       └→ Thought B ──→ Thought B1 ──→ ...
+                       ↘
+                         Thought B2 ──→ ...
+```
+
+系统通常包含三个操作：
+
+1. **Generate**：为当前状态生成若干候选 Thought；
+2. **Evaluate**：评价候选是否有希望；
+3. **Search**：根据 BFS、DFS 或其他策略保留并扩展节点。
+
+BFS 可以表示为：
+
+```text
+Generate k candidates → Evaluate → Keep top-b → Repeat
+```
+
+DFS 则沿一个分支深入，在失败或达到边界后回溯。
+
+ToT 的优点是路径可观察、可回退、易于加入约束。它的限制是扩展策略通常由人预先固定：每层生成多少节点、保留多少分支、何时停止都需要配置。学习型策略可以根据状态动态决定下一步探索哪里，但会引入训练、稳定性和调试复杂度。
+
+## 8. Self-Reflection：让失败成为下一次尝试的输入
+
+当 LLM 被分别调用为 Actor、Critic 或 Evaluator，并根据反馈生成新的 Prompt 或策略时，系统表现出一种工程意义上的 Self-Reflection。
+
+需要强调：反思通常不是模型在一次调用中神秘地“自我意识”，而是 **外部控制算法多次调用模型、保存轨迹并重组上下文**。
+
+### 8.1 Self-Refine
+
+[Self-Refine](https://arxiv.org/abs/2303.17651) 使用简单循环：
+
+```text
+Initial Output → Feedback → Refined Output → Feedback → ...
+```
+
+同一个模型可以同时生成答案、批评答案并据此改写。它不需要更新模型权重，适合能够用语言描述质量标准的任务。
+
+### 8.2 ReAct：Reasoning 走向 Action 的桥梁
+
+[ReAct](https://arxiv.org/abs/2210.03629) 把 Thought、Action 与 Observation 交错组织：
+
+```text
+Thought → Action → Observation → Thought → Action → ...
+```
+
+CoT 只能基于模型已有上下文继续思考；ReAct 可以主动检索 Wikipedia、调用工具或查询环境，再把新证据纳入下一轮推理。它通过 Grounding 减少纯语言推理中的幻觉。
+
+ReAct 已经跨过 Reasoning 与 Action 的边界，因此会成为本系列第二篇的起点。
+
+### 8.3 Reflexion：从一次轨迹中提炼长期经验
+
+[Reflexion](https://arxiv.org/abs/2303.11366) 在 ReAct 之外增加三个角色：
+
+- **Actor**：生成推理、动作与完整轨迹；
+- **Evaluator**：判断任务是否成功并给出反馈；
+- **Reflector**：把失败原因压缩成可复用的自然语言经验。
+
+```text
+Actor trajectory
+      ↓
+Evaluator score / feedback
+      ↓
+Reflector creates a lesson
+      ↓
+Store in memory
+      ↓
+Actor tries again
+```
+
+Reflexion 区分两类记忆：短期记忆保存当前推理和行动轨迹；长期记忆保存跨尝试可复用的反思。
+
+例如：
+
+```text
+Evaluator：失败原因是使用了过期信息。
+Reflector：回答前应通过外部来源核验时效性信息。
+Long-term Memory：保存这条规则，供后续任务检索。
+```
+
+可以用一句话记住关系：
+
+> ReAct = Think → Act → Observe  
+> Reflexion = ReAct → Evaluate → Reflect → Remember → Try Again
+
+### 8.4 Buffer of Thoughts
+
+[Buffer of Thoughts](https://arxiv.org/abs/2406.04271) 不保存每个问题的完整轨迹，而是把不同任务中的高层解题结构提炼为 Thought Template，存入 Meta-Buffer：
+
+```text
+Solved Problems → Problem Distiller → Thought Templates → Meta-Buffer
+                                                     ↓
+New Problem → Retrieve Template → Instantiated Reasoning
+```
+
+它试图让 Agent 不必每次从零推理，而是积累类似“先识别约束、再枚举候选、最后验证”的通用认知模式。
+
+### 8.5 其他 Prompt 改进循环
+
+| 方法 | 核心思想 |
+| --- | --- |
+| Progressive Hint Prompting | 把上一轮答案作为新提示的一部分，持续迭代直到稳定 |
+| Self-Discover | 从多种 Reasoning Module 中选择并组合适合当前问题的结构 |
+| Prompt Improvement | 用评价结果改写下一轮 Prompt，而不是修改权重 |
+
+Self-Reflection 方法有两个共同难点：
+
+1. 多个角色和 Prompt 会产生复杂交互，错误可能被循环放大，调试困难；
+2. 状态、动作、观察、奖励和反思不断增长，最终会挤满 Context Window。
+
+因此，反思必须与摘要、记忆选择、Context Reset 和外部状态存储结合。
+
+## 9. Retrieval Augmentation：在需要时获取证据
+
+Reasoning 不应该只在参数记忆中闭门运行。RAG 把非结构化文档、数据库或知识图谱接入推理过程：
+
+```text
+Question → Query Rewrite / Decomposition → Retrieval
+                                      ↓
+                         Evidence + Reasoning → Answer
+```
+
+基础 RAG 在回答前固定检索一次；Adaptive Retrieval 则让模型判断何时需要搜索、应该搜索什么，以及当前证据是否足够。
+
+它与 Self-Reflection 的关系很紧密：Evaluator 发现证据不足或内容过期后，可以触发新检索；检索结果又成为下一轮推理的 Observation。由此，Reasoning 开始变成“思考—取证—验证”的动态过程。
+
+## 10. 从推理轨迹反过来训练模型：RLVR 与 GRPO
+
+前面的多数方法发生在推理阶段，不修改参数。但高质量 Reasoning Trace 也可以反过来用于训练。
+
+### 10.1 RLVR
+
+Reinforcement Learning with Verifiable Rewards（RLVR）使用可以快速、确定计算的验证器代替主观 Reward Model，例如：
+
+- 数学题最终答案是否正确；
+- 代码是否通过测试；
+- 格式和约束是否满足；
+- 定理证明是否能被 Proof Checker 接受。
+
+```text
+Prompt → Sample Reasoning + Answer → Verifier → Reward → Policy Update
+```
+
+它的优势是 Reward 更客观、规模化成本更低；局限是只有一部分现实任务拥有便宜且可靠的验证函数。
+
+### 10.2 GRPO
+
+Group Relative Policy Optimization（GRPO）针对同一问题采样一组回答，根据组内相对得分估计优势，减少对独立 Critic Model 的依赖。它把 Self-Consistency 的“多样采样”进一步用于训练：不仅在推理时选出更好答案，也让模型增加高奖励推理策略的概率。
+
+这形成一个循环：
+
+```text
+Inference-time exploration
+          ↓
+Verifiable outcomes
+          ↓
+RLVR / GRPO training
+          ↓
+Stronger reasoning policy
+          ↓
+Better inference-time exploration
+```
+
+## 11. 更广的视角：Connectionist 与 Symbolic 的结合
+
+LLM 属于 Connectionist AI：知识与能力分布在神经网络参数中，通过数据学习模式。搜索、逻辑、规划、解释器和状态机则更接近 Symbolic AI：知识和操作规则被显式表达。
+
+现代 Agentic System 往往结合两者：
+
+```text
+LLM（模式识别、语言理解、候选生成）
+                +
+Search / Planning / Memory / Tools（结构、状态与验证）
+```
+
+这也常被类比为 System 1 与 System 2：
+
+- **Fast Reasoning**：直接依靠已学习的关联给出答案；
+- **Slow Reasoning**：显式引入中间步骤、搜索、规划和工具。
+
+例如：
+
+```text
+Fast: 17 × 6 → 102
+
+Slow: 17 × 6
+      → 10 × 6 + 7 × 6
+      → 60 + 42
+      → 102
+```
+
+但这个类比不能过度解释。LLM 仍然通过 Next-token Prediction 运行；“慢思考”更准确的工程描述是：系统为模型提供了更多串行 Token、并行候选、外部状态和可验证反馈。
+
+## 12. 从 Reasoning 走向 Action 与 Interaction
+
+到这里，我们得到一条从普通生成到 Agentic Reasoning 的完整路径：
+
+```text
+Direct Generation
+  → In-Context Learning
+  → Chain of Thought
+  → Verification / Self-Consistency
+  → Code + Interpreter
+  → Tree Search
+  → Self-Reflection + Memory
+  → Retrieval
+  → RLVR / GRPO
+```
+
+但 Reasoning 本身不能改变世界。一条正确计划如果无法调用工具，就仍然只是文本；一次行动如果不能读取环境结果，也无法形成闭环。
+
+因此接下来的两篇会讨论：
+
+- **Action**：Planning、Tool Use、World Model、Vision-Language-Action Model，以及模型如何把 Token 转成真实操作；
+- **Interaction**：Observation、环境反馈、多 Agent 协作、状态管理与持续学习。
+
+Reasoning 决定“下一步应该做什么”，Action 决定“如何做”，Interaction 则让系统知道“做完之后发生了什么”。三者结合，才构成真正的 Agentic Large Language Model。
+
+## 参考资料
+
+- [Chain-of-Thought Prompting Elicits Reasoning in Large Language Models](https://arxiv.org/abs/2201.11903)
+- [Self-Consistency Improves Chain of Thought Reasoning in Language Models](https://arxiv.org/abs/2203.11171)
+- [PAL: Program-Aided Language Models](https://arxiv.org/abs/2211.10435)
+- [Teaching Large Language Models to Self-Debug](https://arxiv.org/abs/2304.05128)
+- [Tree of Thoughts: Deliberate Problem Solving with Large Language Models](https://arxiv.org/abs/2305.10601)
+- [Self-Refine: Iterative Refinement with Self-Feedback](https://arxiv.org/abs/2303.17651)
+- [ReAct: Synergizing Reasoning and Acting in Language Models](https://arxiv.org/abs/2210.03629)
+- [Reflexion: Language Agents with Verbal Reinforcement Learning](https://arxiv.org/abs/2303.11366)
+- [Buffer of Thoughts: Thought-Augmented Reasoning with Large Language Models](https://arxiv.org/abs/2406.04271)
+- [DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models](https://arxiv.org/abs/2402.03300)

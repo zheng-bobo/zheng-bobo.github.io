@@ -6,10 +6,73 @@
     <description>Recent content in Tags on Blowing in the wind</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Mon, 28 Sep 2026 09:00:00 +0200</lastBuildDate>
+    <lastBuildDate>Tue, 29 Sep 2026 09:00:00 +0200</lastBuildDate>
     
 	<atom:link href="https://zheng-bobo.github.io/en/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Agentic LLM</title>
+      <link>https://zheng-bobo.github.io/en/tags/agentic-llm/</link>
+      <pubDate>Tue, 29 Sep 2026 09:00:00 +0200</pubDate>
+      
+      <guid>https://zheng-bobo.github.io/en/tags/agentic-llm/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Chain of Thought</title>
+      <link>https://zheng-bobo.github.io/en/tags/chain-of-thought/</link>
+      <pubDate>Tue, 29 Sep 2026 09:00:00 +0200</pubDate>
+      
+      <guid>https://zheng-bobo.github.io/en/tags/chain-of-thought/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>GRPO</title>
+      <link>https://zheng-bobo.github.io/en/tags/grpo/</link>
+      <pubDate>Tue, 29 Sep 2026 09:00:00 +0200</pubDate>
+      
+      <guid>https://zheng-bobo.github.io/en/tags/grpo/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Reasoning</title>
+      <link>https://zheng-bobo.github.io/en/tags/reasoning/</link>
+      <pubDate>Tue, 29 Sep 2026 09:00:00 +0200</pubDate>
+      
+      <guid>https://zheng-bobo.github.io/en/tags/reasoning/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>RLVR</title>
+      <link>https://zheng-bobo.github.io/en/tags/rlvr/</link>
+      <pubDate>Tue, 29 Sep 2026 09:00:00 +0200</pubDate>
+      
+      <guid>https://zheng-bobo.github.io/en/tags/rlvr/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Self-Reflection</title>
+      <link>https://zheng-bobo.github.io/en/tags/self-reflection/</link>
+      <pubDate>Tue, 29 Sep 2026 09:00:00 +0200</pubDate>
+      
+      <guid>https://zheng-bobo.github.io/en/tags/self-reflection/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Tree of Thoughts</title>
+      <link>https://zheng-bobo.github.io/en/tags/tree-of-thoughts/</link>
+      <pubDate>Tue, 29 Sep 2026 09:00:00 +0200</pubDate>
+      
+      <guid>https://zheng-bobo.github.io/en/tags/tree-of-thoughts/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>AI R&amp;D</title>
@@ -152,15 +215,6 @@
       <pubDate>Sat, 26 Sep 2026 23:00:00 +0200</pubDate>
       
       <guid>https://zheng-bobo.github.io/en/tags/llm/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Reasoning</title>
-      <link>https://zheng-bobo.github.io/en/tags/reasoning/</link>
-      <pubDate>Sat, 26 Sep 2026 23:00:00 +0200</pubDate>
-      
-      <guid>https://zheng-bobo.github.io/en/tags/reasoning/</guid>
       <description></description>
     </item>
     

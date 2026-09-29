@@ -6,21 +6,38 @@
     <description>Recent content in Reasoning on Blowing in the wind</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Sat, 26 Sep 2026 23:00:00 +0200</lastBuildDate>
+    <lastBuildDate>Tue, 29 Sep 2026 09:00:00 +0200</lastBuildDate>
+    
+	<atom:link href="https://zheng-bobo.github.io/tags/reasoning/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Agentic Large Language Models（一）：Reasoning——从思维链到搜索、反思与可验证推理</title>
+      <link>https://zheng-bobo.github.io/post/agentic-llm-1-reasoning/</link>
+      <pubDate>Tue, 29 Sep 2026 09:00:00 +0200</pubDate>
+      
+      <guid>https://zheng-bobo.github.io/post/agentic-llm-1-reasoning/</guid>
+      <description>&lt;p&gt;大语言模型最初擅长的是“根据已有文本继续生成文本”。Agentic LLM 则要求模型在一个持续变化的环境里理解目标、做出判断，并通过行动影响环境。要完成这种跨越，系统至少需要三类能力：&lt;/p&gt;
 
-  <atom:link href="https://zheng-bobo.github.io/tags/reasoning/index.xml" rel="self" type="application/rss+xml" />
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Reasoning&lt;/strong&gt;：分析状态、拆解问题、比较候选路径并形成决策；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Action&lt;/strong&gt;：调用工具，把决策转化为对外部世界的操作；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Interaction&lt;/strong&gt;：读取行动结果，与环境或其他 Agent 持续交换信息并修正策略。&lt;/li&gt;
+&lt;/ol&gt;
 
-
+&lt;p&gt;本文是 &lt;strong&gt;Agentic Large Language Models 系列的第一篇&lt;/strong&gt;，聚焦 Reasoning。后续两篇将分别讨论 Action 和 Interaction。&lt;/p&gt;</description>
+    </item>
+    
     <item>
       <title>大模型与 AI Agent Benchmark 全景指南：它们究竟在评估什么</title>
       <link>https://zheng-bobo.github.io/post/llm-agent-benchmarks-guide/</link>
       <pubDate>Sat, 26 Sep 2026 23:00:00 +0200</pubDate>
-
+      
       <guid>https://zheng-bobo.github.io/post/llm-agent-benchmarks-guide/</guid>
-      <description>&lt;p&gt;看模型发布报告时，我们经常会遇到一长串名字：ARC-E、ARC-C、MMLU、GPQA、GSM8K、HumanEval、SWE-bench、GAIA、WebArena、OSWorld……它们的分数不能直接横向比较，因为每个 benchmark 测量的能力、输入形式、可用工具和评分方式都不同。&lt;/p&gt;
+      <description>&lt;p&gt;看模型发布报告时，我们经常会遇到一长串名字：Artificial Analysis Intelligence Index、LMArena、HELM、ARC-E、MMLU、GSM8K、SWE-bench、GAIA、WebArena、OSWorld……它们的分数不能直接横向比较，因为这里既有综合指数和排行榜，也有单项 benchmark；各自测量的能力、输入形式、可用工具和评分方式都不同。&lt;/p&gt;
 
 &lt;p&gt;本文整理一张从“大模型答题”到“Agent 完成真实任务”的评测地图，并解释每个常见 benchmark 究竟是什么、适合测什么，以及不能从分数中推出什么结论。&lt;/p&gt;</description>
     </item>
-
+    
   </channel>
 </rss>

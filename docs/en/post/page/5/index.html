@@ -48,7 +48,7 @@
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://zheng-bobo.github.io/en/post/" />
 
-<meta property="og:updated_time" content="2026-09-28T09:00:00+02:00" /><meta property="og:site_name" content="Blowing in the wind" />
+<meta property="og:updated_time" content="2026-09-29T09:00:00+02:00" /><meta property="og:site_name" content="Blowing in the wind" />
 <meta itemprop="name" content="Posts">
 <meta itemprop="description" content="Hugo theme even example site.">
 
@@ -206,7 +206,7 @@
   <aside class="blog-archive-sidebar" aria-labelledby="blog-archive-title">
     <div class="blog-archive-sidebar-header">
       <h1 id="blog-archive-title">Archive</h1>
-      <p>Browse all 25 posts by year</p>
+      <p>Browse all 26 posts by year</p>
       <a class="blog-rss-subscribe" href="https://zheng-bobo.github.io/en/index.xml" type="application/rss+xml">
         <span class="iconfont icon-rss" aria-hidden="true"></span>
         Subscribe via RSS
@@ -215,6 +215,10 @@
 
     <nav class="blog-archive-years" aria-label="Posts grouped by year">
           <h2 class="blog-archive-year" id="year-2026">2026</h2>
+        <a class="blog-archive-index-item" href="/en/post/agentic-llm-1-reasoning/">
+          <time datetime="2026-09-29">09-29</time>
+          <span>Agentic Large Language Models (I): Reasoning—from Chain of Thought to Search, Reflection, and Verification</span>
+        </a>
         <a class="blog-archive-index-item" href="/en/post/anthropic-recursive-self-improvement/">
           <time datetime="2026-09-28">09-28</time>
           <span>When AI Starts Building Itself: Anthropic&#39;s Internal Practice and the Future of Recursive Self-Improvement</span>
@@ -324,6 +328,28 @@
   <div class="blog-recent-posts" aria-label="Recent posts">
       <article class="blog-summary-card">
         <header>
+          <h2><a href="/en/post/inside-go-channel-runtime/">Inside Go&#39;s Channel Runtime</a></h2>
+          <div class="blog-summary-meta">
+            <time datetime="2020-01-05">January 5, 2020</time>
+            <span aria-hidden="true">·</span>
+            <span>27 mins read</span>
+          </div>
+        </header>
+
+        <div class="blog-summary-excerpt post">
+          <div class="post-content">
+            <div class="post-summary">Channel is a very important type in the Go language and is the first object in Go. Through channels, Go implements memory sharing through communication. Channel is an important means of transferring data and synchronizing between multiple goroutines.  Note: All source code analysis in this article is based on Go1.13.3. Different versions may have different implementations.
+channel syntax The syntax for declaring a channel is as follows:</div>
+          </div>
+        </div>
+
+        <footer class="blog-summary-footer">
+          <a class="blog-summary-read-more" href="/en/post/inside-go-channel-runtime/">Read more<span aria-hidden="true">→</span>
+          </a>
+        </footer>
+      </article>
+      <article class="blog-summary-card">
+        <header>
           <h2><a href="/en/post/implementing-raft-in-go-1/">Implementing the Raft Protocol in Go (1)</a></h2>
           <div class="blog-summary-meta">
             <time datetime="2019-12-22">December 22, 2019</time>
@@ -411,27 +437,6 @@ Why?  The current stack splitting mechanism has a &ldquo;hot split&rdquo; proble
           </a>
         </footer>
       </article>
-      <article class="blog-summary-card">
-        <header>
-          <h2><a href="/en/post/go-main-goroutine-scheduler-1/">Inside Go&#39;s Main Goroutine Scheduler (1)</a></h2>
-          <div class="blog-summary-meta">
-            <time datetime="2019-11-10">November 10, 2019</time>
-            <span aria-hidden="true">·</span>
-            <span>11 mins read</span>
-          </div>
-        </header>
-
-        <div class="blog-summary-excerpt post">
-          <div class="post-content">
-            <div class="post-summary">Under the compilation, all traces are revealed.   1.go program entry_rt0_amd64_linux: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15  // The TEXT instruction defines the symbol _rt0_amd64_linux, the global data symbol is declared with DATA, and GLOBL defines the data as global. // SB SB virtual register: saves the starting address of the program address space; the value saved by this SB register is the starting address of the TEXT segment, which is mainly used to locate global symbols.</div>
-          </div>
-        </div>
-
-        <footer class="blog-summary-footer">
-          <a class="blog-summary-read-more" href="/en/post/go-main-goroutine-scheduler-1/">Read more<span aria-hidden="true">→</span>
-          </a>
-        </footer>
-      </article>
       <nav class="blog-pagination" aria-label="Blog pagination">
         <div class="blog-pagination-pages">
             <a class="blog-pagination-direction" href="/en/post/page/4/" rel="prev">
@@ -453,14 +458,21 @@ Why?  The current stack splitting mechanism has a &ldquo;hot split&rdquo; proble
               <span class="blog-pagination-number is-current" aria-current="page" aria-label="Current page, page 5">
                 5
               </span>
+              <a class="blog-pagination-number" href="/en/post/page/6/" aria-label="Page 6">
+                6
+              </a>
+            <a class="blog-pagination-direction" href="/en/post/page/6/" rel="next">
+              Next
+              <span aria-hidden="true">›</span>
+            </a>
         </div>
 
         <div class="blog-pagination-status">
-          <span>Page <strong>5</strong> of 5</span>
+          <span>Page <strong>5</strong> of 6</span>
 
-          <form class="blog-pagination-jump" data-pagination-base="/en/post/" data-total-pages="5">
+          <form class="blog-pagination-jump" data-pagination-base="/en/post/" data-total-pages="6">
             <label for="blog-page-jump">Go to</label>
-            <input id="blog-page-jump" name="page" type="number" min="1" max="5" value="5" inputmode="numeric">
+            <input id="blog-page-jump" name="page" type="number" min="1" max="6" value="5" inputmode="numeric">
             <button type="submit">Go</button>
           </form>
         </div>

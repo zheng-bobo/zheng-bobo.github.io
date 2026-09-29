@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Agentic Large Language Models (I): Reasoning—from Chain of Thought to Search, Reflection, and Verification - Blowing in the wind</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="zhengxz" /><meta name="description" content="Large language models began as systems that continue text from existing text. An Agentic LLM must instead understand goals in a changing environment, make decisions, and affect that environment through action. This transition requires at least three capabilities:
+ Reasoning: analyze state, decompose problems, compare paths, and form decisions. Action: call tools and translate decisions into external operations. Interaction: observe outcomes, exchange information with the environment or other agents, and revise the strategy.  This is the first article in the Agentic Large Language Models series, focused on Reasoning. The next two articles will cover Action and Interaction.
+" /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.59.1 with theme even" />
+
+
+<link rel="canonical" href="https://zheng-bobo.github.io/en/post/agentic-llm-1-reasoning/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.4747d1be8010357c5daf4cd103b0bc1cff65936180045419874ea97f32138102.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+<link rel="stylesheet" href="/css/readability.css">
+<link rel="stylesheet" href="/css/about.css">
+
+
+<meta property="og:title" content="Agentic Large Language Models (I): Reasoning—from Chain of Thought to Search, Reflection, and Verification" />
+<meta property="og:description" content="Large language models began as systems that continue text from existing text. An Agentic LLM must instead understand goals in a changing environment, make decisions, and affect that environment through action. This transition requires at least three capabilities:
+
+
+Reasoning: analyze state, decompose problems, compare paths, and form decisions.
+Action: call tools and translate decisions into external operations.
+Interaction: observe outcomes, exchange information with the environment or other agents, and revise the strategy.
+
+
+This is the first article in the Agentic Large Language Models series, focused on Reasoning. The next two articles will cover Action and Interaction." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zheng-bobo.github.io/en/post/agentic-llm-1-reasoning/" />
+<meta property="article:published_time" content="2026-09-29T09:00:00+02:00" />
+<meta property="article:modified_time" content="2026-09-29T09:00:00+02:00" /><meta property="og:site_name" content="Blowing in the wind" />
+<meta itemprop="name" content="Agentic Large Language Models (I): Reasoning—from Chain of Thought to Search, Reflection, and Verification">
+<meta itemprop="description" content="Large language models began as systems that continue text from existing text. An Agentic LLM must instead understand goals in a changing environment, make decisions, and affect that environment through action. This transition requires at least three capabilities:
+
+
+Reasoning: analyze state, decompose problems, compare paths, and form decisions.
+Action: call tools and translate decisions into external operations.
+Interaction: observe outcomes, exchange information with the environment or other agents, and revise the strategy.
+
+
+This is the first article in the Agentic Large Language Models series, focused on Reasoning. The next two articles will cover Action and Interaction.">
+
+
+<meta itemprop="datePublished" content="2026-09-29T09:00:00&#43;02:00" />
+<meta itemprop="dateModified" content="2026-09-29T09:00:00&#43;02:00" />
+<meta itemprop="wordCount" content="2467">
+
+
+
+<meta itemprop="keywords" content="Agentic LLM,Reasoning,Chain of Thought,Tree of Thoughts,Self-Reflection,RLVR,GRPO," />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Agentic Large Language Models (I): Reasoning—from Chain of Thought to Search, Reflection, and Verification"/>
+<meta name="twitter:description" content="Large language models began as systems that continue text from existing text. An Agentic LLM must instead understand goals in a changing environment, make decisions, and affect that environment through action. This transition requires at least three capabilities:
+
+
+Reasoning: analyze state, decompose problems, compare paths, and form decisions.
+Action: call tools and translate decisions into external operations.
+Interaction: observe outcomes, exchange information with the environment or other agents, and revise the strategy.
+
+
+This is the first article in the Agentic Large Language Models series, focused on Reasoning. The next two articles will cover Action and Interaction."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/en/about/" class="logo">Bobo</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/en/">
+        <li class="mobile-menu-item">Blog</li>
+      </a><a href="/en/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/en/categories/">
+        <li class="mobile-menu-item">Categories</li>
+      </a><a href="/en/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+      
+        
+        
+        <li class="language-item ">
+          
+            <a href="/post/agentic-llm-1-reasoning/" lang="zh-cn" hreflang="zh-cn">中文</a>
+          
+        </li>
+      
+        
+        
+        <li class="language-item active">
+          
+            <a href="/en/post/agentic-llm-1-reasoning/" lang="en" hreflang="en">EN</a>
+          
+        </li>
+      
+    </ul>
+  </nav>
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/en/about/" class="logo">Bobo</a>
+</div>
+
+
+
+  <nav class="language-selector" aria-label="Language selector">
+    <ul class="languages-list">
+      
+        
+        
+        <li class="language-item ">
+          
+            <a href="/post/agentic-llm-1-reasoning/" lang="zh-cn" hreflang="zh-cn">中文</a>
+          
+        </li>
+      
+        
+        
+        <li class="language-item active">
+          
+            <a href="/en/post/agentic-llm-1-reasoning/" lang="en" hreflang="en">EN</a>
+          
+        </li>
+      
+    </ul>
+  </nav>
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/en/">Blog</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/categories/">Categories</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/en/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Agentic Large Language Models (I): Reasoning—from Chain of Thought to Search, Reflection, and Verification</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2026-09-29 </span>
+        <div class="post-category">
+            <a href="/en/categories/ai-agents/"> AI Agents </a>
+            </div>
+          <span class="more-meta"> 2467 words </span>
+          <span class="more-meta"> 12 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#1-introduction-what-is-an-agentic-llm">1. Introduction: what is an Agentic LLM?</a>
+<ul>
+<li><a href="#1-1-from-training-a-model-to-using-it">1.1 From training a model to using it</a></li>
+</ul></li>
+<li><a href="#2-why-one-shot-generation-is-not-enough">2. Why one-shot generation is not enough</a></li>
+<li><a href="#3-in-context-learning-constraining-the-problem-with-examples">3. In-context learning: constraining the problem with examples</a>
+<ul>
+<li><a href="#zero-shot">Zero-shot</a></li>
+<li><a href="#few-shot">Few-shot</a></li>
+</ul></li>
+<li><a href="#4-chain-of-thought-intermediate-tokens-as-computation">4. Chain of Thought: intermediate tokens as computation</a></li>
+<li><a href="#5-from-one-path-to-verification-across-paths">5. From one path to verification across paths</a>
+<ul>
+<li><a href="#5-1-self-verification">5.1 Self-verification</a></li>
+<li><a href="#5-2-self-consistency">5.2 Self-consistency</a></li>
+</ul></li>
+<li><a href="#6-switching-from-natural-language-to-formal-language">6. Switching from natural language to formal language</a>
+<ul>
+<li><a href="#6-1-program-aided-language-models">6.1 Program-Aided Language Models</a></li>
+<li><a href="#6-2-interpreters-debuggers-and-self-debugging">6.2 Interpreters, debuggers, and self-debugging</a></li>
+</ul></li>
+<li><a href="#7-search-based-reasoning-from-a-chain-to-a-tree">7. Search-based reasoning: from a chain to a tree</a>
+<ul>
+<li><a href="#7-1-tree-of-thoughts">7.1 Tree of Thoughts</a></li>
+</ul></li>
+<li><a href="#8-self-reflection-turning-failure-into-input-for-the-next-attempt">8. Self-reflection: turning failure into input for the next attempt</a>
+<ul>
+<li><a href="#8-1-self-refine">8.1 Self-Refine</a></li>
+<li><a href="#8-2-react-the-bridge-from-reasoning-to-action">8.2 ReAct: the bridge from reasoning to action</a></li>
+<li><a href="#8-3-reflexion-extracting-reusable-experience-from-a-trajectory">8.3 Reflexion: extracting reusable experience from a trajectory</a></li>
+<li><a href="#8-4-buffer-of-thoughts">8.4 Buffer of Thoughts</a></li>
+<li><a href="#8-5-other-prompt-improvement-loops">8.5 Other prompt-improvement loops</a></li>
+</ul></li>
+<li><a href="#9-retrieval-augmentation-acquiring-evidence-when-needed">9. Retrieval augmentation: acquiring evidence when needed</a></li>
+<li><a href="#10-training-from-reasoning-traces-rlvr-and-grpo">10. Training from reasoning traces: RLVR and GRPO</a>
+<ul>
+<li><a href="#10-1-rlvr">10.1 RLVR</a></li>
+<li><a href="#10-2-grpo">10.2 GRPO</a></li>
+</ul></li>
+<li><a href="#11-a-broader-view-combining-connectionist-and-symbolic-ai">11. A broader view: combining connectionist and symbolic AI</a></li>
+<li><a href="#12-from-reasoning-to-action-and-interaction">12. From Reasoning to Action and Interaction</a></li>
+<li><a href="#references">References</a></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>Large language models began as systems that continue text from existing text. An Agentic LLM must instead understand goals in a changing environment, make decisions, and affect that environment through action. This transition requires at least three capabilities:</p>
+
+<ol>
+<li><strong>Reasoning</strong>: analyze state, decompose problems, compare paths, and form decisions.</li>
+<li><strong>Action</strong>: call tools and translate decisions into external operations.</li>
+<li><strong>Interaction</strong>: observe outcomes, exchange information with the environment or other agents, and revise the strategy.</li>
+</ol>
+
+<p>This is the <strong>first article in the Agentic Large Language Models series</strong>, focused on Reasoning. The next two articles will cover Action and Interaction.</p>
+
+<blockquote>
+<p><strong>Series</strong>: <strong>(I) Reasoning</strong> · (II) Action (coming next) · (III) Interaction (coming next)</p>
+</blockquote>
+
+<h2 id="1-introduction-what-is-an-agentic-llm">1. Introduction: what is an Agentic LLM?</h2>
+
+<p>An Agentic LLM can be defined as:</p>
+
+<blockquote>
+<p>An agent that receives natural-language or multimodal input from its environment, reasons to make decisions, and takes autonomous actions that affect the environment in pursuit of a goal.</p>
+</blockquote>
+
+<p>A conventional chatbot often follows:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Prompt → LLM → Response</code></pre></td></tr></table>
+</div>
+</div>
+<p>An Agentic LLM operates in a loop:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Goal + Environment State
+          ↓
+       Reason
+          ↓
+        Action
+          ↓
+   Environment Feedback
+          └────────→ next reasoning cycle</code></pre></td></tr></table>
+</div>
+</div>
+<p>Agent capability therefore depends on more than the base model. It also depends on reasoning strategies, tools, external memory, state management, environmental feedback, and the harness surrounding the model.</p>
+
+<h3 id="1-1-from-training-a-model-to-using-it">1.1 From training a model to using it</h3>
+
+<p>A modern LLM typically passes through the following stages:</p>
+
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Purpose</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>General corpus acquisition</td>
+<td>Build a large unlabeled dataset</td>
+</tr>
+
+<tr>
+<td>Pretraining</td>
+<td>Learn language, knowledge, and patterns through self-supervision</td>
+</tr>
+
+<tr>
+<td>Supervised fine-tuning</td>
+<td>Adapt to tasks with labeled instruction–answer data</td>
+</tr>
+
+<tr>
+<td>Instruction tuning</td>
+<td>Improve natural-language instruction following</td>
+</tr>
+
+<tr>
+<td>Preference alignment</td>
+<td>Align behavior through RLHF, DPO, RLVR, or related methods</td>
+</tr>
+
+<tr>
+<td>Training and deployment optimization</td>
+<td>Reduce cost with LoRA, mixed precision, or distillation</td>
+</tr>
+
+<tr>
+<td>Inference</td>
+<td>Solve tasks through prompts, context, tools, and decoding strategies</td>
+</tr>
+</tbody>
+</table>
+
+<p>The first six stages primarily alter model parameters. Much of agentic reasoning happens in the final stage: <strong>without necessarily changing the weights, a system gives the model more intermediate computation, candidate paths, feedback, and external machinery.</strong></p>
+
+<p>Reasoning is therefore not only about what happens “inside” one model call. It also includes how an external algorithm organizes many model calls.</p>
+
+<h2 id="2-why-one-shot-generation-is-not-enough">2. Why one-shot generation is not enough</h2>
+
+<p>Consider a typical GSM8K problem:</p>
+
+<blockquote>
+<p>Romeo bakes four trays containing two dozen cookies each. If the cookies are shared equally among sixteen people, how many does each person receive?</p>
+</blockquote>
+
+<p>A person writes:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">4 × 2 × 12 ÷ 16 = 6</code></pre></td></tr></table>
+</div>
+</div>
+<p>Yet GPT-3 175B achieved only about 15% accuracy on GSM8K when the benchmark was introduced. The model may know arithmetic and understand every word while still failing to organize a reliable multi-step calculation.</p>
+
+<p>A direct autoregressive answer implicitly requires the model to retrieve facts, identify variables, order operations, execute each step, and prevent early errors from propagating. Reasoning methods turn this hidden process into a longer, more controllable computational path.</p>
+
+<h2 id="3-in-context-learning-constraining-the-problem-with-examples">3. In-context learning: constraining the problem with examples</h2>
+
+<p>In-context learning (ICL) places examples and a query together in the context window. The model does not update its parameters; it infers the task pattern from the current prompt.</p>
+
+<h3 id="zero-shot">Zero-shot</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Solve the following problem and provide the answer.</code></pre></td></tr></table>
+</div>
+</div>
+<h3 id="few-shot">Few-shot</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Question A → Answer A
+Question B → Answer B
+Question C → ?</code></pre></td></tr></table>
+</div>
+</div>
+<p>Few-shot examples do more than specify formatting. They steer the model toward relevant knowledge and a suitable solution pattern. Ordinary ICL, however, can still compress the process into one forward generation. The natural next step is to include intermediate steps in the output itself.</p>
+
+<h2 id="4-chain-of-thought-intermediate-tokens-as-computation">4. Chain of Thought: intermediate tokens as computation</h2>
+
+<p><a href="https://arxiv.org/abs/2201.11903">Chain-of-Thought Prompting</a> asks the model to generate a sequence of intermediate reasoning steps rather than only the final answer:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Question
+   ↓
+Thought 1 → Thought 2 → Thought 3
+   ↓
+Final Answer</code></pre></td></tr></table>
+</div>
+</div>
+<p>Few-shot CoT demonstrates complete reasoning traces. Zero-shot CoT can be elicited with a phrase such as “Let’s think step by step.” In the original work, an example GSM8K result improved from roughly 16% to 47%.</p>
+
+<p>One intuition is that every intermediate token re-enters the context for subsequent prediction. The model obtains more serial computation and gradually narrows the probability space around the final answer.</p>
+
+<p>CoT creates a new problem as well: <strong>longer chains provide more opportunities for error accumulation.</strong> A wrong early assumption can produce a coherent but incorrect conclusion.</p>
+
+<h2 id="5-from-one-path-to-verification-across-paths">5. From one path to verification across paths</h2>
+
+<h3 id="5-1-self-verification">5.1 Self-verification</h3>
+
+<p>Self-verification treats the conclusion as a condition and checks it against the original problem:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Original: 5 apples, then receive 3 more
+               ↓
+        Candidates: 8 / 9
+               ↓
+Backward checks: 8 - 5 = 3; 9 - 5 = 4
+               ↓
+          Select 8</code></pre></td></tr></table>
+</div>
+</div>
+<p>The same LLM may act as generator and verifier, or a separate evaluator can be used. The important move is not merely “think again,” but changing the form of the problem so that mistakes encounter a new constraint.</p>
+
+<h3 id="5-2-self-consistency">5.2 Self-consistency</h3>
+
+<p><a href="https://arxiv.org/abs/2203.11171">Self-Consistency</a> samples diverse reasoning paths and aggregates their final answers:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">             ┌─ Reasoning Path A ─→ 42
+Question ────┼─ Reasoning Path B ─→ 42
+             ├─ Reasoning Path C ─→ 37
+             └─ Reasoning Path D ─→ 42
+                              ↓
+                     Majority Vote: 42</code></pre></td></tr></table>
+</div>
+</div>
+<p>Complex problems often admit multiple valid paths to the same correct answer, while mistakes tend to diverge. Majority voting reduces the impact of one unlucky sample.</p>
+
+<p>The paper reported a 17.9 percentage-point improvement over CoT on GSM8K and gains on several arithmetic and commonsense benchmarks. The tradeoff is inference cost: twenty sampled paths consume far more tokens and latency than a single generation.</p>
+
+<p>Reasoning quality is therefore not solely a property of model weights; it can also be purchased with <strong>inference-time compute</strong>.</p>
+
+<h2 id="6-switching-from-natural-language-to-formal-language">6. Switching from natural language to formal language</h2>
+
+<p>Natural language is flexible but ambiguous and unreliable for exact execution. A practical division of labor lets the LLM understand and decompose a problem while an interpreter executes it.</p>
+
+<h3 id="6-1-program-aided-language-models">6.1 Program-Aided Language Models</h3>
+
+<p><a href="https://arxiv.org/abs/2211.10435">PAL</a> translates a natural-language problem into an executable program and delegates evaluation to a runtime:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Natural-language Problem
+          ↓ LLM
+Executable Program
+          ↓ Interpreter
+Verified Result</code></pre></td></tr></table>
+</div>
+</div>
+<p>The model is good at mapping a problem into program structure; Python is good at exact variables, loops, and state. PAL with Codex reported about 72% accuracy on GSM8K and outperformed larger models using natural-language CoT on multiple symbolic tasks.</p>
+
+<h3 id="6-2-interpreters-debuggers-and-self-debugging">6.2 Interpreters, debuggers, and self-debugging</h3>
+
+<p>Execution errors, failed tests, and runtime output can be returned to the model:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Generate → Execute → Observe Error → Explain → Repair → Execute Again</code></pre></td></tr></table>
+</div>
+</div>
+<p><a href="https://arxiv.org/abs/2304.05128">Self-Debugging</a> shows that an LLM can identify mistakes by inspecting execution results and explaining its own code. Ground truth now comes from compilers, interpreters, and tests rather than from the model&rsquo;s confidence.</p>
+
+<p>This also addresses the <strong>knowing–doing gap</strong>: a model may describe the correct algorithm while failing to maintain every state transition in tokens. Letting a conventional program execute the algorithm is often more accurate and cheaper than simulating execution through language.</p>
+
+<h2 id="7-search-based-reasoning-from-a-chain-to-a-tree">7. Search-based reasoning: from a chain to a tree</h2>
+
+<p>CoT follows a single path. Search-based methods generate several candidates at each step and create a backtrackable state space.</p>
+
+<h3 id="7-1-tree-of-thoughts">7.1 Tree of Thoughts</h3>
+
+<p><a href="https://arxiv.org/abs/2305.10601">Tree of Thoughts (ToT)</a> treats intermediate thoughts as search nodes:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">                         Thought A1 ──→ ...
+                       ↗
+Problem ─→ Thought A ──→ Thought A2 ──→ ...
+       └→ Thought B ──→ Thought B1 ──→ ...
+                       ↘
+                         Thought B2 ──→ ...</code></pre></td></tr></table>
+</div>
+</div>
+<p>The system performs three operations:</p>
+
+<ol>
+<li><strong>Generate</strong> candidate thoughts from a state.</li>
+<li><strong>Evaluate</strong> how promising each candidate is.</li>
+<li><strong>Search</strong> with BFS, DFS, or another policy.</li>
+</ol>
+
+<p>BFS can be summarized as:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Generate k candidates → Evaluate → Keep top-b → Repeat</code></pre></td></tr></table>
+</div>
+</div>
+<p>DFS follows one branch and backtracks when it fails or reaches a boundary.</p>
+
+<p>ToT exposes paths, supports rollback, and makes constraints easy to add. Its expansion policy is usually fixed by humans: branching factor, retained candidates, and stopping rules are configured in advance. Learned policies can dynamically choose where to search next, at the price of training and debugging complexity.</p>
+
+<h2 id="8-self-reflection-turning-failure-into-input-for-the-next-attempt">8. Self-reflection: turning failure into input for the next attempt</h2>
+
+<p>When an LLM is called separately as actor, critic, or evaluator—and feedback is used to construct the next prompt—the overall system performs engineering-style self-reflection.</p>
+
+<p>This is usually not mysterious introspection inside one call. It is an <strong>external control algorithm repeatedly invoking the model, saving trajectories, and restructuring context</strong>.</p>
+
+<h3 id="8-1-self-refine">8.1 Self-Refine</h3>
+
+<p><a href="https://arxiv.org/abs/2303.17651">Self-Refine</a> uses a simple loop:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Initial Output → Feedback → Refined Output → Feedback → ...</code></pre></td></tr></table>
+</div>
+</div>
+<p>The same model can generate, critique, and revise without changing its weights. The method works best when quality criteria can be expressed in language.</p>
+
+<h3 id="8-2-react-the-bridge-from-reasoning-to-action">8.2 ReAct: the bridge from reasoning to action</h3>
+
+<p><a href="https://arxiv.org/abs/2210.03629">ReAct</a> interleaves thoughts, actions, and observations:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Thought → Action → Observation → Thought → Action → ...</code></pre></td></tr></table>
+</div>
+</div>
+<p>CoT can only continue from the model&rsquo;s current context. ReAct can retrieve evidence, call a tool, or query an environment and incorporate the observation into the next reasoning step. This grounding helps reduce hallucinations from purely linguistic reasoning.</p>
+
+<p>ReAct crosses the boundary between Reasoning and Action, making it the starting point for the next article in this series.</p>
+
+<h3 id="8-3-reflexion-extracting-reusable-experience-from-a-trajectory">8.3 Reflexion: extracting reusable experience from a trajectory</h3>
+
+<p><a href="https://arxiv.org/abs/2303.11366">Reflexion</a> adds three roles around a ReAct-like agent:</p>
+
+<ul>
+<li><strong>Actor</strong> generates reasoning, actions, and a trajectory.</li>
+<li><strong>Evaluator</strong> determines success and provides feedback.</li>
+
+<li><p><strong>Reflector</strong> compresses failure into a reusable natural-language lesson.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Actor trajectory
+  ↓
+Evaluator score / feedback
+  ↓
+Reflector creates a lesson
+  ↓
+Store in memory
+  ↓
+Actor tries again</code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+
+<p>Short-term memory stores the current reasoning and action trace. Long-term memory stores reusable reflections across attempts.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Evaluator: The attempt failed because it used outdated information.
+Reflector: Verify time-sensitive facts with an external source.
+Long-term Memory: Retain this lesson for future attempts.</code></pre></td></tr></table>
+</div>
+</div>
+<p>The relationship is easy to remember:</p>
+
+<blockquote>
+<p>ReAct = Think → Act → Observe<br />
+Reflexion = ReAct → Evaluate → Reflect → Remember → Try Again</p>
+</blockquote>
+
+<h3 id="8-4-buffer-of-thoughts">8.4 Buffer of Thoughts</h3>
+
+<p><a href="https://arxiv.org/abs/2406.04271">Buffer of Thoughts</a> distills high-level solution structures from past tasks into thought templates stored in a meta-buffer:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Solved Problems → Problem Distiller → Thought Templates → Meta-Buffer
+                                                     ↓
+New Problem → Retrieve Template → Instantiated Reasoning</code></pre></td></tr></table>
+</div>
+</div>
+<p>Instead of solving every task from scratch, the agent accumulates reusable cognitive patterns such as “identify constraints, enumerate candidates, then verify.”</p>
+
+<h3 id="8-5-other-prompt-improvement-loops">8.5 Other prompt-improvement loops</h3>
+
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Core idea</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Progressive Hint Prompting</td>
+<td>Feed the previous answer into the next prompt until the result stabilizes</td>
+</tr>
+
+<tr>
+<td>Self-Discover</td>
+<td>Select and compose reasoning modules suited to the current problem</td>
+</tr>
+
+<tr>
+<td>Prompt Improvement</td>
+<td>Rewrite the next prompt from evaluation feedback rather than updating weights</td>
+</tr>
+</tbody>
+</table>
+
+<p>Self-reflective systems share two challenges:</p>
+
+<ol>
+<li>Multiple roles and prompts interact unpredictably and can amplify errors.</li>
+<li>States, actions, observations, rewards, and reflections eventually overflow the context window.</li>
+</ol>
+
+<p>Reflection therefore needs summarization, selective memory, context resets, and external state storage.</p>
+
+<h2 id="9-retrieval-augmentation-acquiring-evidence-when-needed">9. Retrieval augmentation: acquiring evidence when needed</h2>
+
+<p>Reasoning should not remain closed inside parametric memory. RAG connects unstructured documents, databases, and knowledge graphs:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Question → Query Rewrite / Decomposition → Retrieval
+                                      ↓
+                         Evidence + Reasoning → Answer</code></pre></td></tr></table>
+</div>
+</div>
+<p>Basic RAG retrieves once before answering. Adaptive retrieval lets the model decide when to search, what to search for, and whether the available evidence is sufficient.</p>
+
+<p>The connection to self-reflection is direct: an evaluator can detect missing or stale evidence and trigger retrieval; the retrieved result becomes the next observation. Reasoning evolves into a think–retrieve–verify process.</p>
+
+<h2 id="10-training-from-reasoning-traces-rlvr-and-grpo">10. Training from reasoning traces: RLVR and GRPO</h2>
+
+<p>Most methods above operate at inference time without changing parameters. High-quality reasoning traces can also feed back into training.</p>
+
+<h3 id="10-1-rlvr">10.1 RLVR</h3>
+
+<p>Reinforcement Learning with Verifiable Rewards uses fast, deterministic verifiers instead of a subjective reward model:</p>
+
+<ul>
+<li>Is the mathematical answer correct?</li>
+<li>Does the code pass its tests?</li>
+<li>Are format and constraints satisfied?</li>
+
+<li><p>Does a proof checker accept the proof?</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Prompt → Sample Reasoning + Answer → Verifier → Reward → Policy Update</code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+
+<p>Rewards are objective and scalable, but only some real-world tasks have cheap, reliable verification functions.</p>
+
+<h3 id="10-2-grpo">10.2 GRPO</h3>
+
+<p>Group Relative Policy Optimization samples a group of answers to the same prompt and estimates advantages from relative group scores, reducing dependence on a separate critic model. It extends the diverse sampling intuition of self-consistency into training: the system does not merely select a better answer at inference time; it increases the probability of high-reward reasoning policies.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Inference-time exploration
+          ↓
+Verifiable outcomes
+          ↓
+RLVR / GRPO training
+          ↓
+Stronger reasoning policy
+          ↓
+Better inference-time exploration</code></pre></td></tr></table>
+</div>
+</div>
+<h2 id="11-a-broader-view-combining-connectionist-and-symbolic-ai">11. A broader view: combining connectionist and symbolic AI</h2>
+
+<p>LLMs belong to connectionist AI: knowledge and capability are distributed across neural parameters and learned from data. Search, logic, planning, interpreters, and state machines resemble symbolic AI: rules and operations are represented explicitly.</p>
+
+<p>Modern agentic systems combine both:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">LLM (pattern recognition, language understanding, candidate generation)
+                         +
+Search / Planning / Memory / Tools (structure, state, verification)</code></pre></td></tr></table>
+</div>
+</div>
+<p>This is often compared with System 1 and System 2:</p>
+
+<ul>
+<li><strong>Fast reasoning</strong> directly uses learned associations.</li>
+
+<li><p><strong>Slow reasoning</strong> introduces intermediate steps, search, planning, and tools.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Fast: 17 × 6 → 102
+
+Slow: 17 × 6
+  → 10 × 6 + 7 × 6
+  → 60 + 42
+  → 102</code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+
+<p>The analogy should not be taken literally. LLMs still operate through next-token prediction. A more precise engineering description is that “slow thinking” supplies additional serial tokens, parallel candidates, external state, and verifiable feedback.</p>
+
+<h2 id="12-from-reasoning-to-action-and-interaction">12. From Reasoning to Action and Interaction</h2>
+
+<p>The path from ordinary generation to agentic reasoning is now visible:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text"><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">Direct Generation
+  → In-Context Learning
+  → Chain of Thought
+  → Verification / Self-Consistency
+  → Code + Interpreter
+  → Tree Search
+  → Self-Reflection + Memory
+  → Retrieval
+  → RLVR / GRPO</code></pre></td></tr></table>
+</div>
+</div>
+<p>Reasoning alone cannot change the world. A correct plan remains text if it cannot call tools; an action cannot form a loop if the system cannot observe its outcome.</p>
+
+<p>The next two articles will examine:</p>
+
+<ul>
+<li><strong>Action</strong>: planning, tool use, world models, vision-language-action models, and the translation from tokens to operations.</li>
+<li><strong>Interaction</strong>: observations, environmental feedback, multi-agent coordination, state management, and continual adaptation.</li>
+</ul>
+
+<p>Reasoning decides what should happen next. Action determines how to do it. Interaction tells the system what happened afterward. Together, they form an Agentic Large Language Model.</p>
+
+<h2 id="references">References</h2>
+
+<ul>
+<li><a href="https://arxiv.org/abs/2201.11903">Chain-of-Thought Prompting Elicits Reasoning in Large Language Models</a></li>
+<li><a href="https://arxiv.org/abs/2203.11171">Self-Consistency Improves Chain of Thought Reasoning in Language Models</a></li>
+<li><a href="https://arxiv.org/abs/2211.10435">PAL: Program-Aided Language Models</a></li>
+<li><a href="https://arxiv.org/abs/2304.05128">Teaching Large Language Models to Self-Debug</a></li>
+<li><a href="https://arxiv.org/abs/2305.10601">Tree of Thoughts: Deliberate Problem Solving with Large Language Models</a></li>
+<li><a href="https://arxiv.org/abs/2303.17651">Self-Refine: Iterative Refinement with Self-Feedback</a></li>
+<li><a href="https://arxiv.org/abs/2210.03629">ReAct: Synergizing Reasoning and Acting in Language Models</a></li>
+<li><a href="https://arxiv.org/abs/2303.11366">Reflexion: Language Agents with Verbal Reinforcement Learning</a></li>
+<li><a href="https://arxiv.org/abs/2406.04271">Buffer of Thoughts: Thought-Augmented Reasoning with Large Language Models</a></li>
+<li><a href="https://arxiv.org/abs/2402.03300">DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models</a></li>
+</ul>
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">zhengxz</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2026-09-29
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/en/tags/agentic-llm/">Agentic LLM</a>
+          <a href="/en/tags/reasoning/">Reasoning</a>
+          <a href="/en/tags/chain-of-thought/">Chain of Thought</a>
+          <a href="/en/tags/tree-of-thoughts/">Tree of Thoughts</a>
+          <a href="/en/tags/self-reflection/">Self-Reflection</a>
+          <a href="/en/tags/rlvr/">RLVR</a>
+          <a href="/en/tags/grpo/">GRPO</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/en/post/anthropic-recursive-self-improvement/">
+            <span class="next-text nav-default">When AI Starts Building Itself: Anthropic&#39;s Internal Practice and the Future of Recursive Self-Improvement</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+  <a href="https://zheng-bobo.github.io/en/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2019 - 
+    2026<span class="heart"><i class="iconfont icon-heart"></i></span><span>zhengxz</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

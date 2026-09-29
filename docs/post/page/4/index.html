@@ -48,7 +48,7 @@
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://zheng-bobo.github.io/post/" />
 
-<meta property="og:updated_time" content="2026-09-28T09:00:00+02:00" /><meta property="og:site_name" content="Blowing in the wind" />
+<meta property="og:updated_time" content="2026-09-29T09:00:00+02:00" /><meta property="og:site_name" content="Blowing in the wind" />
 <meta itemprop="name" content="Posts">
 <meta itemprop="description" content="Hugo theme even example site.">
 
@@ -206,7 +206,7 @@
   <aside class="blog-archive-sidebar" aria-labelledby="blog-archive-title">
     <div class="blog-archive-sidebar-header">
       <h1 id="blog-archive-title">文章归档</h1>
-      <p>按年份浏览全部 25 篇文章</p>
+      <p>按年份浏览全部 26 篇文章</p>
       <a class="blog-rss-subscribe" href="https://zheng-bobo.github.io/index.xml" type="application/rss+xml">
         <span class="iconfont icon-rss" aria-hidden="true"></span>
         订阅 RSS
@@ -215,6 +215,10 @@
 
     <nav class="blog-archive-years" aria-label="按年份排列的文章">
           <h2 class="blog-archive-year" id="year-2026">2026</h2>
+        <a class="blog-archive-index-item" href="/post/agentic-llm-1-reasoning/">
+          <time datetime="2026-09-29">09-29</time>
+          <span>Agentic Large Language Models（一）：Reasoning——从思维链到搜索、反思与可验证推理</span>
+        </a>
         <a class="blog-archive-index-item" href="/post/anthropic-recursive-self-improvement/">
           <time datetime="2026-09-28">09-28</time>
           <span>当 AI 开始构建自己：Anthropic 内部实践与递归自我改进的未来</span>
@@ -324,6 +328,27 @@
   <div class="blog-recent-posts" aria-label="最近文章">
       <article class="blog-summary-card">
         <header>
+          <h2><a href="/post/go%E6%B1%87%E7%BC%96%E7%AE%80%E6%98%93%E5%85%A5%E9%97%A81/">go汇编简易入门(1)</a></h2>
+          <div class="blog-summary-meta">
+            <time datetime="2020-12-30">2020年12月30日</time>
+            <span aria-hidden="true">·</span>
+            <span>预计阅读 8 分钟</span>
+          </div>
+        </header>
+
+        <div class="blog-summary-excerpt post">
+          <div class="post-content">
+            <div class="post-summary">程序的存储空间布局 &emsp;&emsp;进程(Process)是一个正在执行的程序实例(instance)。每个实例有自己的地址空间和执行</div>
+          </div>
+        </div>
+
+        <footer class="blog-summary-footer">
+          <a class="blog-summary-read-more" href="/post/go%E6%B1%87%E7%BC%96%E7%AE%80%E6%98%93%E5%85%A5%E9%97%A81/">阅读全文<span aria-hidden="true">→</span>
+          </a>
+        </footer>
+      </article>
+      <article class="blog-summary-card">
+        <header>
           <h2><a href="/post/cap%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0%E7%BB%84%E4%BB%B6%E6%AF%94%E8%BE%83/">CAP与服务发现组件比较</a></h2>
           <div class="blog-summary-meta">
             <time datetime="2020-02-29">2020年02月29日</time>
@@ -406,27 +431,6 @@
           </a>
         </footer>
       </article>
-      <article class="blog-summary-card">
-        <header>
-          <h2><a href="/post/runtime-channel/">channel runtime源码分析</a></h2>
-          <div class="blog-summary-meta">
-            <time datetime="2020-01-05">2020年01月05日</time>
-            <span aria-hidden="true">·</span>
-            <span>预计阅读 18 分钟</span>
-          </div>
-        </header>
-
-        <div class="blog-summary-excerpt post">
-          <div class="post-content">
-            <div class="post-summary">&emsp;&emsp;Channel 是 Go 语言中一个非常重要的类型，是 Go 里的第一对象。通过 channel，Go 实现了通过通信来实现内存共享。Channel 是在多个 goroutine 之间传递数据</div>
-          </div>
-        </div>
-
-        <footer class="blog-summary-footer">
-          <a class="blog-summary-read-more" href="/post/runtime-channel/">阅读全文<span aria-hidden="true">→</span>
-          </a>
-        </footer>
-      </article>
       <nav class="blog-pagination" aria-label="博客分页">
         <div class="blog-pagination-pages">
             <a class="blog-pagination-direction" href="/post/page/3/" rel="prev">
@@ -448,6 +452,9 @@
               <a class="blog-pagination-number" href="/post/page/5/" aria-label="第 5 页">
                 5
               </a>
+              <a class="blog-pagination-number" href="/post/page/6/" aria-label="第 6 页">
+                6
+              </a>
             <a class="blog-pagination-direction" href="/post/page/5/" rel="next">
               下一页
               <span aria-hidden="true">›</span>
@@ -455,11 +462,11 @@
         </div>
 
         <div class="blog-pagination-status">
-          <span>第 <strong>4</strong> / 5 页</span>
+          <span>第 <strong>4</strong> / 6 页</span>
 
-          <form class="blog-pagination-jump" data-pagination-base="/post/" data-total-pages="5">
+          <form class="blog-pagination-jump" data-pagination-base="/post/" data-total-pages="6">
             <label for="blog-page-jump">跳至</label>
-            <input id="blog-page-jump" name="page" type="number" min="1" max="5" value="4" inputmode="numeric">
+            <input id="blog-page-jump" name="page" type="number" min="1" max="6" value="4" inputmode="numeric">
             <button type="submit">跳转</button>
           </form>
         </div>

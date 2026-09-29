@@ -48,7 +48,7 @@
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://zheng-bobo.github.io/" />
 
-<meta property="og:updated_time" content="2026-09-28T09:00:00+02:00" /><meta property="og:site_name" content="Blowing in the wind" />
+<meta property="og:updated_time" content="2026-09-29T09:00:00+02:00" /><meta property="og:site_name" content="Blowing in the wind" />
 <meta itemprop="name" content="Blowing in the wind">
 <meta itemprop="description" content="Hugo theme even example site.">
 
@@ -173,14 +173,45 @@
   <section id="posts" class="posts">
       <article class="post">
   <header class="post-header">
+    <h1 class="post-title"><a class="post-link" href="/post/agentic-llm-1-reasoning/">Agentic Large Language Models（一）：Reasoning——从思维链到搜索、反思与可验证推理</a></h1>
+    <div class="post-meta">
+      <span class="post-time"> 2026-09-29 </span>
+      <div class="post-category">
+          <a href="/categories/ai-agents/"> AI Agents </a>
+          </div>
+        <span class="more-meta"> 约 5102 字 </span>
+        <span class="more-meta"> 预计阅读 11 分钟 </span>
+    </div>
+  </header>
+  
+  <div class="post-content">
+    <div class="post-summary">
+      <p>大语言模型最初擅长的是“根据已有文本继续生成文本”。Agentic LLM 则要求模型在一个持续变化的环境里理解目标、做出判断，并通过行动影响环境。要完成这种跨越，系统至少需要三类能力：</p>
+
+<ol>
+<li><strong>Reasoning</strong>：分析状态、拆解问题、比较候选路径并形成决策；</li>
+<li><strong>Action</strong>：调用工具，把决策转化为对外部世界的操作；</li>
+<li><strong>Interaction</strong>：读取行动结果，与环境或其他 Agent 持续交换信息并修正策略。</li>
+</ol>
+
+<p>本文是 <strong>Agentic Large Language Models 系列的第一篇</strong>，聚焦 Reasoning。后续两篇将分别讨论 Action 和 Interaction。</p>
+    </div>
+    <div class="read-more">
+      <a href="/post/agentic-llm-1-reasoning/" class="read-more-link">阅读更多</a>
+    </div>
+  </div>
+</article>
+
+      <article class="post">
+  <header class="post-header">
     <h1 class="post-title"><a class="post-link" href="/post/anthropic-recursive-self-improvement/">当 AI 开始构建自己：Anthropic 内部实践与递归自我改进的未来</a></h1>
     <div class="post-meta">
       <span class="post-time"> 2026-09-28 </span>
       <div class="post-category">
           <a href="/categories/ai-agents/"> AI Agents </a>
           </div>
-        <span class="more-meta"> 约 5337 字 </span>
-        <span class="more-meta"> 预计阅读 11 分钟 </span>
+        <span class="more-meta"> 约 5591 字 </span>
+        <span class="more-meta"> 预计阅读 12 分钟 </span>
     </div>
   </header>
   
@@ -379,31 +410,6 @@ Next-token logits → Cross-Entropy Loss</code></pre></td></tr></table>
     </div>
     <div class="read-more">
       <a href="/post/anthropic-agent-evolution-2-context-reset-and-handoff/" class="read-more-link">阅读更多</a>
-    </div>
-  </div>
-</article>
-
-      <article class="post">
-  <header class="post-header">
-    <h1 class="post-title"><a class="post-link" href="/post/anthropic-agent-evolution-3-planner-generator-evaluator/">Anthropic Agent 演进（三）：Planner–Generator–Evaluator 质量闭环</a></h1>
-    <div class="post-meta">
-      <span class="post-time"> 2026-09-12 </span>
-      <div class="post-category">
-          <a href="/categories/ai-agents/"> AI Agents </a>
-          </div>
-        <span class="more-meta"> 约 1877 字 </span>
-        <span class="more-meta"> 预计阅读 4 分钟 </span>
-    </div>
-  </header>
-  
-  <div class="post-content">
-    <div class="post-summary">
-      <p>第一代 Harness 让 Agent 能跨 Context 持续工作，但“持续”不等于“高质量”。生成者评价自己的作品时，往往会把“基本能运行”误判成“已经足够好”，主观设计任务尤其明显。</p>
-
-<p>Anthropic 的下一步是把计划、生成和评价拆成三个职责，让外部 Evaluator 成为 Generator 必须面对的反馈来源。</p>
-    </div>
-    <div class="read-more">
-      <a href="/post/anthropic-agent-evolution-3-planner-generator-evaluator/" class="read-more-link">阅读更多</a>
     </div>
   </div>
 </article>
