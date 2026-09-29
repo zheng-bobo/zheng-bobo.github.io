@@ -71,7 +71,7 @@ Interaction：读取行动结果，与环境或其他 Agent 持续交换信息�
 
 <meta itemprop="datePublished" content="2026-09-29T09:00:00&#43;02:00" />
 <meta itemprop="dateModified" content="2026-09-29T09:00:00&#43;02:00" />
-<meta itemprop="wordCount" content="5102">
+<meta itemprop="wordCount" content="5413">
 
 
 
@@ -210,7 +210,7 @@ Interaction：读取行动结果，与环境或其他 Agent 持续交换信息�
         <div class="post-category">
             <a href="/categories/ai-agents/"> AI Agents </a>
             </div>
-          <span class="more-meta"> 约 5102 字 </span>
+          <span class="more-meta"> 约 5413 字 </span>
           <span class="more-meta"> 预计阅读 11 分钟 </span>
         
       </div>
@@ -381,6 +381,8 @@ Interaction：读取行动结果，与环境或其他 Agent 持续交换信息�
 
 <p>这也是理解本文的关键：Reasoning 不只是模型“内部会不会想”，还包括外部算法如何组织多次模型调用。</p>
 
+<p><img src="/img/posts/agentic-llm-1-reasoning/reasoning-methods-taxonomy.webp" alt="Agentic LLM 中 Reasoning 方法的分类：从 Step-by-step Prompt、Ensemble、Search 到 Self-Reflection 与 Reinforcement Learning" /></p>
+
 <h2 id="2-为什么单次生成不够">2. 为什么单次生成不够？</h2>
 
 <p>以 GSM8K 中常见的数学文字题为例：</p>
@@ -411,6 +413,16 @@ Interaction：读取行动结果，与环境或其他 Agent 持续交换信息�
 </ul>
 
 <p>Reasoning 方法的核心，就是把这些隐式过程变成更长、更可控制的计算路径。</p>
+
+<p>从概率角度看，直接生成仍然是自回归分解：</p>
+
+<div class="math-display">
+\[
+p_{\theta}(y\mid x)=\prod_{t=1}^{T}p_{\theta}\!\left(y_t\mid x,y_{1:t-1}\right)
+\]
+</div>
+
+<p>Reasoning 方法没有改变这一基本生成形式，而是把中间步骤、候选路径、验证结果或外部观察也写入条件，使后续 Token 能基于更丰富的状态继续生成。</p>
 
 <h2 id="3-in-context-learning-先用示例限定问题空间">3. In-Context Learning：先用示例限定问题空间</h2>
 
@@ -444,6 +456,8 @@ Question C → ?</code></pre></td></tr></table>
 </div>
 <p>Few-shot 示例的作用不只是展示输出格式，还会把模型引向更合适的知识与解题模式。但普通 ICL 仍然常把“过程”压缩在一次前向生成里。下一步自然是：把中间步骤也作为输出的一部分。</p>
 
+<p><img src="/img/posts/agentic-llm-1-reasoning/cot-prompting-methods.webp" alt="Few-shot Prompting、Few-shot CoT、Zero-shot CoT 与 PAL 的输入输出差异" /></p>
+
 <h2 id="4-chain-of-thought-让中间步骤成为计算空间">4. Chain of Thought：让中间步骤成为计算空间</h2>
 
 <p><a href="https://arxiv.org/abs/2201.11903">Chain-of-Thought Prompting</a> 的核心非常简单：不要只要求最终答案，而是让模型生成一系列中间推理步骤。</p>
@@ -468,6 +482,8 @@ Final Answer</code></pre></td></tr></table>
 <p>一种直观解释是：每个中间 Token 都会重新进入后续预测的上下文。模型因此获得了更多串行计算步骤，能够逐渐缩小最终答案的概率空间。</p>
 
 <p>但 CoT 也引入了新问题：<strong>链条越长，错误累积的机会越多。</strong>如果第一步选错假设，后续步骤可能非常连贯地把错误推到结论。</p>
+
+<p><img src="/img/posts/agentic-llm-1-reasoning/standard-vs-chain-of-thought.webp" alt="标准 Prompt 直接回答错误，而带中间步骤的 Chain-of-Thought Prompt 得到正确答案" /></p>
 
 <h2 id="5-从-生成一条路径-到-验证多条路径">5. 从“生成一条路径”到“验证多条路径”</h2>
 
@@ -521,6 +537,16 @@ Question ────┼─ Reasoning Path B ─→ 42
 
 <p>原论文报告 Self-Consistency 在 GSM8K 上相对 CoT 提升 17.9 个百分点，在多个算术与常识推理基准上也有明显收益。代价是推理成本：采样 20 条路径通常意味着远高于单次生成的 Token 与延迟。</p>
 
+<p>如果第 $i$ 条推理轨迹为 $r_i$，从轨迹抽取出的最终答案为 $a(r_i)$，多数投票可以写成：</p>
+
+<div class="math-display">
+\[
+\hat{a}=\underset{a}{\operatorname{arg\,max}}\sum_{i=1}^{N}\mathbf{1}\!\left[a(r_i)=a\right]
+\]
+</div>
+
+<p><img src="/img/posts/agentic-llm-1-reasoning/self-consistency.webp" alt="Self-Consistency 对多条 Chain-of-Thought 路径的最终答案进行多数投票" /></p>
+
 <p>这说明推理能力不仅是模型参数的属性，也可以通过 <strong>inference-time compute</strong> 换取。</p>
 
 <h2 id="6-从自然语言切换到形式语言">6. 从自然语言切换到形式语言</h2>
@@ -548,6 +574,16 @@ Verified Result</code></pre></td></tr></table>
 </div>
 <p>模型擅长把问题拆成程序结构；Python 擅长精确维护变量、循环与状态。PAL 使用 Codex 在 GSM8K 上报告了约 72% 的准确率，并在多类符号任务上超过了仅使用自然语言 CoT 的更大模型。</p>
 
+<p>PAL 的分工可以简化为：模型生成程序 $g_{\theta}(x)$，执行器负责产生最终答案。</p>
+
+<div class="math-display">
+\[
+\hat{y}=\operatorname{Exec}\!\left(g_{\theta}(x)\right)
+\]
+</div>
+
+<p><img src="/img/posts/agentic-llm-1-reasoning/program-aided-language-models.webp" alt="Program-Aided Language Models：LLM 生成 Python 程序，由解释器执行并返回答案" /></p>
+
 <h3 id="6-2-interpreter-debugger-与-self-debugging">6.2 Interpreter、Debugger 与 Self-Debugging</h3>
 
 <p>生成代码后，系统还可以执行代码，把报错、测试失败或运行结果反馈给模型：</p>
@@ -562,6 +598,8 @@ Verified Result</code></pre></td></tr></table>
 <p><a href="https://arxiv.org/abs/2304.05128">Self-Debugging</a> 说明 LLM 可以通过检查执行结果和解释自己的代码定位错误。这里的 Ground Truth 不来自“模型觉得自己对了”，而来自编译器、解释器和测试。</p>
 
 <p>这种组合也缓解了 <strong>Knowing–Doing Gap</strong>：模型可能能够用文字描述正确算法，却无法在 Token 序列中可靠维护每一次状态变化。让传统程序执行算法，往往比让 LLM 模拟执行更准确、更便宜。</p>
+
+<p><img src="/img/posts/agentic-llm-1-reasoning/pddl-vs-natural-language.webp" alt="同一个 Blocks World 问题的 PDDL 形式化表示与自然语言表示" /></p>
 
 <h2 id="7-search-based-reasoning-从一条链扩展为一棵树">7. Search-based Reasoning：从一条链扩展为一棵树</h2>
 
@@ -607,6 +645,21 @@ Problem ─→ Thought A ──→ Thought A2 ──→ ...
 </div>
 <p>DFS 则沿一个分支深入，在失败或达到边界后回溯。</p>
 
+<p>如果 $s_t$ 表示第 $t$ 步的搜索状态，$z_t$ 表示候选 Thought，ToT 可以概括为“生成后评分，再保留最有希望的 $b$ 个状态”：</p>
+
+<div class="math-display">
+\[
+s_{t+1}=f(s_t,z_t),\qquad
+S_{t+1}=\operatorname{TopB}_{b}\left\{V_{\theta}(s_{t+1})\right\}
+\]
+</div>
+
+<p><img src="/img/posts/agentic-llm-1-reasoning/reasoning-structures.webp" alt="普通输入输出、Chain of Thought、Self-Consistency 与 Tree of Thoughts 的结构对比" /></p>
+
+<p><img src="/img/posts/agentic-llm-1-reasoning/tree-of-thoughts-algorithms.webp" alt="Tree of Thoughts 的 BFS 与 DFS 搜索算法" /></p>
+
+<p><img src="/img/posts/agentic-llm-1-reasoning/tree-of-thoughts-game24.webp" alt="Tree of Thoughts 在 Game of 24 中生成候选、评分并选择分支的 Prompt 结构" /></p>
+
 <p>ToT 的优点是路径可观察、可回退、易于加入约束。它的限制是扩展策略通常由人预先固定：每层生成多少节点、保留多少分支、何时停止都需要配置。学习型策略可以根据状态动态决定下一步探索哪里，但会引入训练、稳定性和调试复杂度。</p>
 
 <h2 id="8-self-reflection-让失败成为下一次尝试的输入">8. Self-Reflection：让失败成为下一次尝试的输入</h2>
@@ -614,6 +667,8 @@ Problem ─→ Thought A ──→ Thought A2 ──→ ...
 <p>当 LLM 被分别调用为 Actor、Critic 或 Evaluator，并根据反馈生成新的 Prompt 或策略时，系统表现出一种工程意义上的 Self-Reflection。</p>
 
 <p>需要强调：反思通常不是模型在一次调用中神秘地“自我意识”，而是 <strong>外部控制算法多次调用模型、保存轨迹并重组上下文</strong>。</p>
+
+<p><img src="/img/posts/agentic-llm-1-reasoning/agent-environment-loop.webp" alt="强化学习中的 Agent—Environment 闭环：状态、动作与奖励持续反馈" /></p>
 
 <h3 id="8-1-self-refine">8.1 Self-Refine</h3>
 
@@ -627,6 +682,8 @@ Problem ─→ Thought A ──→ Thought A2 ──→ ...
 </div>
 </div>
 <p>同一个模型可以同时生成答案、批评答案并据此改写。它不需要更新模型权重，适合能够用语言描述质量标准的任务。</p>
+
+<p><img src="/img/posts/agentic-llm-1-reasoning/self-refine.webp" alt="Self-Refine 通过 Feedback 与 Refine 循环改进模型输出" /></p>
 
 <h3 id="8-2-react-reasoning-走向-action-的桥梁">8.2 ReAct：Reasoning 走向 Action 的桥梁</h3>
 
@@ -642,6 +699,8 @@ Problem ─→ Thought A ──→ Thought A2 ──→ ...
 <p>CoT 只能基于模型已有上下文继续思考；ReAct 可以主动检索 Wikipedia、调用工具或查询环境，再把新证据纳入下一轮推理。它通过 Grounding 减少纯语言推理中的幻觉。</p>
 
 <p>ReAct 已经跨过 Reasoning 与 Action 的边界，因此会成为本系列第二篇的起点。</p>
+
+<p><img src="/img/posts/agentic-llm-1-reasoning/react-loop.webp" alt="ReAct 的 Thought—Action—Observation 循环以及 LLM、工具与环境之间的关系" /></p>
 
 <h3 id="8-3-reflexion-从一次轨迹中提炼长期经验">8.3 Reflexion：从一次轨迹中提炼长期经验</h3>
 
@@ -700,6 +759,10 @@ Long-term Memory：保存这条规则，供后续任务检索。</code></pre></t
 Reflexion = ReAct → Evaluate → Reflect → Remember → Try Again</p>
 </blockquote>
 
+<p><img src="/img/posts/agentic-llm-1-reasoning/reflexion-architecture.webp" alt="Reflexion 架构：Actor、Evaluator、Self-reflection、短期轨迹与长期经验共同工作" /></p>
+
+<p><img src="/img/posts/agentic-llm-1-reasoning/reflexion-close-up.webp" alt="Reflexion 与强化学习 Agent—Environment 结构的对应关系" /></p>
+
 <h3 id="8-4-buffer-of-thoughts">8.4 Buffer of Thoughts</h3>
 
 <p><a href="https://arxiv.org/abs/2406.04271">Buffer of Thoughts</a> 不保存每个问题的完整轨迹，而是把不同任务中的高层解题结构提炼为 Thought Template，存入 Meta-Buffer：</p>
@@ -716,6 +779,8 @@ New Problem → Retrieve Template → Instantiated Reasoning</code></pre></td></
 </div>
 </div>
 <p>它试图让 Agent 不必每次从零推理，而是积累类似“先识别约束、再枚举候选、最后验证”的通用认知模式。</p>
+
+<p><img src="/img/posts/agentic-llm-1-reasoning/buffer-of-thoughts.webp" alt="Buffer of Thoughts：从历史问题中提炼 Thought Template，并从 Meta-Buffer 检索后实例化推理" /></p>
 
 <h3 id="8-5-其他-prompt-改进循环">8.5 其他 Prompt 改进循环</h3>
 
@@ -799,9 +864,25 @@ New Problem → Retrieve Template → Instantiated Reasoning</code></pre></td></
 
 <p>它的优势是 Reward 更客观、规模化成本更低；局限是只有一部分现实任务拥有便宜且可靠的验证函数。</p>
 
+<p>若验证器为轨迹 $\tau$ 返回可验证奖励 $R(\tau)$，训练目标可以简写为：</p>
+
+<div class="math-display">
+\[
+J(\theta)=\mathbb{E}_{\tau\sim\pi_{\theta}(\cdot\mid x)}\left[R(\tau)\right]
+\]
+</div>
+
 <h3 id="10-2-grpo">10.2 GRPO</h3>
 
 <p>Group Relative Policy Optimization（GRPO）针对同一问题采样一组回答，根据组内相对得分估计优势，减少对独立 Critic Model 的依赖。它把 Self-Consistency 的“多样采样”进一步用于训练：不仅在推理时选出更好答案，也让模型增加高奖励推理策略的概率。</p>
+
+<p>对组内第 $i$ 个回答，一个直观的相对优势估计是：</p>
+
+<div class="math-display">
+\[
+\hat{A}_i=\frac{r_i-\operatorname{mean}(r_1,\ldots,r_G)}{\operatorname{std}(r_1,\ldots,r_G)+\varepsilon}
+\]
+</div>
 
 <p>这形成一个循环：</p>
 <div class="highlight"><div class="chroma">
@@ -1010,6 +1091,14 @@ Slow: 17 × 6
 
 
 <script type="text/javascript" src="/js/main.min.c12618f9a600c40bd024996677e951e64d3487006775aeb22e200c990006c5c7.js"></script>
+  <script type="text/javascript">
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.5/es5/tex-mml-chtml.js" integrity="sha256-HGLuEfFcsUJGhvB8cQ8nr0gai9EucOOaIxFw7qxmd+w=" crossorigin="anonymous"></script>
 
 
 

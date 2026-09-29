@@ -5,6 +5,8 @@ slug: "agentic-llm-1-reasoning"
 categories: [AI Agents]
 tags: [Agentic LLM, Reasoning, Chain of Thought, Tree of Thoughts, Self-Reflection, RLVR, GRPO]
 toc: true
+mathjax: true
+mathjaxEnableSingleDollar: true
 ---
 
 Large language models began as systems that continue text from existing text. An Agentic LLM must instead understand goals in a changing environment, make decisions, and affect that environment through action. This transition requires at least three capabilities:
@@ -64,6 +66,8 @@ The first six stages primarily alter model parameters. Much of agentic reasoning
 
 Reasoning is therefore not only about what happens “inside” one model call. It also includes how an external algorithm organizes many model calls.
 
+![A taxonomy of reasoning methods in Agentic LLMs, from step-by-step prompting and ensembles to search, self-reflection, and reinforcement learning](/img/posts/agentic-llm-1-reasoning/reasoning-methods-taxonomy.webp)
+
 ## 2. Why one-shot generation is not enough
 
 Consider a typical GSM8K problem:
@@ -79,6 +83,16 @@ A person writes:
 Yet GPT-3 175B achieved only about 15% accuracy on GSM8K when the benchmark was introduced. The model may know arithmetic and understand every word while still failing to organize a reliable multi-step calculation.
 
 A direct autoregressive answer implicitly requires the model to retrieve facts, identify variables, order operations, execute each step, and prevent early errors from propagating. Reasoning methods turn this hidden process into a longer, more controllable computational path.
+
+From a probabilistic perspective, direct generation still follows the autoregressive factorization:
+
+<div class="math-display">
+\[
+p_{\theta}(y\mid x)=\prod_{t=1}^{T}p_{\theta}\!\left(y_t\mid x,y_{1:t-1}\right)
+\]
+</div>
+
+Reasoning methods do not replace this basic generation rule. They add intermediate steps, alternative paths, verification results, or observations to the condition on which later tokens are generated.
 
 ## 3. In-context learning: constraining the problem with examples
 
@@ -100,6 +114,8 @@ Question C → ?
 
 Few-shot examples do more than specify formatting. They steer the model toward relevant knowledge and a suitable solution pattern. Ordinary ICL, however, can still compress the process into one forward generation. The natural next step is to include intermediate steps in the output itself.
 
+![The input-output differences among few-shot prompting, few-shot CoT, zero-shot CoT, and program-aided language models](/img/posts/agentic-llm-1-reasoning/cot-prompting-methods.webp)
+
 ## 4. Chain of Thought: intermediate tokens as computation
 
 [Chain-of-Thought Prompting](https://arxiv.org/abs/2201.11903) asks the model to generate a sequence of intermediate reasoning steps rather than only the final answer:
@@ -117,6 +133,8 @@ Few-shot CoT demonstrates complete reasoning traces. Zero-shot CoT can be elicit
 One intuition is that every intermediate token re-enters the context for subsequent prediction. The model obtains more serial computation and gradually narrows the probability space around the final answer.
 
 CoT creates a new problem as well: **longer chains provide more opportunities for error accumulation.** A wrong early assumption can produce a coherent but incorrect conclusion.
+
+![Standard prompting produces a wrong direct answer, while a Chain-of-Thought prompt reaches the correct answer through intermediate steps](/img/posts/agentic-llm-1-reasoning/standard-vs-chain-of-thought.webp)
 
 ## 5. From one path to verification across paths
 
@@ -153,6 +171,16 @@ Complex problems often admit multiple valid paths to the same correct answer, wh
 
 The paper reported a 17.9 percentage-point improvement over CoT on GSM8K and gains on several arithmetic and commonsense benchmarks. The tradeoff is inference cost: twenty sampled paths consume far more tokens and latency than a single generation.
 
+If $r_i$ is the $i$-th reasoning trajectory and $a(r_i)$ is its extracted final answer, majority voting can be written as:
+
+<div class="math-display">
+\[
+\hat{a}=\underset{a}{\operatorname{arg\,max}}\sum_{i=1}^{N}\mathbf{1}\!\left[a(r_i)=a\right]
+\]
+</div>
+
+![Self-Consistency applies majority voting to the final answers of multiple Chain-of-Thought trajectories](/img/posts/agentic-llm-1-reasoning/self-consistency.webp)
+
 Reasoning quality is therefore not solely a property of model weights; it can also be purchased with **inference-time compute**.
 
 ## 6. Switching from natural language to formal language
@@ -173,6 +201,16 @@ Verified Result
 
 The model is good at mapping a problem into program structure; Python is good at exact variables, loops, and state. PAL with Codex reported about 72% accuracy on GSM8K and outperformed larger models using natural-language CoT on multiple symbolic tasks.
 
+The division of labor can be summarized as a model generating a program $g_{\theta}(x)$ and an executor producing the final answer:
+
+<div class="math-display">
+\[
+\hat{y}=\operatorname{Exec}\!\left(g_{\theta}(x)\right)
+\]
+</div>
+
+![Program-Aided Language Models generate Python with an LLM and use an interpreter to execute it and return the answer](/img/posts/agentic-llm-1-reasoning/program-aided-language-models.webp)
+
 ### 6.2 Interpreters, debuggers, and self-debugging
 
 Execution errors, failed tests, and runtime output can be returned to the model:
@@ -184,6 +222,8 @@ Generate → Execute → Observe Error → Explain → Repair → Execute Again
 [Self-Debugging](https://arxiv.org/abs/2304.05128) shows that an LLM can identify mistakes by inspecting execution results and explaining its own code. Ground truth now comes from compilers, interpreters, and tests rather than from the model's confidence.
 
 This also addresses the **knowing–doing gap**: a model may describe the correct algorithm while failing to maintain every state transition in tokens. Letting a conventional program execute the algorithm is often more accurate and cheaper than simulating execution through language.
+
+![The same Blocks World problem represented in formal PDDL and in natural language](/img/posts/agentic-llm-1-reasoning/pddl-vs-natural-language.webp)
 
 ## 7. Search-based reasoning: from a chain to a tree
 
@@ -216,6 +256,21 @@ Generate k candidates → Evaluate → Keep top-b → Repeat
 
 DFS follows one branch and backtracks when it fails or reaches a boundary.
 
+If $s_t$ denotes the search state at step $t$ and $z_t$ is a candidate thought, ToT can be summarized as generating new states, scoring them, and retaining the best $b$:
+
+<div class="math-display">
+\[
+s_{t+1}=f(s_t,z_t),\qquad
+S_{t+1}=\operatorname{TopB}_{b}\left\{V_{\theta}(s_{t+1})\right\}
+\]
+</div>
+
+![Structural comparison of direct input-output, Chain of Thought, Self-Consistency, and Tree of Thoughts](/img/posts/agentic-llm-1-reasoning/reasoning-structures.webp)
+
+![Breadth-first and depth-first search algorithms for Tree of Thoughts](/img/posts/agentic-llm-1-reasoning/tree-of-thoughts-algorithms.webp)
+
+![The Tree of Thoughts prompt structure for proposing, evaluating, and selecting branches in Game of 24](/img/posts/agentic-llm-1-reasoning/tree-of-thoughts-game24.webp)
+
 ToT exposes paths, supports rollback, and makes constraints easy to add. Its expansion policy is usually fixed by humans: branching factor, retained candidates, and stopping rules are configured in advance. Learned policies can dynamically choose where to search next, at the price of training and debugging complexity.
 
 ## 8. Self-reflection: turning failure into input for the next attempt
@@ -223,6 +278,8 @@ ToT exposes paths, supports rollback, and makes constraints easy to add. Its exp
 When an LLM is called separately as actor, critic, or evaluator—and feedback is used to construct the next prompt—the overall system performs engineering-style self-reflection.
 
 This is usually not mysterious introspection inside one call. It is an **external control algorithm repeatedly invoking the model, saving trajectories, and restructuring context**.
+
+![The agent-environment reinforcement learning loop with state, action, and reward feedback](/img/posts/agentic-llm-1-reasoning/agent-environment-loop.webp)
 
 ### 8.1 Self-Refine
 
@@ -233,6 +290,8 @@ Initial Output → Feedback → Refined Output → Feedback → ...
 ```
 
 The same model can generate, critique, and revise without changing its weights. The method works best when quality criteria can be expressed in language.
+
+![Self-Refine improves an output through repeated feedback and refinement](/img/posts/agentic-llm-1-reasoning/self-refine.webp)
 
 ### 8.2 ReAct: the bridge from reasoning to action
 
@@ -245,6 +304,8 @@ Thought → Action → Observation → Thought → Action → ...
 CoT can only continue from the model's current context. ReAct can retrieve evidence, call a tool, or query an environment and incorporate the observation into the next reasoning step. This grounding helps reduce hallucinations from purely linguistic reasoning.
 
 ReAct crosses the boundary between Reasoning and Action, making it the starting point for the next article in this series.
+
+![The ReAct thought-action-observation loop among the LLM, tools, and environment](/img/posts/agentic-llm-1-reasoning/react-loop.webp)
 
 ### 8.3 Reflexion: extracting reusable experience from a trajectory
 
@@ -279,6 +340,10 @@ The relationship is easy to remember:
 > ReAct = Think → Act → Observe  
 > Reflexion = ReAct → Evaluate → Reflect → Remember → Try Again
 
+![Reflexion combines an actor, evaluator, self-reflection, short-term trajectory, and long-term experience](/img/posts/agentic-llm-1-reasoning/reflexion-architecture.webp)
+
+![How Reflexion maps onto the reinforcement learning agent-environment structure](/img/posts/agentic-llm-1-reasoning/reflexion-close-up.webp)
+
 ### 8.4 Buffer of Thoughts
 
 [Buffer of Thoughts](https://arxiv.org/abs/2406.04271) distills high-level solution structures from past tasks into thought templates stored in a meta-buffer:
@@ -290,6 +355,8 @@ New Problem → Retrieve Template → Instantiated Reasoning
 ```
 
 Instead of solving every task from scratch, the agent accumulates reusable cognitive patterns such as “identify constraints, enumerate candidates, then verify.”
+
+![Buffer of Thoughts distills thought templates from solved problems and retrieves them from a meta-buffer for a new task](/img/posts/agentic-llm-1-reasoning/buffer-of-thoughts.webp)
 
 ### 8.5 Other prompt-improvement loops
 
@@ -339,9 +406,25 @@ Prompt → Sample Reasoning + Answer → Verifier → Reward → Policy Update
 
 Rewards are objective and scalable, but only some real-world tasks have cheap, reliable verification functions.
 
+If a verifier returns reward $R(\tau)$ for trajectory $\tau$, the training objective can be summarized as:
+
+<div class="math-display">
+\[
+J(\theta)=\mathbb{E}_{\tau\sim\pi_{\theta}(\cdot\mid x)}\left[R(\tau)\right]
+\]
+</div>
+
 ### 10.2 GRPO
 
 Group Relative Policy Optimization samples a group of answers to the same prompt and estimates advantages from relative group scores, reducing dependence on a separate critic model. It extends the diverse sampling intuition of self-consistency into training: the system does not merely select a better answer at inference time; it increases the probability of high-reward reasoning policies.
+
+For answer $i$ in a group, an intuitive relative-advantage estimate is:
+
+<div class="math-display">
+\[
+\hat{A}_i=\frac{r_i-\operatorname{mean}(r_1,\ldots,r_G)}{\operatorname{std}(r_1,\ldots,r_G)+\varepsilon}
+\]
+</div>
 
 ```text
 Inference-time exploration
