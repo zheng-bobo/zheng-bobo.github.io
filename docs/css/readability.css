@@ -75,6 +75,16 @@ article.post > .post-header .post-title {
   text-wrap: pretty;
 }
 
+@media (min-width: 801px) {
+  .posts > article.post > .post-header {
+    width: min(1100px, calc(50vw + 360px));
+  }
+
+  .posts > article.post > .post-header .post-title {
+    font-size: clamp(1.55rem, 2.2vw, 1.75rem);
+  }
+}
+
 article.post > .post-content h2,
 article.post > .post-content h3,
 article.post > .post-content h4 {
