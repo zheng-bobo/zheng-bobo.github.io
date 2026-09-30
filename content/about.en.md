@@ -19,7 +19,7 @@ I enjoy taking complex technology apart through its data flow, concurrency model
 
 <div class="about-actions">
   <a class="about-action about-action-primary" href="/en/post/">Read the blog</a>
-  <a class="about-action" href="https://github.com/zheng-bobo" target="_blank" rel="noopener noreferrer">GitHub</a>
+  <a class="about-action" href="https://github.com/alexzheng13" target="_blank" rel="noopener noreferrer">GitHub</a>
 </div>
 
 ## Selected work
@@ -74,4 +74,4 @@ I believe good engineering is not about accumulating complexity. It is about fin
   </div>
 </div>
 
-If you are also working where systems and AI meet, you can find me on [GitHub](https://github.com/zheng-bobo).
+If you are also working where systems and AI meet, you can find me on [GitHub](https://github.com/alexzheng13).

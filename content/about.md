@@ -19,7 +19,7 @@ deck: "我关心复杂系统如何在真实世界里稳定、高效地工作，�
 
 <div class="about-actions">
   <a class="about-action about-action-primary" href="/post/">阅读文章</a>
-  <a class="about-action" href="https://github.com/zheng-bobo" target="_blank" rel="noopener noreferrer">GitHub</a>
+  <a class="about-action" href="https://github.com/alexzheng13" target="_blank" rel="noopener noreferrer">GitHub</a>
 </div>
 
 ## 我做过的事
@@ -74,4 +74,4 @@ deck: "我关心复杂系统如何在真实世界里稳定、高效地工作，�
   </div>
 </div>
 
-如果你也在研究系统与 AI 的交叉方向，欢迎从 [GitHub](https://github.com/zheng-bobo) 认识我。
+如果你也在研究系统与 AI 的交叉方向，欢迎从 [GitHub](https://github.com/alexzheng13) 认识我。

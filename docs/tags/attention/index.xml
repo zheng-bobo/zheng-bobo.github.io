@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Attention on Blowing in the wind</title>
-    <link>https://zheng-bobo.github.io/tags/attention/</link>
+    <link>https://alexzheng13.github.io/tags/attention/</link>
     <description>Recent content in Attention on Blowing in the wind</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
     <lastBuildDate>Mon, 14 Sep 2026 10:25:02 +0200</lastBuildDate>
 
-  <atom:link href="https://zheng-bobo.github.io/tags/attention/index.xml" rel="self" type="application/rss+xml" />
+  <atom:link href="https://alexzheng13.github.io/tags/attention/index.xml" rel="self" type="application/rss+xml" />
 
 
     <item>
       <title>Transformer Architecture：从 Token Embedding 到训练循环</title>
-      <link>https://zheng-bobo.github.io/post/transformer-architecture/</link>
+      <link>https://alexzheng13.github.io/post/transformer-architecture/</link>
       <pubDate>Mon, 14 Sep 2026 10:25:02 +0200</pubDate>
 
-      <guid>https://zheng-bobo.github.io/post/transformer-architecture/</guid>
+      <guid>https://alexzheng13.github.io/post/transformer-architecture/</guid>
       <description>&lt;p&gt;Transformer 看起来由许多组件组成，但一条 GPT 风格的前向路径可以概括为：&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;

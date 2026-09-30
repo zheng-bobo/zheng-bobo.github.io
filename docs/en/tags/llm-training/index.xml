@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>LLM Training on Blowing in the wind</title>
-    <link>https://zheng-bobo.github.io/en/tags/llm-training/</link>
+    <link>https://alexzheng13.github.io/en/tags/llm-training/</link>
     <description>Recent content in LLM Training on Blowing in the wind</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
     <lastBuildDate>Sat, 26 Sep 2026 21:00:00 +0200</lastBuildDate>
 
-  <atom:link href="https://zheng-bobo.github.io/en/tags/llm-training/index.xml" rel="self" type="application/rss+xml" />
+  <atom:link href="https://alexzheng13.github.io/en/tags/llm-training/index.xml" rel="self" type="application/rss+xml" />
 
 
     <item>
       <title>Reading nanochat Source: From Configuration to a Training Step</title>
-      <link>https://zheng-bobo.github.io/en/post/nanochat-gpt-pretraining-from-source/</link>
+      <link>https://alexzheng13.github.io/en/post/nanochat-gpt-pretraining-from-source/</link>
       <pubDate>Sat, 26 Sep 2026 21:00:00 +0200</pubDate>
 
-      <guid>https://zheng-bobo.github.io/en/post/nanochat-gpt-pretraining-from-source/</guid>
+      <guid>https://alexzheng13.github.io/en/post/nanochat-gpt-pretraining-from-source/</guid>
       <description>&lt;p&gt;This article follows the execution order of &lt;code&gt;scripts/base_train.py&lt;/code&gt;: command-line arguments, random seeds, DDP setup, model construction, weight initialization, scaling laws, optimizers, data loading, gradient accumulation, and finally one complete training step.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -35,7 +35,7 @@
 &lt;p&gt;The organization and code-reading path follow my nanochat Notion notes. The prose has been edited for clarity, while the source snippets and their original reading sequence are preserved.&lt;/p&gt;
 
 &lt;blockquote&gt;
-&lt;p&gt;&lt;strong&gt;Prerequisite:&lt;/strong&gt; If token embeddings, causal self-attention, MLPs, residual connections, or next-token loss are still unfamiliar, start with &lt;a href=&#34;https://zheng-bobo.github.io/en/post/transformer-architecture/&#34;&gt;Transformer Architecture: From Token Embedding to the Training Loop&lt;/a&gt; and then return to this source-level walkthrough.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Prerequisite:&lt;/strong&gt; If token embeddings, causal self-attention, MLPs, residual connections, or next-token loss are still unfamiliar, start with &lt;a href=&#34;https://alexzheng13.github.io/en/post/transformer-architecture/&#34;&gt;Transformer Architecture: From Token Embedding to the Training Loop&lt;/a&gt; and then return to this source-level walkthrough.&lt;/p&gt;
 &lt;/blockquote&gt;</description>
     </item>
 

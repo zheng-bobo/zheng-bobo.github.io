@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>人工智能 on Blowing in the wind</title>
-    <link>https://zheng-bobo.github.io/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/</link>
+    <link>https://alexzheng13.github.io/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/</link>
     <description>Recent content in 人工智能 on Blowing in the wind</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
     <lastBuildDate>Sun, 27 Sep 2026 11:27:00 +0200</lastBuildDate>
     
-	<atom:link href="https://zheng-bobo.github.io/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://alexzheng13.github.io/categories/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>未来 5—10 年的 AI 架构推演：Base Model、个人智能与企业私有能力层</title>
-      <link>https://zheng-bobo.github.io/post/private-ai-layer-on-base-models/</link>
+      <link>https://alexzheng13.github.io/post/private-ai-layer-on-base-models/</link>
       <pubDate>Sun, 27 Sep 2026 11:27:00 +0200</pubDate>
       
-      <guid>https://zheng-bobo.github.io/post/private-ai-layer-on-base-models/</guid>
+      <guid>https://alexzheng13.github.io/post/private-ai-layer-on-base-models/</guid>
       <description>&lt;p&gt;我对未来 5—10 年 AI 的一个核心判断是：&lt;strong&gt;人们不会为每个人、每家公司重新训练一套完整模型，而会在共享的 Base Model 之上，挂载属于个人和组织的私有认知层。&lt;/strong&gt;&lt;/p&gt;
 
 &lt;p&gt;基础模型提供通用智力，个人数据提供身份与连续性，企业数据提供领域知识和业务规则，Agent 系统则把这些能力转化为行动。&lt;/p&gt;</description>
@@ -24,10 +24,10 @@
     
     <item>
       <title>大模型与 AI Agent Benchmark 全景指南：它们究竟在评估什么</title>
-      <link>https://zheng-bobo.github.io/post/llm-agent-benchmarks-guide/</link>
+      <link>https://alexzheng13.github.io/post/llm-agent-benchmarks-guide/</link>
       <pubDate>Sat, 26 Sep 2026 23:00:00 +0200</pubDate>
       
-      <guid>https://zheng-bobo.github.io/post/llm-agent-benchmarks-guide/</guid>
+      <guid>https://alexzheng13.github.io/post/llm-agent-benchmarks-guide/</guid>
       <description>&lt;p&gt;看模型发布报告时，我们经常会遇到一长串名字：Artificial Analysis Intelligence Index、LMArena、HELM、ARC-E、MMLU、GSM8K、SWE-bench、GAIA、WebArena、OSWorld……它们的分数不能直接横向比较，因为这里既有综合指数和排行榜，也有单项 benchmark；各自测量的能力、输入形式、可用工具和评分方式都不同。&lt;/p&gt;
 
 &lt;p&gt;本文整理一张从“大模型答题”到“Agent 完成真实任务”的评测地图，并解释每个常见 benchmark 究竟是什么、适合测什么，以及不能从分数中推出什么结论。&lt;/p&gt;</description>
@@ -35,25 +35,25 @@
     
     <item>
       <title>nanochat 源码解读：从参数配置到单步训练</title>
-      <link>https://zheng-bobo.github.io/post/nanochat-gpt-pretraining-from-source/</link>
+      <link>https://alexzheng13.github.io/post/nanochat-gpt-pretraining-from-source/</link>
       <pubDate>Sat, 26 Sep 2026 21:00:00 +0200</pubDate>
       
-      <guid>https://zheng-bobo.github.io/post/nanochat-gpt-pretraining-from-source/</guid>
+      <guid>https://alexzheng13.github.io/post/nanochat-gpt-pretraining-from-source/</guid>
       <description>&lt;p&gt;本文沿着 &lt;code&gt;scripts/base_train.py&lt;/code&gt; 的执行顺序阅读 nanochat：从命令行参数、随机种子和 DDP 环境开始，依次进入模型构建、权重初始化、Scaling Laws、优化器、DataLoader、梯度累积与单步训练。重点不是抽象介绍 GPT，而是理解源码中的每一段配置如何落到真实训练过程里。&lt;/p&gt;
 
 &lt;blockquote&gt;
 &lt;p&gt;&lt;strong&gt;前置知识&lt;/strong&gt;&lt;/p&gt;
 
-&lt;p&gt;本文默认读者已经了解 token embedding、causal self-attention、MLP、残差连接和交叉熵。如果这些概念还不熟悉，建议先阅读我的简易实现文章：&lt;a href=&#34;https://zheng-bobo.github.io/post/transformer-architecture/&#34;&gt;Transformer Architecture：从 Token Embedding 到训练循环&lt;/a&gt;，再回来读 nanochat 的工程化实现。&lt;/p&gt;
+&lt;p&gt;本文默认读者已经了解 token embedding、causal self-attention、MLP、残差连接和交叉熵。如果这些概念还不熟悉，建议先阅读我的简易实现文章：&lt;a href=&#34;https://alexzheng13.github.io/post/transformer-architecture/&#34;&gt;Transformer Architecture：从 Token Embedding 到训练循环&lt;/a&gt;，再回来读 nanochat 的工程化实现。&lt;/p&gt;
 &lt;/blockquote&gt;</description>
     </item>
     
     <item>
       <title>Transformer Architecture：从 Token Embedding 到训练循环</title>
-      <link>https://zheng-bobo.github.io/post/transformer-architecture/</link>
+      <link>https://alexzheng13.github.io/post/transformer-architecture/</link>
       <pubDate>Mon, 14 Sep 2026 10:25:02 +0200</pubDate>
       
-      <guid>https://zheng-bobo.github.io/post/transformer-architecture/</guid>
+      <guid>https://alexzheng13.github.io/post/transformer-architecture/</guid>
       <description>&lt;p&gt;Transformer 看起来由许多组件组成，但一条 GPT 风格的前向路径可以概括为：&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;

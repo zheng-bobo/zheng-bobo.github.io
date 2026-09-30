@@ -12,7 +12,7 @@ mathjaxEnableSingleDollar: true
 
 > **前置知识**
 >
-> 本文默认读者已经了解 token embedding、causal self-attention、MLP、残差连接和交叉熵。如果这些概念还不熟悉，建议先阅读我的简易实现文章：[Transformer Architecture：从 Token Embedding 到训练循环](https://zheng-bobo.github.io/post/transformer-architecture/)，再回来读 nanochat 的工程化实现。
+> 本文默认读者已经了解 token embedding、causal self-attention、MLP、残差连接和交叉熵。如果这些概念还不熟悉，建议先阅读我的简易实现文章：[Transformer Architecture：从 Token Embedding 到训练循环](https://alexzheng13.github.io/post/transformer-architecture/)，再回来读 nanochat 的工程化实现。
 
 <!--more-->
 
@@ -657,7 +657,7 @@ nanochat 仍然遵循 decoder-only Transformer 的核心路径：token embedding
 
 因此，两类代码适合解决不同问题：标准简易 Transformer 更适合先理解 Attention、残差连接、张量形状和语言模型 loss；nanochat 更适合继续研究如何把模型变成可扩展、可恢复、面向真实硬件的预训练系统。
 
-如果希望先从最小实现理解标准结构，可以阅读：[Transformer Architecture：从 Token Embedding 到训练循环](https://zheng-bobo.github.io/post/transformer-architecture/)。读懂其中的数据流后，再回来看 nanochat 的工程改造会更清晰。
+如果希望先从最小实现理解标准结构，可以阅读：[Transformer Architecture：从 Token Embedding 到训练循环](https://alexzheng13.github.io/post/transformer-architecture/)。读懂其中的数据流后，再回来看 nanochat 的工程改造会更清晰。
 
 ## 总结
 

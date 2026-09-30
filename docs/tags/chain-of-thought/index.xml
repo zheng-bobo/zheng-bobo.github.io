@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Chain of Thought on Blowing in the wind</title>
-    <link>https://zheng-bobo.github.io/tags/chain-of-thought/</link>
+    <link>https://alexzheng13.github.io/tags/chain-of-thought/</link>
     <description>Recent content in Chain of Thought on Blowing in the wind</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
     <lastBuildDate>Tue, 29 Sep 2026 09:00:00 +0200</lastBuildDate>
     
-	<atom:link href="https://zheng-bobo.github.io/tags/chain-of-thought/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://alexzheng13.github.io/tags/chain-of-thought/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Agentic LLM Reasoning（一）：从 Chain of Thought 到搜索、反思与 RLVR</title>
-      <link>https://zheng-bobo.github.io/post/agentic-llm-1-reasoning/</link>
+      <link>https://alexzheng13.github.io/post/agentic-llm-1-reasoning/</link>
       <pubDate>Tue, 29 Sep 2026 09:00:00 +0200</pubDate>
       
-      <guid>https://zheng-bobo.github.io/post/agentic-llm-1-reasoning/</guid>
+      <guid>https://alexzheng13.github.io/post/agentic-llm-1-reasoning/</guid>
       <description>&lt;p&gt;模型能回答一个问题，不等于它能完成一项任务。&lt;/p&gt;
 
 &lt;p&gt;普通 Chatbot 接收 Prompt，然后返回 Response；Agent 则要在不断变化的环境中决定下一步做什么，执行动作，读取结果，再判断应该继续、回退还是换一条路。这种能力首先依赖 &lt;strong&gt;Reasoning（推理）&lt;/strong&gt;。&lt;/p&gt;
